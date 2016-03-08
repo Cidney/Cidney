@@ -11,7 +11,7 @@ Import-Module Cidney
 **NOTE**: This project is in **BETA** version 0.9.0.0 
 There is more work I would like to do with Remoting and properly passing variables and session state. If you are not doing any remoting and just running a **Pipeline:** on one server Cidney should work well as is.
 
-I welcome any and all who wish to help out and contribute to this project
+I welcome any and all who wish to help out and contribute to this project. See Todo: list at bottom
 
 ----------
 
@@ -77,3 +77,24 @@ Output:
 **Pipeline:** and **Stage:** blocks will execute any cmdlet, function and assignment statements only.
 
 There will be more documentation soon especially for other advanced commands like **On:**, **Dsc:**, **When:** and **At:**
+
+----------
+
+**TODO:**
+
+There are a ton of things I want to get to and things I would like to investigate
+
+In progress:
+* On: Remoting
+* Dsc: Invoke-DscResource
+* When: Custom Event handler
+* At: Sceduled Trigger
+
+Next:
+* AppX installer
+* Website
+* Get-TfsSource
+* Start-TfsBuild
+* New-Container
+* New-Environment
+* Deployer
