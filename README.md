@@ -67,3 +67,5 @@ Output:
 
 Do: tasks can run any powershell code in the scriptblock as a powershell job.
 Pipeline: and Stage: blocks will execute any cmdlet, function and assignment statements only.
+
+There will be more documentation soon especially for other advanced commands like On:, Dsc:, When: and At:
