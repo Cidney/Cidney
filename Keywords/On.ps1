@@ -60,33 +60,19 @@
                 
     foreach($doBlock in $doBlocks)
     {
-        if (IsDoBlock $doBlock) 
+        if ($ComputerName)
         {
-            # A new Do: Block is encountered so lets invoke all the previous commands 
-            # found up to this point
-            $invokeBlock = [scriptblock]::Create($invokeBlocks -join ' ; ')
-            Invoke-Command -ComputerName $ComputerName -ScriptBlock $invokeBlock
-            $invokeBlocks = @()
-
-            if ($ComputerName)
-            {
-                $computerNames = $ComputerName -Join ','
-                $params = "-ComputerName $ComputerNames"
-            }
-            if ($Credential)
-            {
-                # $params += ' -Credential'
-            }
-        
-            $scriptBlock = '{0} {1}' -f $doBlock.ToString().Trim(), $params
-            $block = [scriptBlock]::Create($scriptBlock)
-        
-            Invoke-Command -ScriptBlock $block            
+            $computerNames = $ComputerName -Join ','
+            $params = "-ComputerName $ComputerNames"
         }
-        else
+        if ($Credential)
         {
-            # Store all the Non Do: blocks so they can invoked all together
-            $invokeBlocks += $doBlock
+            # $params += ' -Credential'
         }
+        
+        $scriptBlock = '{0} {1}' -f $doBlock.ToString().Trim(), $params
+        $block = [scriptBlock]::Create($scriptBlock)
+        
+        Invoke-Command -ScriptBlock $block            
     }
 }

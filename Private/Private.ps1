@@ -16,7 +16,7 @@ function Initialize-CidneyVariables([scriptblock]$ScriptBlock)
     {
         $ast = [System.Management.Automation.Language.Parser]::ParseInput($ScriptBlock.ToString(), [ref] $null, [ref] $null);
 
-        $assignments = $AST.FindAll({$args[0] -is [System.Management.Automation.Language.AssignmentStatementAst]}, $false) 
+        $assignments = $AST.FindAll({$args[0] -is [System.Management.Automation.Language.AssignmentStatementAst]}, $true) 
         foreach($assignment in $assignments)
         {
             $item = $assignment

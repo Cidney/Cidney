@@ -86,7 +86,7 @@
     $params = @{
         #FunctionsToLoad = Get-RegisteredJobCommand
         #ModulesToImport = Get-RegisteredJobModule
-        #Throttle = Get-ThrottleLimit
+        ThrottleLimit = Get-ThrottleLimit
         WarningAction = 'SilentlyContinue'    
     }
     
@@ -94,7 +94,7 @@
     {
         foreach($computer in $ComputerName)
         {
-            $job = Invoke-Command -ComputerName $computer -scriptBlock $DoBlock -AsJob 
+            $job = Invoke-Command @params -ComputerName $computer -scriptBlock $DoBlock -AsJob
             if ($Name)
             {
                 $job.Name = "[Job$($Job.Id)] $Name"
