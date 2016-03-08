@@ -16,7 +16,7 @@ function Initialize-CidneyVariables([scriptblock]$ScriptBlock)
     {
         $ast = [System.Management.Automation.Language.Parser]::ParseInput($ScriptBlock.ToString(), [ref] $null, [ref] $null);
 
-        $assignments = $AST.FindAll({$args[0] -is [System.Management.Automation.Language.AssignmentStatementAst]}, $true) 
+        $assignments = $AST.FindAll({$args[0] -is [System.Management.Automation.Language.AssignmentStatementAst]}, $false) 
         foreach($assignment in $assignments)
         {
             $item = $assignment
@@ -45,16 +45,20 @@ function Get-CidneyBlocks([scriptblock]$ScriptBlock, [object]$BoundParameters)
     {
         $ast = [System.Management.Automation.Language.Parser]::ParseInput($block, [ref] $null, [ref] $null);
         
-        $commands = $AST.FindAll({$args[0] -is [System.Management.Automation.Language.CommandAst]}, $false) 
+        $commands = $AST.FindAll({$args[0] -is [System.Management.Automation.Language.ScriptBlockAst]}, $false) 
         foreach($command in $commands)
         { 
-            $params = Get-CommonParameters -BoundParameters $BoundParameters
             $commonParams = ''
-            foreach($param in $params.Trim().Split(' '))
-            { 
-                if ($command.ToString().Trim() -notmatch $param)
-                {
-                    $commonParams += ' {0}' -f $param
+          
+            if ($command.EndBlock.Statements[0].PipelineElements[0].CommandElements[0] -match 'Pipeline:|Stage:|Do:|On:|Dsc:|When:|At:')
+            {
+                $params = Get-CommonParameters -BoundParameters $BoundParameters
+                foreach($param in $params.Trim().Split(' '))
+                { 
+                    if ($command.ToString().Trim() -notmatch $param)
+                    {
+                        $commonParams += ' {0}' -f $param
+                    }
                 }
             }
             $blocks += [ScriptBlock]::Create("$command $commonParams")

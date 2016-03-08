@@ -1,12 +1,10 @@
-﻿#TODO: get variables working inside jobs
-Pipeline: HelloWorld {
-    $A = '123'
+﻿Pipeline: HelloWorld {
     Stage: One {
         on: $env:COMPUTERNAME {
-            Do: Hi { Write-Output "Hello World! from Stage One $A" }
+            Do: Hi {Write-Output 'Hello World! from Stage One'}
         }
     } 
     Stage: Two {
-        Write-Output "Hello World! from Stage Two $A"
+        Write-Output 'Hello World! from Stage Two'
     } 
 } -Verbose

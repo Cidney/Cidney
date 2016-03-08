@@ -51,6 +51,7 @@
         foreach($block in $blocks)
         {
             Invoke-Command -Command $block
+
             $count++ 
             if ($Global:CidneyShowProgress -and $Global:CidneyJobs.Count -eq 0) { Write-Progress -Activity "Stage $Name" -Status 'Processing' -Id 1 -PercentComplete ($count/$blocks.Count * 100)}
          }
