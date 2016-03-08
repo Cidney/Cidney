@@ -155,7 +155,7 @@ Next:
 
 **Dsc:**
 
-The Dsc: functiont executes the Set method of a specified Desired 
+The Dsc: function executes the Set method of a specified Desired 
 State Configuration (DSC) resource. Before you run this cmdlet set the 
 refresh mode of the Local Configuration Manager (LCM) to Disabled.
     
@@ -166,9 +166,9 @@ enables debugging of resources when the DSC engine or LCM is running with
 debugging enabled.  
             
 NOTE: Will not work with File Resource because it doesnt have a module name 
-and although Invoke-DscResource shows that ModuleNAme is not mandatory it seems 
+and although Invoke-DscResource shows that ModuleName is not mandatory it seems 
 to be.
-Possibly a bug in Invoke-DscResource
+Possibly a bug in Invoke-DscResource or the Hrlp file is wrong.
             
 NOTE: Before you run this cmdlet set the refresh mode of the Local Configuration 
 Manager (LCM) to Disabled.      
@@ -237,8 +237,8 @@ Manager (LCM) to Disabled.
 
 **On:**
 
-ON: command for Cidney Pipelines. Used between Stage: and Do: 
-The ON: command lets you specify a computer(s) that you will run its script block against 
+On: command for Cidney Pipelines. Used between Stage: and Do: 
+The On: command lets you specify a computer(s) that you will run its script block against 
         
         .\HelloWorld.ps1
 
@@ -265,12 +265,11 @@ The ON: command lets you specify a computer(s) that you will run its script bloc
         Outputs the computer names of Server1 and Server2
 
 
-** When:**
+**When:**
 
 When: command for Cidney Pipelines. Used between Stage: and Do:
-The When: command lets you specify a an event to listen for that you will run its script block against 
+The When: command lets you specify an event to listen for that you will run its script block against 
         
-        .EXAMPLE
         .\HelloWorld.ps1
 
         Pipeline: HelloWorld {
