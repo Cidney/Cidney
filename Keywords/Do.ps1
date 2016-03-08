@@ -76,13 +76,13 @@
 #        $Credential
     )
 
-    if ($Global:CidneyRemoteJobCommands)
+<#    if ($Global:CidneyRemoteJobCommands)
     {
         foreach($cmd in $Global:CidneyRemoteJobCommands)
         {
             Register-JobCommand $cmd
         }
-    }
+    }#>
     $params = @{
         #FunctionsToLoad = Get-RegisteredJobCommand
         #ModulesToImport = Get-RegisteredJobModule
@@ -94,8 +94,8 @@
     {
         foreach($computer in $ComputerName)
         {
-            $job = Start-Job @params -ScriptBlock { Param($ComputerName, $ScriptBlock) Invoke-Command -ComputerName $ComputerName -scriptBlock $ScriptBlock } -ErrorAction SilentlyContinue -ArgumentList $computer, $DoBlock
-            if ($job.Name)
+            $job = Invoke-Command -ComputerName $computer -scriptBlock $DoBlock -AsJob 
+            if ($Name)
             {
                 $job.Name = "[Job$($Job.Id)] $Name"
             }
