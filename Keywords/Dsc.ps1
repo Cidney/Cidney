@@ -1,4 +1,4 @@
-﻿#requires -Modules nRoboCopy, PSDesiredStateConfiguration
+﻿#requires -Modules PSDesiredStateConfiguration
 #requires -Version 3
 function Dsc:
 {
