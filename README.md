@@ -311,6 +311,7 @@ There are a ton of things I want to get to and things I would like to investigat
 
 Done:
 * Get-TfsSource
+* Invoke-NugetRestore
 
 In progress:
 * On: Remoting
