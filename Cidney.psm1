@@ -55,13 +55,15 @@ $ExecutionContext.SessionState.Module.OnRemove = {
     Remove-Variable CidneyJobModules -Scope Global -Force
 }
 
+New-Alias -Name GetSource -Value Get-TfsSource -Description 'Simplified command name to that it loks cleaner in Pipeline:'
+
 Export-ModuleMember -Function Pipeline:
 Export-ModuleMember -Function Stage:
 Export-ModuleMember -Function On:
 Export-ModuleMember -Function Do:
 Export-ModuleMember -Function Dsc:
 
-Export-ModuleMember -Function Get-TfsSource
+Export-ModuleMember -Function Get-TfsSource -Alias GetSource
 
 Export-ModuleMember -Function Register-JobCommand
 Export-ModuleMember -Function Get-RegisteredJobCommand

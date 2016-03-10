@@ -7,6 +7,7 @@
     Description = 'This module defines a DSL for doing pipelines and stages for Continuous Integration and Deployment'
     FunctionsToExport = 'Pipeline:','Stage:','Do:','On:','Dsc:','When:', 'Register-JobCommand', 'Get-RegisteredJobCommand', 'Get-RegisteredJobModule', 'Get-TfsSource'
     FileList = '.\Keywords\Pipeline.ps1', '.\Keywords\Stage.ps1', '.\Keywords\On.ps1', '.\Keywords\Do.ps1', '.\Keywords\On.ps1', '.\Keywords\Dsc.ps1', '.\Keywords\When.ps1'
+    AliasesToExport = '*'
     PrivateData = ''
 }
 
