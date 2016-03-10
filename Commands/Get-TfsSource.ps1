@@ -7,6 +7,9 @@
         .DESCRIPTION
         Gets a local copy of source files from TFS.
         This function will create a Local WorkSpace and a mapping to a local folder and then download all the files
+        Will output basic messages to Success output: Getting Source and Downloading source.
+        Verbose output shows connecting to TFS Server, Creating workspace and a done message with time in seconds to get files.
+        Debug output will display list of files downloaded.
 
         Requires Microsoft Visual Studio Team Foundation Server Power Tools
         See: https://visualstudiogallery.msdn.microsoft.com/898a828a-af00-42c6-bbb2-530dc7b8f2e1
