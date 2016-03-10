@@ -272,6 +272,9 @@ The When: command lets you specify an event to listen for that you will run its 
 
 There are a ton of things I want to get to and things I would like to investigate
 
+Done:
+* Get-TfsSource
+
 In progress:
 * On: Remoting
 * Dsc: Invoke-DscResource
@@ -281,7 +284,6 @@ In progress:
 Next:
 * AppX installer
 * Website
-* Get-TfsSource
 * Start-TfsBuild
 * New-Container
 * New-Environment
