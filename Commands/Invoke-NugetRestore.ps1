@@ -65,15 +65,15 @@ Nuget.exe can be downloaded from https://dist.nuget.org/index.html
 
     $source = $source -join ';'
 
-    $oldPreference = $DebugPreference
+    $oldDebugPreference = $DebugPreference
     $DebugPreference = 'Continue'
     
     Write-Verbose 'Starting Package Restore'
-    $NugetRestore = "$NugetPath  restore -source `"$source`""
+    $NugetRestore = "$NugetPath  restore -source `"$source`" -NonInteractive"
     Write-Debug "Nuget command line: $NugetRestore"
     
-    Invoke-Expression $NugetRestore
-    $DebugPreference = $oldPreference
-
+    Invoke-Expression $NugetRestore -ErrorAction SilentlyContinue 
+    $DebugPreference = $oldDebugPreference
+    
     Write-Verbose 'Done Package Restore'
 }

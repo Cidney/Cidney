@@ -70,3 +70,5 @@ Export-ModuleMember -Function Invoke-NugetRestore -Alias RestorePackages
 Export-ModuleMember -Function Register-JobCommand
 Export-ModuleMember -Function Get-RegisteredJobCommand
 Export-ModuleMember -Function Get-RegisteredJobModule
+Export-ModuleMember -Function New-TfsWorkspace
+Export-ModuleMember -Function Remove-TfsWorkspace

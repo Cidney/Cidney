@@ -15,23 +15,26 @@
         See: https://visualstudiogallery.msdn.microsoft.com/898a828a-af00-42c6-bbb2-530dc7b8f2e1
        
         .EXAMPLE
-        Get-TfsSource -TfsServer http://tfs.example.com:8080/tfs/Collection -WorkspaceName 'MyWorkSpace' -LocalPath C:\Projects -ServerPath $\Projects
+        Get-TfsSource -Name http://tfs.example.com:8080/tfs/Collection -WorkspaceName 'MyWorkSpace' -LocalPath C:\Projects -Path $\Projects
 
         Gets files from $\Projects to c:\projects
 
         .EXAMPLE
-        Get-TfsSource -TfsServer http://tfs.example.com:8080/tfs/Collection -WorkspaceName 'MyWorkSpace' -LocalPath C:\Projects -ServerPath $\Projects -VersionSpec 'LRelease 5.0.0.1'
+        Get-TfsSource -Name http://tfs.example.com:8080/tfs/Collection -WorkspaceName 'MyWorkSpace' -LocalPath C:\Projects -Path $\Projects -VersionSpec 'LRelease 5.0.0.1'
 
         Gets the version of source labeled Release 5.0.0.1 from Server path $\Projects to local path c:\Projects
 
-        .PARAMETER TfsServer
+        .PARAMETER Name
         Web address of the TFS Server
         Example: http://tfs.example.com:8080/tfs/DefaultCollection
+
+        .PARAMETER Credential
+        Credential object for logging into the Tfs Server
 
         .PARAMETER WorkspaceName
         Name of the Workspace mapping between server path and local path
         
-        .PARAMETER ServerPath
+        .PARAMETER Path
         The the location if TFS Source control of the files
 
         .PARAMETER LocalPath
@@ -63,9 +66,6 @@
         .PARAMETER Force
         Download all and overwrite files even if previously downloaded
 
-        .PARAMETER Credential
-        Credential object for logging into the Tfs Server
-
         .LINK
         https://msdn.microsoft.com/en-us/library/microsoft.teamfoundation.versioncontrol.client(v=vs.120).aspx
         
@@ -76,42 +76,34 @@
     (
         [parameter(Mandatory)]
         [string]
-        $TfsServer,
+        $Name,
+        [parameter(Mandatory)]
+        [pscredential]
+        $Credential,
         [parameter(Mandatory)]
         [string]
         $WorkspaceName,
         [parameter(Mandatory)]
         [string]
-        $ServerPath,
+        $Path,
         [parameter(Mandatory)]
         [string]
         $LocalPath,
         [string]
         $VersionSpec = 'T',
         [switch]
-        $Force,
-        [pscredential]
-        $Credential
+        $Force
     )
 
-    Add-PSSnapin Microsoft.TeamFoundation.PowerShell;
-    
-    Write-Verbose "Login to TFS $TfsServer"
-
-    $tfs = Get-TfsServer $TFSServer -Credential $Credential
-    $vcs = $tfs.GetService([Microsoft.TeamFoundation.VersionControl.Client.VersionControlServer]);
-    
-    $workspace = $vcs.TryGetWorkspace($LocalPath)
-    if (-not $workspace)
+    if (-not (Test-Path $LocalPath))
     {
-        Write-Verbose "Creating workspace $WorkspaceName at $LocalPath"
-        $workspace = $vcs.CreateWorkspace($WorkspaceName, $Credential.UserName, 'temp workspace')
-        $workspace.Map($ServerPath, $LocalPath)
+        $null = 
+        New-Item -Path $LocalPath -ItemType Directory
     }
-    
-    Write-Output "Getting source from $ServerPath"
-    $itemSet =$vcs.GetItems($ServerPath, [Microsoft.TeamFoundation.VersionControl.Client.RecursionType]::Full)
-    
+
+    $server = Get-TfsServer -Name $Name -Credential $Credential
+    $workspace = New-TfsWorkspace -Name $Name -Credential $Credential -WorkspaceName $WorkspaceName -Path $Path -LocalPath $LocalPath 
+
     Write-Output "Downloading source to $LocalPath"
     $Date = Get-date
 
@@ -125,5 +117,6 @@
     }
 
     $time = New-TimeSpan -Start $Date -End (Get-Date)
-    Write-Verbose "Done getting source from $ServerPath in $($time.TotalSeconds) seconds"
+    Write-Verbose "Done getting source from $Path in $($time.TotalSeconds) seconds"
 }
+                

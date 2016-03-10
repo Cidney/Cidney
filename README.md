@@ -281,12 +281,12 @@ Debug output will display list of files downloaded.
 Requires Microsoft Visual Studio Team Foundation Server Power Tools
 See: https://visualstudiogallery.msdn.microsoft.com/898a828a-af00-42c6-bbb2-530dc7b8f2e1
        
-    Get-TfsSource -TfsServer http://tfs.example.com:8080/tfs/Collection -WorkspaceName 'MyWorkSpace' -LocalPath C:\Projects -ServerPath $\Projects
+    Get-TfsSource -Name http://tfs.example.com:8080/tfs/Collection -WorkspaceName 'MyWorkSpace' -LocalPath C:\Projects -Path $\Projects
 
     Gets files from $\Projects to c:\projects
 
 
-    Get-TfsSource -TfsServer http://tfs.example.com:8080/tfs/Collection -WorkspaceName 'MyWorkSpace' -LocalPath C:\Projects -ServerPath $\Projects -VersionSpec 'LRelease 5.0.0.1'
+    Get-TfsSource -Name http://tfs.example.com:8080/tfs/Collection -WorkspaceName 'MyWorkSpace' -LocalPath C:\Projects -Path $\Projects -VersionSpec 'LRelease 5.0.0.1'
 
     Gets the version of source labeled Release 5.0.0.1 from Server path $\Projects to local path c:\Projects
 
