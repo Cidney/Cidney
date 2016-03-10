@@ -2,7 +2,7 @@
 
 A Continuous Integration and Deployment DSL in Powershell
 
-Tags: CI, Continuous Integration, Continuous Deployment, DevOps, Powershell, DSL, 
+Tags: CI, Continuous Integration, Continuous Deployment, DevOps, Powershell, DSL 
 
 **Install**
 Add this module to C:\Program Files\WindowsPowershell\Modules\Cidney
@@ -79,29 +79,6 @@ Output:
 **Pipeline:** and **Stage:** blocks will execute any cmdlet, function and assignment statements only.
 
 There will be more documentation soon especially for other advanced commands like **On:**, **Dsc:**, **When:** and **At:**
-
-----------
-
-**TODO:**
-
-There are a ton of things I want to get to and things I would like to investigate
-
-Done:
-* Get-TfsSource
-
-In progress:
-* On: Remoting
-* Dsc: Invoke-DscResource
-* When: Custom Event handler
-* At: Sceduled Trigger
-
-Next:
-* AppX installer
-* Website
-* Start-TfsBuild
-* New-Container
-* New-Environment
-* Deployer
 
 ----------
 
@@ -288,4 +265,25 @@ The When: command lets you specify an event to listen for that you will run its 
         }
 
         Run ipconfig from Stage One when MyEvent is fired once Stage Two is run.
+
+----------
+
+**TODO:**
+
+There are a ton of things I want to get to and things I would like to investigate
+
+In progress:
+* On: Remoting
+* Dsc: Invoke-DscResource
+* When: Custom Event handler
+* At: Scheduled Trigger
+
+Next:
+* AppX installer
+* Website
+* Get-TfsSource
+* Start-TfsBuild
+* New-Container
+* New-Environment
+* Deployer
 
