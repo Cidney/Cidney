@@ -18,6 +18,22 @@ catch
 }
 #endregion Load Public Functions
 
+#region Load Command Files
+try 
+{
+    Get-ChildItem (Join-Path $ScriptPath 'Commands') -Filter *.ps1 | Select-Object -ExpandProperty FullName | 
+		ForEach-Object {
+			$File = Split-Path $PSItem -Leaf
+			. $PSItem
+		}
+} 
+catch 
+{
+    Write-Warning ('{0}: {1}' -f $File, $PSItem.Exception.Message)
+    Continue
+}
+#endregion Load Command Functions
+
 #region Load Private Files
 try 
 {
@@ -44,6 +60,8 @@ Export-ModuleMember -Function Stage:
 Export-ModuleMember -Function On:
 Export-ModuleMember -Function Do:
 Export-ModuleMember -Function Dsc:
+
+Export-ModuleMember -Function Get-TfsSource
 
 Export-ModuleMember -Function Register-JobCommand
 Export-ModuleMember -Function Get-RegisteredJobCommand

@@ -2,6 +2,8 @@
 
 A Continuous Integration and Deployment DSL in Powershell
 
+Tags: CI, Continuous Integration, Continuous Deployment, DevOps, Powershell, DSL, 
+
 **Install**
 Add this module to C:\Program Files\WindowsPowershell\Modules\Cidney
 
@@ -84,6 +86,9 @@ There will be more documentation soon especially for other advanced commands lik
 
 There are a ton of things I want to get to and things I would like to investigate
 
+Done:
+* Get-TfsSource
+
 In progress:
 * On: Remoting
 * Dsc: Invoke-DscResource
@@ -93,7 +98,6 @@ In progress:
 Next:
 * AppX installer
 * Website
-* Get-TfsSource
 * Start-TfsBuild
 * New-Container
 * New-Environment

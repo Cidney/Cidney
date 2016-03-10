@@ -86,7 +86,7 @@
     $params = @{
         #FunctionsToLoad = Get-RegisteredJobCommand
         #ModulesToImport = Get-RegisteredJobModule
-        ThrottleLimit = Get-ThrottleLimit
+        #ThrottleLimit = Get-ThrottleLimit
         WarningAction = 'SilentlyContinue'    
     }
     
