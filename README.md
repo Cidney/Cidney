@@ -4,21 +4,6 @@ A Continuous Integration and Deployment DSL in Powershell
 
 ----------
 
-Tags: CI, Continuous Integration, Continuous Deployment, DevOps, Powershell, DSL 
-
-**Install**
-Add this module to C:\Program Files\WindowsPowershell\Modules\Cidney
-
-**Use**
-Import-Module Cidney
-
-**NOTE**: This project is in **BETA** version 0.9.0.0 
-There is more work I would like to do with Remoting and properly passing variables and session state. If you are not doing any remoting and just running a **Pipeline:** on one server Cidney should work well as is.
-
-I welcome any and all who wish to help out and contribute to this project.
-
-----------
-
 **Cidney** is a Continuous Integration and Deployment DSL written in Powershell. Using the concept of **Pipelines** and **Stages** tasks can be performed sequentially and in parallel to easily automate your process.
 
 Everything starts with a **Pipeline:** 
@@ -80,7 +65,20 @@ Output:
 **Do:** tasks can run any powershell code in the scriptblock as a powershell job.
 **Pipeline:** and **Stage:** blocks will execute any cmdlet, function and assignment statements only.
 
-There will be more documentation soon especially for other advanced commands like **On:**, **Dsc:**, **When:** and **At:**
+----------
+
+Tags: CI, Continuous Integration, Continuous Deployment, DevOps, Powershell, DSL 
+
+**Install**
+Add this module to C:\Program Files\WindowsPowershell\Modules\Cidney
+
+**Use**
+Import-Module Cidney
+
+**NOTE**: This project is in **BETA** version 0.9.0.0 
+There is more work I would like to do with Remoting and properly passing variables and session state. If you are not doing any remoting and just running a **Pipeline:** on one server Cidney should work well as is.
+
+I welcome any and all who wish to help out and contribute to this project.
 
 ----------
 
