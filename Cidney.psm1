@@ -1,6 +1,11 @@
 ﻿$ScriptPath = Split-Path $MyInvocation.MyCommand.Path
-$Global:CidneyJobCommands = @{}
-$Global:CidneyJobModules = @{}
+$Global:CidneySession = @{}
+$Global:CidneySession.Add('JobCommands', @{})
+$Global:CidneySession.Add('JobModules', @{})
+$Global:CidneySession.Add('CredentialStore', @{})
+
+$Env:CidneyStore = Join-Path $env:LOCALAPPDATA 'Cidney'
+New-Item $Env:CidneyStore -ItemType Directory -Force
 
 #region Load Public DSL Keywords
 try 
@@ -51,8 +56,7 @@ catch
 #endregion Load Private Functions
 
 $ExecutionContext.SessionState.Module.OnRemove = {
-    Remove-Variable CidneyJobCommands -Scope Global -Force
-    Remove-Variable CidneyJobModules -Scope Global -Force
+    Remove-Variable CidneySession -Scope Global -Force
 }
 
 New-Alias -Name GetSource -Value Get-TfsSource -Description 'Simplified command name to that it looks cleaner in Pipeline:' -Force

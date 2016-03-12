@@ -50,15 +50,13 @@
 
     Write-Output ''
     Write-Log "[Start] Pipeline $Name"     
-
-    $Global:CidneyVariables = @()
-    $Global:CidneyShowProgress = $ShowProgress
+    $Global:CidneySession.Add('ShowProgress', $ShowProgress)
 
     if ($ShowProgress) { Write-Progress -Activity "Pipeline $Name" -Status 'Processing' -Id 0 }
         
     try
     {
-        Initialize-CidneyVariables($PipelineBlock)
+        Initialize-CidneyVariables -ScriptBlock $PipelineBlock
         $stages = Get-CidneyBlocks -ScriptBlock $PipelineBlock -BoundParameters $PSBoundParameters 
         $count = 0
         foreach($stage in $stages)
@@ -72,13 +70,23 @@
     }
     finally
     {
-        $Global:CidneyVariables | Remove-Variable -Scope Global -Force
+        foreach($var in $Global:CidneySession['GlobalVariables'])
+        {
+            Remove-Variable -Name $var.Name -Scope Global
+        }
+
+        foreach($cred in $Global:CidneySession['CredentialStore'].GetEnumerator())
+        {
+            Remove-Item $cred.Value -Force -ErrorAction SilentlyContinue
+        }
+        
+        $Global:CidneySession['CredentialStore'].Clear()
+        $Global:CidneySession.Remove('GlobalVariables')
+        $Global:CidneySession.Remove('ShowProgress')
     }   
     
     Write-Log "[Done] Pipeline $Name" 
     Write-Output ''
     if ($ShowProgress) { Write-Progress -Activity "Pipeline $Name" -Status 'Completed' -ID 0 -Completed }
-        
-    Remove-Variable -Name CidneyVariables -Scope Global -Force
 }
 

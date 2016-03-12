@@ -70,15 +70,14 @@
         [string[]]
         $ComputerName,
         [int]
-        $TimeOut = [int]::MaxValue
-#        ,
-#        [PSCredential]
-#        $Credential
+        $TimeOut = [int]::MaxValue,
+        [string]
+        $UserName
     )
 
 <#    if ($Global:CidneyRemoteJobCommands)
     {
-        foreach($cmd in $Global:CidneyRemoteJobCommands)
+        foreach($cmd in $Global:CidneySession['RemoteJobCommands'])
         {
             Register-JobCommand $cmd
         }
@@ -87,31 +86,38 @@
         #FunctionsToLoad = Get-RegisteredJobCommand
         #ModulesToImport = Get-RegisteredJobModule
         #ThrottleLimit = Get-ThrottleLimit
-        WarningAction = 'SilentlyContinue'    
+        WarningAction = 'SilentlyContinue'   
+        ScriptBlock = $DoBlock 
+    }
+
+    if ($UserName)
+    {
+        $credential = Import-Clixml (Join-Path $Env:CidneyStore "$($UserName)Credentials.xml") 
+        $params.Add('Credential', $Credential)
     }
     
     if ($ComputerName)
     {
         foreach($computer in $ComputerName)
         {
-            $job = Invoke-Command @params -ComputerName $computer -scriptBlock $DoBlock -AsJob
+            $job = Invoke-Command @params -ComputerName $computer -AsJob
             if ($Name)
             {
                 $job.Name = "[Job$($Job.Id)] $Name"
             }
             $job.Name += " [$computer]"
             Write-Log "[Start] $($job.Name)"
-            $Global:CidneyJobs += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime'= 0; ErrorAction = $ErrorActionPreference}
+            $Global:CidneySession['Jobs'] += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime'= 0; ErrorAction = $ErrorActionPreference}
         }
     }
     else
     {
-        $job = Start-Job @params -ScriptBlock $DoBlock
+        $job = Start-Job @params
         if ($name)
         {
             $job.Name = "[Job$($Job.Id)] $Name"
         }
-        $Global:CidneyJobs += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime' = 0; ErrorAction = $ErrorActionPreference}
+        $Global:CidneySession['Jobs'] += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime' = 0; ErrorAction = $ErrorActionPreference}
         Write-Log "[Start] $($job.Name)"
     }
 }
@@ -244,18 +250,18 @@ function Register-JobCommand
         $command = Get-Command $item -ErrorAction SilentlyContinue
         if ($command)
         {
-            if (-not $Global:CidneyJobCommands.ContainsKey($item))
+            if (-not $Global:CidneySession['JobCommands'].ContainsKey($item))
             {
-                $Global:CidneyJobCommands.Add($item, $command)
+                $Global:CidneySession['JobCommands'].Add($item, $command)
             }
-            if (-not $Global:CidneyJobModules.ContainsKey($item))
+            if (-not $Global:CidneySession['JobModules'].ContainsKey($item))
             {
-                $Global:CidneyJobModules.Add($item, $command.Module)
+                $Global:CidneySession['JobModules'].Add($item, $command.Module)
             }
         }
         else
         {
-            $Global:CidneyRemoteJobCommands += $item
+            $Global:CidneySession['RemoteJobCommands'] += $item
         }
     }
 }
@@ -301,7 +307,7 @@ function Get-RegisteredJobCommand
     Get-RegisteredJobModule
     #>
 
-    $Global:CidneyJobCommands.Values
+    $Global:CidneySession['JobCommands'].Values
 }
 
 function Get-RegisteredJobModule
@@ -318,5 +324,5 @@ function Get-RegisteredJobModule
     Register-JobCommand
     Get-RegisteredJobCommand
     #>
-    $Global:CidneyJobModules.Values
+    $Global:CidneySession['JobModules'].Values
 }  

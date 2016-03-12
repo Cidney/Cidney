@@ -1,4 +1,7 @@
-﻿Add-PSSnapin Microsoft.TeamFoundation.PowerShell
+﻿if ((Get-PSSnapin Microsoft.TeamFoundation.PowerShell -Registered -ErrorAction SilentlyContinue) -eq $null) 
+{
+    Add-PSSnapin Microsoft.TeamFoundation.PowerShell
+}
 function New-TfsWorkspace
 {
     <#

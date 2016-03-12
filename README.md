@@ -15,7 +15,7 @@ Import-Module Cidney
 **NOTE**: This project is in **BETA** version 0.9.0.0 
 There is more work I would like to do with Remoting and properly passing variables and session state. If you are not doing any remoting and just running a **Pipeline:** on one server Cidney should work well as is.
 
-I welcome any and all who wish to help out and contribute to this project. See Todo: list at bottom
+I welcome any and all who wish to help out and contribute to this project.
 
 ----------
 
@@ -94,6 +94,7 @@ There will be more documentation soon especially for other advanced commands lik
 
  A Cindey Pipeline: will run each Stage: one right after the other synchronously.
  Each Do: Block found will create a Job so they can be run asyncronously or in Parallel.
+ Do: [<Name>] <ScriptBlock> 
 
          .\HelloWorld.ps1
 
@@ -104,7 +105,7 @@ There will be more documentation soon especially for other advanced commands lik
             }
         }
 
-        This example will do a Dir list and count the number of dll files, and run Get-Process as separate jobs and the Stage: will complete once all jobs are finished.
+        This example will do a Dir list and count the number of dll files, and run Get-Service as separate jobs and the Stage: will complete once all jobs are finished.
         Notice that Get-Service finished first even when it was listed second in the code.
 
         VERBOSE: [03/06/16 4:53:39.556 PM] [Start] Pipeline HelloWorld
@@ -164,7 +165,6 @@ Manager (LCM) to Disabled.
                     Ensure = 'Present'
                     Name = 'Web-server'
                 }
-       
             }
         } -Verbose 
     
@@ -193,7 +193,7 @@ Manager (LCM) to Disabled.
                     Ensure = 'Present'
                     Name = 'BITS'
                     State = 'Running'
-                } -Test
+                } -Method Test
        
             }
         } -Verbose  
@@ -222,6 +222,7 @@ Manager (LCM) to Disabled.
 
 On: command for Cidney Pipelines. Used between Stage: and Do: 
 The On: command lets you specify a computer(s) that you will run its script block against 
+On: <computer[]> [-Credential <pscredential>] <scriptblock>
         
         .\HelloWorld.ps1
 
@@ -237,9 +238,10 @@ The On: command lets you specify a computer(s) that you will run its script bloc
 
         .\HelloWorld.ps1
 
+        $credential = Get-Credential administrator
         Pipeline: HelloWorld {
             Stage: One {
-                On: Server1,Server2 {
+                On: Server1,Server2 -Credential $credential {
                     Do: { Write-Output $Env:ComputerName }
                 }
             }
@@ -254,7 +256,7 @@ When: command for Cidney Pipelines. Used between Stage: and Do:
 The When: command lets you specify an event to listen for that you will run its script block against 
         
         .\HelloWorld.ps1
-
+        
         Pipeline: HelloWorld {
             Stage: One {
                 When: 'MyEvent' {
@@ -314,9 +316,9 @@ There are a ton of things I want to get to and things I would like to investigat
 Done:
 * Get-TfsSource
 * Invoke-NugetRestore
+* On: Remoting
 
 In progress:
-* On: Remoting
 * Dsc: Invoke-DscResource
 * When: Custom Event handler
 * At: Scheduled Trigger

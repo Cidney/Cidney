@@ -67,7 +67,12 @@
         }
         if ($Credential)
         {
-            # $params += ' -Credential'
+            $userName = $Credential.UserName -replace '\\', '_' 
+            $credPath = Join-Path $Env:CidneyStore "$($userName)Credentials.xml"
+            $Credential | Export-Clixml $credPath
+
+            $params += " -UserName $userName"
+            $Global:CidneySession['CredentialStore'].Add($userName, $credPath)
         }
         
         $scriptBlock = '{0} {1}' -f $doBlock.ToString().Trim(), $params
