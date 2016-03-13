@@ -1,12 +1,12 @@
 ﻿@{
     RootModule = 'Cidney.psm1'
-    ModuleVersion = '0.9.1.0'
+    ModuleVersion = '0.9.2.0'
     GUID = '95f1121c-d1c5-4fc1-89c0-5da6e5cc2082'
     Author = 'Cidney Team'
     CompanyName = 'Cidney'
     Copyright = 'Copyright (c) 2016 by Cidney Team, licensed under Apache 2.0 License.'
     Description = 'This module defines a DSL for doing pipelines and stages for Continuous Integration and Deployment'
-    FunctionsToExport = 'Pipeline:','Stage:','Do:','On:','When:', 'Write-Log'
+    FunctionsToExport = 'Pipeline:','Stage:','Do:','On:','When:','Write-Log'
     
     PrivateData = @{
         # PSData is module packaging and gallery metadata embedded in PrivateData
@@ -36,7 +36,7 @@
             # RequireLicenseAcceptance = ""
 
             # Indicates this is a pre-release/testing version of the module.
-            IsPrerelease = 'False'
+            IsPrerelease = 'True'
         }
     }
 }
