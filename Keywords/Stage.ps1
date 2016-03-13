@@ -38,7 +38,7 @@
         $StageBlock
     )
     
-    Initialize-CidneyVariables -ScriptBlock $StageBlock -scope local
+    Initialize-CidneyVariables -ScriptBlock $StageBlock -scope Local
 
     $Global:CidneySession.Add('Jobs', @())
 

@@ -82,6 +82,18 @@
             Register-JobCommand $cmd
         }
     }#>
+
+    $scriptHeader = @"
+    param([hashtable]`$session, [string]`$Name) 
+
+    foreach(`$var in `$session.localVariables) 
+    { 
+        New-Variable -Name `$var.Name -Value `$var.Value 
+    };
+
+"@ 
+    $DoBlock = [scriptblock]::Create("$scriptHeader $($DoBlock.ToString())")
+   
     $params = @{
         #FunctionsToLoad = Get-RegisteredJobCommand
         #ModulesToImport = Get-RegisteredJobModule
@@ -112,7 +124,7 @@
     }
     else
     {
-        $job = Start-Job @params
+        $job = Start-Job @params -ArgumentList $Global:CidneySession, $name
         if ($name)
         {
             $job.Name = "[Job$($Job.Id)] $Name"

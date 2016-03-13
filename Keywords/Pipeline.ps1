@@ -41,9 +41,7 @@
         [scriptblock]
         $PipelineBlock,
         [switch]
-        $ShowProgress,
-        [hashtable]
-        $ConfigurationData
+        $ShowProgress
     )
 
     if ($ShowProgress) { Write-Progress -Activity "Pipeline $Name" -Status 'Starting' -Id 0 }
@@ -64,20 +62,19 @@
             if ($ShowProgress) { Write-Progress -Activity "Pipeline $Name" -Status 'Processing' -Id 0 -PercentComplete ($count / $stages.Count * 100) }
             $count++           
     
-            #$stage = [scriptBlock]::Create("$stage")
-            Invoke-Command -Command $stage -ArgumentList $ConfigurationData
+            Invoke-Command -Command $stage
         }    
     }
     finally
     {
-        foreach($var in $Global:CidneySession['GlobalVariables'])
-        {
-            Remove-Variable -Name $var.Name -Scope Global
-        }
-
         foreach($cred in $Global:CidneySession['CredentialStore'].GetEnumerator())
         {
             Remove-Item $cred.Value -Force -ErrorAction SilentlyContinue
+        }
+        
+        foreach($var in $Global:CidneySession['GlobalVariables'])
+        {
+            Remove-Variable -Name $var.Name -Scope Global
         }
         
         $Global:CidneySession['CredentialStore'].Clear()
