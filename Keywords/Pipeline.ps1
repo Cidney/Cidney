@@ -26,9 +26,8 @@
         Pipeline:
         Stage:
         Do:
-        Register-JobCommand
-        Get-RegisteredJobCommand
-        Get-RegisteredJobModule
+        On:
+        When:
     #>
 
     [CmdletBinding()]
@@ -49,6 +48,7 @@
     Write-Output ''
     Write-Log "[Start] Pipeline $Name"     
     $Global:CidneySession.Add('ShowProgress', $ShowProgress)
+    $Global:CidneySession.Modules = Get-Module
 
     if ($ShowProgress) { Write-Progress -Activity "Pipeline $Name" -Status 'Processing' -Id 0 }
         
@@ -67,17 +67,18 @@
     }
     finally
     {
-        foreach($cred in $Global:CidneySession['CredentialStore'].GetEnumerator())
+        foreach($cred in $Global:CidneySession.CredentialStore.GetEnumerator())
         {
             Remove-Item $cred.Value -Force -ErrorAction SilentlyContinue
         }
         
-        foreach($var in $Global:CidneySession['GlobalVariables'])
+        foreach($var in $Global:CidneySession.GlobalVariables)
         {
             Remove-Variable -Name $var.Name -Scope Global
         }
         
-        $Global:CidneySession['CredentialStore'].Clear()
+        $Global:CidneySession.CredentialStore = @{}
+        $Global:CidneySession.Modules = @()
         $Global:CidneySession.Remove('GlobalVariables')
         $Global:CidneySession.Remove('ShowProgress')
     }   

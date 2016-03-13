@@ -51,7 +51,9 @@
         [scriptblock]
         $OnBlock,
         [PSCredential]
-        $Credential
+        $Credential,
+        [switch]
+        $ImportModules
     )
 
     $doBlocks = Get-CidneyBlocks -ScriptBlock $OnBlock 
@@ -72,7 +74,11 @@
             $Credential | Export-Clixml $credPath
 
             $params += " -UserName $userName"
-            $Global:CidneySession['CredentialStore'].Add($userName, $credPath)
+            $Global:CidneySession.CredentialStore.Add($userName, $credPath)
+        }
+        if ($ImportModules -or $Global:CidneyImportModulesPreference)
+        {
+            $params += ' -ImportModules'
         }
         
         $scriptBlock = '{0} {1}' -f $doBlock.ToString().Trim(), $params

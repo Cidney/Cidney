@@ -51,9 +51,8 @@
         .LINK
         Pipeline:
         Stage:
-        Register-JobCommand
-        Get-RegisteredJobCommand
-        Get-RegisteredJobModule
+        On:
+        When:
     #>
 
 
@@ -67,39 +66,51 @@
         [Parameter(Mandatory, Position = 0, ParameterSetName='ScriptBlock')]
         [scriptblock]
         $DoBlock,
-        [string[]]
-        $ComputerName,
         [int]
         $TimeOut = [int]::MaxValue,
+        [Parameter(DontShow)]
+        [switch]
+        $ImportModules,
+        [Parameter(DontShow)]
+        [string[]]
+        $ComputerName,
+        [Parameter(DontShow)]
         [string]
         $UserName
     )
 
-<#    if ($Global:CidneyRemoteJobCommands)
-    {
-        foreach($cmd in $Global:CidneySession['RemoteJobCommands'])
-        {
-            Register-JobCommand $cmd
-        }
-    }#>
-
-    $scriptHeader = @"
+    $newLocalVariablesScript = @"
     param([hashtable]`$session, [string]`$Name) 
 
     foreach(`$var in `$session.localVariables) 
     { 
-        New-Variable -Name `$var.Name -Value `$var.Value 
+        New-Variable -Name `$var.Name -Value `$var.Value -Scope Local
     };
-
 "@ 
+
+    $importModulesScript = @"
+    foreach(`$module in `$session.Modules) 
+    { 
+        if ((Get-Module -Name `$module) -eq `$null)
+        {
+            Import-Module -Name `$module -ErrorAction SilentlyContinue
+        }
+    };
+"@ 
+
+    $scriptHeader = $newLocalVariablesScript
+    if ($ImportModules)
+    {
+        $scriptHeader += $importModulesScript
+    }
+
     $DoBlock = [scriptblock]::Create("$scriptHeader $($DoBlock.ToString())")
    
     $params = @{
-        #FunctionsToLoad = Get-RegisteredJobCommand
-        #ModulesToImport = Get-RegisteredJobModule
         #ThrottleLimit = Get-ThrottleLimit
         WarningAction = 'SilentlyContinue'   
         ScriptBlock = $DoBlock 
+        ArgumentList = @($Global:CidneySession, $name)
     }
 
     if ($UserName)
@@ -112,229 +123,24 @@
     {
         foreach($computer in $ComputerName)
         {
-            $job = Invoke-Command @params -ComputerName $computer -AsJob
+            $job = Invoke-Command @params -ComputerName $computer -AsJob 
             if ($Name)
             {
                 $job.Name = "[Job$($Job.Id)] $Name"
             }
             $job.Name += " [$computer]"
             Write-Log "[Start] $($job.Name)"
-            $Global:CidneySession['Jobs'] += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime'= 0; ErrorAction = $ErrorActionPreference}
+            $Global:CidneySession.Jobs += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime'= 0; ErrorAction = $ErrorActionPreference}
         }
     }
     else
     {
-        $job = Start-Job @params -ArgumentList $Global:CidneySession, $name
+        $job = Start-Job @params 
         if ($name)
         {
             $job.Name = "[Job$($Job.Id)] $Name"
         }
-        $Global:CidneySession['Jobs'] += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime' = 0; ErrorAction = $ErrorActionPreference}
+        $Global:CidneySession.Jobs += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime' = 0; ErrorAction = $ErrorActionPreference}
         Write-Log "[Start] $($job.Name)"
     }
 }
-
-function Register-JobCommand
-{
-    <#
-    .Synopsis
-       Registers a cmdlet or function to be used in a Cidney Pipeline:
-
-    .DESCRIPTION
-       Registers a cmdlet or function to be used in a Cidney Pipeline: 
-       It needs to be called before the Do: block of Pipeline: is run.
-       You can call it outside of the Pipeline:, inside the Pipeline: 
-       or inside Stage: blocks
-
-    .EXAMPLE
-    >
-    #Register-JobCommand Test
-
-    Pipeline: HelloWorld {
-        Stage: One {
-            Do: { Test }
-        } 
-    } -Verbose 
-
-    function Test 
-    {
-        Write-Output 'Test - Success'
-    }
-
-    A function we want to call inside a pipeline is not recognized by PoshRSJob
-    since it will be running in a separate runspace. For this you will need to 
-    Register the cmdlet or function by calling Register-JobCommand
-
-    Run this sample first and see that the error that is returned:
-
-    WriteStream : The term 'Test' is not recognized as the name of a cmdlet, 
-    function, script file, or operable program. Check the spelling of the name, 
-    or if a path was included, verify that the path is correct and try again.
-    At C:\Program Files\WindowsPowerShell\Modules\PoshRSJob\1.5.5.3\Public\Receive-RSJob.ps1:90 char:18
-    +             $_ | WriteStream
-    +                  ~~~~~~~~~~~
-        + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException
-        + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,WriteStream
-
-
-    Uncomment out the Register-JobCommand above and run again.
-
-    VERBOSE: [03/06/16 4:00:47.672 PM] [Start] Pipeline HelloWorld
-    VERBOSE: [03/06/16 4:00:47.719 PM] [Start] Stage One
-    VERBOSE: [03/06/16 4:00:47.997 PM] [Start] Job14
-    VERBOSE: [03/06/16 4:00:48.098 PM] [Results] Job14
-    Test - Success
-    VERBOSE: [03/06/16 4:00:48.113 PM] [Completed] Job14
-    VERBOSE: [03/06/16 4:00:48.230 PM] [Done] Stage One
-    VERBOSE: [03/06/16 4:00:48.230 PM] [Done] Pipeline HelloWorld
-
-    .EXAMPLE
-    >
-    You can call the Register-JobCommand function inside the Pipeline:
-    It only needs to happen before the Do: block
-
-    Pipeline: HelloWorld {
-        Register-JobCommand Test
-
-        Stage: One {
-            Do: { Test }
-        } 
-    } -Verbose 
-
-    function Test 
-    {
-        Write-Output 'Test - Success'
-    }
-
-    VERBOSE: [03/06/16 4:00:47.672 PM] [Start] Pipeline HelloWorld
-    VERBOSE: [03/06/16 4:00:47.719 PM] [Start] Stage One
-    VERBOSE: [03/06/16 4:00:47.997 PM] [Start] Job14
-    VERBOSE: [03/06/16 4:00:48.098 PM] [Results] Job14
-    Test - Success
-    VERBOSE: [03/06/16 4:00:48.113 PM] [Completed] Job14
-    VERBOSE: [03/06/16 4:00:48.230 PM] [Done] Stage One
-    VERBOSE: [03/06/16 4:00:48.230 PM] [Done] Pipeline HelloWorld
-
-    .EXAMPLE
-    >
-    You can call the Register-JobCommand function inside a Stage Block:
-    
-    Pipeline: HelloWorld {
-        Stage: One {
-            Register-JobCommand Test
-
-            Do: { Test }
-        } 
-    } -Verbose 
-    
-    function Test 
-    {
-        Write-Output 'Test - Success'
-    }
-
-    VERBOSE: [03/06/16 4:00:47.672 PM] [Start] Pipeline HelloWorld
-    VERBOSE: [03/06/16 4:00:47.719 PM] [Start] Stage One
-    VERBOSE: [03/06/16 4:00:47.997 PM] [Start] Job14
-    VERBOSE: [03/06/16 4:00:48.098 PM] [Results] Job14
-    Test - Success
-    VERBOSE: [03/06/16 4:00:48.113 PM] [Completed] Job14
-    VERBOSE: [03/06/16 4:00:48.230 PM] [Done] Stage One
-    VERBOSE: [03/06/16 4:00:48.230 PM] [Done] Pipeline HelloWorld
-        
-    .LINK
-    Pipeline:
-    Stage:
-    Do:
-    Get-RegisteredJobCommand
-    Get-RegisteredJobModule
-    #>
-
-    [CmdletBinding(SupportsShouldProcess=$true)]
-    param
-    (
-        [Parameter(Mandatory, Position = 0)] 
-        [string[]]
-        $Name
-    )
-
-    foreach($item in $name)
-    {
-        $command = Get-Command $item -ErrorAction SilentlyContinue
-        if ($command)
-        {
-            if (-not $Global:CidneySession['JobCommands'].ContainsKey($item))
-            {
-                $Global:CidneySession['JobCommands'].Add($item, $command)
-            }
-            if (-not $Global:CidneySession['JobModules'].ContainsKey($item))
-            {
-                $Global:CidneySession['JobModules'].Add($item, $command.Module)
-            }
-        }
-        else
-        {
-            $Global:CidneySession['RemoteJobCommands'] += $item
-        }
-    }
-}
-
-function Get-RegisteredJobCommand
-{
-    <#
-    .Synopsis
-       Returns a list of cmdlets or functions registered to be used in a Cidney Pipeline:
-    .DESCRIPTION
-       Returns a list of cmdlets or functions registered to be used in a Cidney Pipeline:
-    .EXAMPLE
-    c:\>.\HelloWorld.ps1
-
-    Register-JobCommand Test
-
-    Pipeline: HelloWorld {
-        Stage: One {
-            Do: { Test }
-        } 
-    } -Verbose 
-
-    function Test 
-    {
-        Write-Output 'Test - Success'
-    }
-        
-    A function we want to call inside a pipeline is not recognized by PoshRSJob
-    since it will be running in a separate runspace. For this you will need to 
-    Register the cmdlet or function by calling Register-JobCommand
-
-    Get-RegisteredJobCommands 
-
-    CommandType     Name               Version    Source  
-    -----------     ----               -------    ------  
-    Function        Test                                                                  
-
-    .LINK
-    Pipeline:
-    Stage:
-    Do:
-    Register-JobCommand
-    Get-RegisteredJobModule
-    #>
-
-    $Global:CidneySession['JobCommands'].Values
-}
-
-function Get-RegisteredJobModule
-{
-    <#
-    .Synopsis
-       Returns a list of Modules from the cmdlets or functions registered to be used in a Cidney Pipeline:
-    .DESCRIPTION
-       Returns a list of Modules from the cmdlets or functions registered to be used in a Cidney Pipeline:
-    .LINK
-    Pipeline:
-    Stage:
-    Do:
-    Register-JobCommand
-    Get-RegisteredJobCommand
-    #>
-    $Global:CidneySession['JobModules'].Values
-}  

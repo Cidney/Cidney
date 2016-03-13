@@ -42,7 +42,7 @@
 
     $Global:CidneySession.Add('Jobs', @())
 
-    if ($Global:CidneySession['ShowProgress']) { Write-Progress -Activity "Stage $Name" -Status 'Starting' -Id 1 }
+    if ($Global:CidneySession.ShowProgress) { Write-Progress -Activity "Stage $Name" -Status 'Starting' -Id 1 }
     Write-Log "[Start] Stage $Name"
 
     try
@@ -55,11 +55,11 @@
             Invoke-Command -Command $block
 
             $count++ 
-            if ($Global:CidneySession['ShowProgress'] -and $Global:CidneyJobs.Count -eq 0) { Write-Progress -Activity "Stage $Name" -Status 'Processing' -Id 1 -PercentComplete ($count/$blocks.Count * 100)}
+            if ($Global:CidneySession.ShowProgress -and $Global:CidneyJobs.Count -eq 0) { Write-Progress -Activity "Stage $Name" -Status 'Processing' -Id 1 -PercentComplete ($count/$blocks.Count * 100)}
          }
 
-        Wait-CidneyJob -Jobs $Global:CidneySession['Jobs']
-        foreach ($job in $Global:CidneySession['Jobs'])
+        Wait-CidneyJob -Jobs $Global:CidneySession.Jobs
+        foreach ($job in $Global:CidneySession.Jobs)
         {
             if ($job.Job.State -match 'Failed|Stopped|Suspended|Disconnected') 
             {
@@ -71,7 +71,7 @@
     }
     finally
     {
-        foreach($var in $Global:CidneySession['LocalVariables'])
+        foreach($var in $Global:CidneySession.LocalVariables)
         {
             Get-Variable -Name $var -Scope Local -ErrorAction SilentlyContinue | Remove-Variable -ErrorAction SilentlyContinue
         }
@@ -80,7 +80,7 @@
         $Global:CidneySession.Remove('Jobs')
     }
 
-    if ($Global:CidneySession['ShowProgress']) { Write-Progress -Activity "Stage $Name" -Status 'Completed' -Id 1 -Completed }       
+    if ($Global:CidneySession.ShowProgress) { Write-Progress -Activity "Stage $Name" -Status 'Completed' -Id 1 -Completed }       
     Write-Log "[Done] Stage $Name"
 }
 
