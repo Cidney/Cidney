@@ -1,8 +1,8 @@
 ﻿$ScriptPath = Split-Path $MyInvocation.MyCommand.Path
-$Global:CidneySession = @{}
-$Global:CidneySession.Add('Modules', @())
-$Global:CidneySession.Add('CredentialStore', @{})
+
+$Global:CidneySession = [System.Collections.ArrayList]@()
 $Global:CidneyImportModulesPreference = $false
+$Global:CidneyPipelineCount = -1
 
 $Env:CidneyStore = Join-Path $env:LOCALAPPDATA 'Cidney'
 New-Item $Env:CidneyStore -ItemType Directory -Force
@@ -65,4 +65,4 @@ Export-ModuleMember -Function On:
 Export-ModuleMember -Function Do:
 Export-ModuleMember -Function When:
 
-Export-ModuleMember -Function Write-Log
+Export-ModuleMember -Function Write-CidneyLog

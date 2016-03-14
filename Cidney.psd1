@@ -6,7 +6,7 @@
     CompanyName = 'Cidney'
     Copyright = 'Copyright (c) 2016 by Cidney Team, licensed under Apache 2.0 License.'
     Description = 'This module defines a DSL for doing pipelines and stages for Continuous Integration and Deployment'
-    FunctionsToExport = 'Pipeline:','Stage:','Do:','On:','When:','Write-Log'
+    FunctionsToExport = 'Pipeline:','Stage:','Do:','On:','When:','Write-CidneyLog'
     
     PrivateData = @{
         # PSData is module packaging and gallery metadata embedded in PrivateData

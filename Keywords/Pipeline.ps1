@@ -35,7 +35,7 @@
     (
         [Parameter(Mandatory, Position = 0)]
         [string]
-        $Name,
+        $PipelineName,
         [Parameter(Mandatory, Position = 1)]
         [scriptblock]
         $PipelineBlock,
@@ -43,14 +43,19 @@
         $ShowProgress
     )
 
-    if ($ShowProgress) { Write-Progress -Activity "Pipeline $Name" -Status 'Starting' -Id 0 }
+    $Global:CidneyPipelineCount++
 
-    Write-Output ''
-    Write-Log "[Start] Pipeline $Name"     
-    $Global:CidneySession.Add('ShowProgress', $ShowProgress)
-    $Global:CidneySession.Modules = Get-Module
+    if ($ShowProgress) { Write-Progress -Activity "Pipeline $PipelineName" -Status 'Starting' -Id 0 }
 
-    if ($ShowProgress) { Write-Progress -Activity "Pipeline $Name" -Status 'Processing' -Id 0 }
+    Write-CidneyLog "[Start] Pipeline $PipelineName" 
+
+    $currentPipeline = 'Pipeline:'+[guid]::NewGuid()
+    $Global:CidneySession.Insert(0, ([PSCustomObject]@{'Name'=$currentPipeline; 'Pipeline'=@{}}))
+    $Global:CidneySession[0].Pipeline.Add('Modules', (Get-Module))
+    $Global:CidneySession[0].Pipeline.Add('CredentialStore', @{})
+    $Global:CidneySession[0].Pipeline.Add('ShowProgress', $ShowProgress)
+
+    if ($ShowProgress) { Write-Progress -Activity "Pipeline $PipelineName" -Status 'Processing' -Id 0 }
         
     try
     {
@@ -59,7 +64,10 @@
         $count = 0
         foreach($stage in $stages)
         {
-            if ($ShowProgress) { Write-Progress -Activity "Pipeline $Name" -Status 'Processing' -Id 0 -PercentComplete ($count / $stages.Count * 100) }
+            if ($ShowProgress) 
+            { 
+                Write-Progress -Activity "Pipeline $PipelineName" -Status 'Processing' -Id 0 -PercentComplete ($count / $stages.Count * 100) 
+            }
             $count++           
     
             Invoke-Command -Command $stage
@@ -67,24 +75,21 @@
     }
     finally
     {
-        foreach($cred in $Global:CidneySession.CredentialStore.GetEnumerator())
+        foreach($cred in $Global:CidneySession[0].Pipeline.CredentialStore.GetEnumerator())
         {
             Remove-Item $cred.Value -Force -ErrorAction SilentlyContinue
         }
         
-        foreach($var in $Global:CidneySession.GlobalVariables)
+        foreach($var in $Global:CidneySession[0].Pipeline.GlobalVariables)
         {
             Remove-Variable -Name $var.Name -Scope Global
         }
         
-        $Global:CidneySession.CredentialStore = @{}
-        $Global:CidneySession.Modules = @()
-        $Global:CidneySession.Remove('GlobalVariables')
-        $Global:CidneySession.Remove('ShowProgress')
+        $Global:CidneySession.RemoveAt(0)
     }   
     
-    Write-Log "[Done] Pipeline $Name" 
-    Write-Output ''
-    if ($ShowProgress) { Write-Progress -Activity "Pipeline $Name" -Status 'Completed' -ID 0 -Completed }
-}
+    Write-CidneyLog "[Done] Pipeline $PipelineName" 
+    if ($ShowProgress) { Write-Progress -Activity "Pipeline $PipelineName" -Status 'Completed' -ID 0 -Completed }
 
+    $Global:CidneyPipelineCount--
+}

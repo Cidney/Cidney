@@ -56,6 +56,7 @@
         $ImportModules
     )
 
+    $currentPipeline = $Global:CidneySession[0].Pipeline
     $doBlocks = Get-CidneyBlocks -ScriptBlock $OnBlock 
 
     $invokeBlocks = @()
@@ -74,7 +75,7 @@
             $Credential | Export-Clixml $credPath
 
             $params += " -UserName $userName"
-            $Global:CidneySession.CredentialStore.Add($userName, $credPath)
+            $currentPipeline.CredentialStore.Add($userName, $credPath)
         }
         if ($ImportModules -or $Global:CidneyImportModulesPreference)
         {

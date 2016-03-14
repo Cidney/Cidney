@@ -10,6 +10,7 @@
 
     $count = 0
     $date = Get-Date
+    $currentPipeline = $Global:CidneySession[0].Pipeline
     do
     {               
         $RunningJobs = [System.Collections.ArrayList]::new()
@@ -19,9 +20,9 @@
             if ($job.Job.State -match 'Completed|Failed|Stopped|Suspended|Disconnected') 
             {
                 $count++
-                Write-Log "[Results] $($job.Job.Name)"
+                Write-CidneyLog "[Results] $($job.Job.Name)"
                 $job.Job | Receive-Job 
-                Write-Log "[$($Job.Job.State)] $($job.Job.Name)"
+                Write-CidneyLog "[$($Job.Job.State)] $($job.Job.Name)"
                 $job.Job | Remove-Job
             } 
             else 
@@ -35,7 +36,7 @@
                     }
 
                     $Job.Job | Remove-Job    
-                    Write-Log "[$($Job.Job.State)] $($job.Job.Name)"
+                    Write-CidneyLog "[$($Job.Job.State)] $($job.Job.Name)"
 
                     if ($job.ErrorAction -eq 'Stop')
                     {
@@ -51,7 +52,11 @@
             }
         }
 
-        if ($Global:CidneyShowProgress -and $Global:CidneyJobs -and $Global:CidneyJobs.Count -gt 0) { Write-Progress -Activity "Stage $Name" -Status 'Processing' -Id 1 -PercentComplete ($count/$Global:CidneyJobs.Count * 100)}
+        if ($currentPipeline.ShowProgress -and $currentPipeline.Jobs -and $currentPipeline.Jobs.Count -gt 0) 
+        { 
+            Write-Progress -Activity "Stage $Name" -Status 'Processing' -Id 1 -PercentComplete ($count/$currentPipeline.Jobs.Count * 100)
+        }
+
         $jobs = $RunningJobs
         
         Start-Sleep -Milliseconds 100

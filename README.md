@@ -12,6 +12,9 @@ Add this module to C:\Program Files\WindowsPowershell\Modules\Cidney
 **Use**
 Import-Module Cidney
 
+**NOTE**: This project is in **BETA** version 0.9.0.0 
+There is more work I would like to do with Remoting and properly passing variables and session state. If you are not doing any remoting and just running a **Pipeline:** on one server Cidney should work well as is.
+
 I welcome any and all who wish to help out and contribute to this project.
 
 ----------
@@ -134,11 +137,92 @@ There will be more documentation soon especially for other advanced commands lik
         VERBOSE: [03/06/16 4:53:40.607 PM] [Done] Pipeline HelloWorld
 
 
+**Dsc:**
+
+The Dsc: function executes the Set method of a specified Desired 
+State Configuration (DSC) resource. Before you run this cmdlet set the 
+refresh mode of the Local Configuration Manager (LCM) to Disabled.
+    
+This function invokes a DSC resource directly, without creating a 
+configuration document. Using this function, configuration management 
+products can manage windows by using DSC resources. This function also 
+enables debugging of resources when the DSC engine or LCM is running with 
+debugging enabled.  
+            
+NOTE: Will not work with File Resource because it doesnt have a module name 
+and although Invoke-DscResource shows that ModuleName is not mandatory it seems 
+to be.
+Possibly a bug in Invoke-DscResource or the Hrlp file is wrong.
+            
+NOTE: Before you run this cmdlet set the refresh mode of the Local Configuration 
+Manager (LCM) to Disabled.      
+
+        .\IISServer.ps1
+
+        Pipeline: IISServer {
+            Stage: Test {
+                Dsc: WindowsFeature IIS {
+                    Ensure = 'Present'
+                    Name = 'Web-server'
+                }
+            }
+        } -Verbose 
+    
+        Output:
+
+        VERBOSE: [03/06/16 9:35:54.343 AM] [Start] Pipeline IISServer
+        VERBOSE: [03/06/16 9:35:54.347 AM] [Start] Stage Test
+        VERBOSE: [03/06/16 9:35:57.000 AM] [Start] DSCResource WindowsFeature
+        VERBOSE: Performing the operation "Invoke-CimMethod: ResourceSet" on target "MSFT_DSCLocalConfigurationManager".
+        VERBOSE: Perform operation 'Invoke CimMethod' with following parameters, ''methodName' = ResourceSet,'className' = MSFT_DSCLocalConfigurationManager,'namespaceName' = root/Microsoft/Windows/DesiredStateConfiguration'.
+        VERBOSE: An LCM method call arrived from computer ROBERTSP4 with user sid S-1-5-21-682003330-1644491937-484763869-5611.
+        VERBOSE: [ROBERTSP4]: LCM:  [ Start  Set      ]  [[WindowsFeature]DirectResourceAccess]  
+        VERBOSE: [ROBERTSP4]: LCM:  [ End    Set      ]  [[WindowsFeature]DirectResourceAccess]  in 0.1690 seconds.
+        VERBOSE: Operation 'Invoke CimMethod' complete.
+        VERBOSE: [03/06/16 9:35:57.717 AM] [Done] DSCResource WindowsFeature
+        VERBOSE: [03/06/16 9:35:57.833 AM] [Done] Stage Test
+        VERBOSE: [03/06/16 9:35:57.833 AM] [Done] Pipeline IISServer
+        
+        .\ServiceTest.ps1
+
+        Example of a Pipeline that makes sure the BITS service is running. This is calling the Test Method of Invoke-DSCResource
+
+        Pipeline: ServiceTest {
+            Stage: Test {
+                Dsc: Service BITS {
+                    Ensure = 'Present'
+                    Name = 'BITS'
+                    State = 'Running'
+                } -Method Test
+       
+            }
+        } -Verbose  
+
+        VERBOSE: [03/06/16 10:55:43.140 AM] [Start] Pipeline HelloWorld
+        VERBOSE: [03/06/16 10:55:43.140 AM] [Start] Stage Test
+        VERBOSE: [03/06/16 10:55:45.800 AM] [Start] DSCResource Service
+        VERBOSE: Performing the operation "Invoke-CimMethod: ResourceTest" on target "MS
+        FT_DSCLocalConfigurationManager".
+        VERBOSE: Perform operation 'Invoke CimMethod' with following parameters, ''metho
+        dName' = ResourceTest,'className' = MSFT_DSCLocalConfigurationManager,'namespace
+        Name' = root/Microsoft/Windows/DesiredStateConfiguration'.
+        VERBOSE: An LCM method call arrived from computer ROBERTSP4 with user sid S-1-5-
+        21-484763869-1644491937-682003330-5611.
+        VERBOSE: [ROBERTSP4]: LCM:  [ Start  Test     ]  [[Service]DirectResourceAccess]
+  
+        VERBOSE: [ROBERTSP4]: LCM:  [ End    Test     ]  [[Service]DirectResourceAccess]
+         True in 0.0000 seconds.
+        VERBOSE: [ROBERTSP4]: LCM:  [ End    Set      ]    in  0.1160 seconds.
+        VERBOSE: Operation 'Invoke CimMethod' complete.
+        VERBOSE: [03/06/16 10:55:46.379 AM] [Done] DSCResource Service
+        VERBOSE: [03/06/16 10:55:46.502 AM] [Done] Stage Test
+        VERBOSE: [03/06/16 10:55:46.502 AM] [Done] Pipeline HelloWorld
+
 **On:**
 
 On: command for Cidney Pipelines. Used between Stage: and Do: 
-The On: command lets you specify a computer(s) that you will run its script block against
-On: <computer[]> [-Credential <pscredential>] [-ImportModules] <scriptblock>
+The On: command lets you specify a computer(s) that you will run its script block against 
+On: <computer[]> [-Credential <pscredential>] <scriptblock>
         
         .\HelloWorld.ps1
 
@@ -187,3 +271,63 @@ The When: command lets you specify an event to listen for that you will run its 
         Run ipconfig from Stage One when MyEvent is fired once Stage Two is run.
 
 ----------
+
+**Commands**
+
+**Get-TfsSource (Alias GetSource)**
+
+Gets a local copy of source files from TFS.
+This function will create a Local WorkSpace and a mapping to a local folder and then download all the files
+Will output basic messages to Success output: Getting Source and Downloading source.
+Verbose output shows connecting to TFS Server, Creating workspace and a done message with time in seconds to get files.
+Debug output will display list of files downloaded.
+
+Requires Microsoft Visual Studio Team Foundation Server Power Tools
+See: https://visualstudiogallery.msdn.microsoft.com/898a828a-af00-42c6-bbb2-530dc7b8f2e1
+       
+    Get-TfsSource -Name http://tfs.example.com:8080/tfs/Collection -WorkspaceName 'MyWorkSpace' -LocalPath C:\Projects -Path $\Projects
+
+    Gets files from $\Projects to c:\projects
+
+
+    Get-TfsSource -Name http://tfs.example.com:8080/tfs/Collection -WorkspaceName 'MyWorkSpace' -LocalPath C:\Projects -Path $\Projects -VersionSpec 'LRelease 5.0.0.1'
+
+    Gets the version of source labeled Release 5.0.0.1 from Server path $\Projects to local path c:\Projects
+
+
+**Invoke-NugetRestore (Alias RestorePackages)**
+
+Does a Nuget Package restore using the supplied path
+Requires Nuget.exe to be on the computer this is being run and the location set in the $env:NugetPath environment variable
+or or supplied in the parameters 
+
+Download Nuget: https://dist.nuget.org/index.html
+
+    Invoke-NugetRestore -Path c:\Projects\MyProject -Source http://nuget.example.com/nuget 
+
+    Restores Nuget packages from private source http://nuget.example.com/nuget 
+
+----------
+
+**TODO:**
+
+There are a ton of things I want to get to and things I would like to investigate
+
+Done:
+* Get-TfsSource
+* Invoke-NugetRestore
+* On: Remoting
+
+In progress:
+* Dsc: Invoke-DscResource
+* When: Custom Event handler
+* At: Scheduled Trigger
+
+Next:
+* AppX installer
+* Website
+* Start-TfsBuild
+* New-Container
+* New-Environment
+* Deployer
+

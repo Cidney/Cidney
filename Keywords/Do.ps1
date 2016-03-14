@@ -78,22 +78,23 @@
         [string]
         $UserName
     )
-
+    
     $newLocalVariablesScript = @"
-    param([hashtable]`$session, [string]`$Name) 
+    param([hashtable]`$Session, [string]`$Name) 
 
-    foreach(`$var in `$session.localVariables) 
+    foreach(`$var in `$Session.LocalVariables) 
     { 
         New-Variable -Name `$var.Name -Value `$var.Value -Scope Local
     };
 "@ 
 
     $importModulesScript = @"
-    foreach(`$module in `$session.Modules) 
+    foreach(`$module in `$Session.Modules) 
     { 
+       
         if ((Get-Module -Name `$module) -eq `$null)
         {
-            Import-Module -Name `$module -ErrorAction SilentlyContinue
+            `$null = Import-Module -Name `$module -ErrorAction SilentlyContinue
         }
     };
 "@ 
@@ -105,12 +106,14 @@
     }
 
     $DoBlock = [scriptblock]::Create("$scriptHeader $($DoBlock.ToString())")
+    
+    $currentPipeline = $Global:CidneySession[0].Pipeline
    
     $params = @{
         #ThrottleLimit = Get-ThrottleLimit
         WarningAction = 'SilentlyContinue'   
         ScriptBlock = $DoBlock 
-        ArgumentList = @($Global:CidneySession, $name)
+        ArgumentList = @($currentPipeline, $name)
     }
 
     if ($UserName)
@@ -118,7 +121,7 @@
         $credential = Import-Clixml (Join-Path $Env:CidneyStore "$($UserName)Credentials.xml") 
         $params.Add('Credential', $Credential)
     }
-    
+
     if ($ComputerName)
     {
         foreach($computer in $ComputerName)
@@ -129,8 +132,8 @@
                 $job.Name = "[Job$($Job.Id)] $Name"
             }
             $job.Name += " [$computer]"
-            Write-Log "[Start] $($job.Name)"
-            $Global:CidneySession.Jobs += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime'= 0; ErrorAction = $ErrorActionPreference}
+            Write-CidneyLog "[Start] $($job.Name)"
+            $currentPipeline.Jobs += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime'= 0; ErrorAction = $ErrorActionPreference}
         }
     }
     else
@@ -140,7 +143,7 @@
         {
             $job.Name = "[Job$($Job.Id)] $Name"
         }
-        $Global:CidneySession.Jobs += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime' = 0; ErrorAction = $ErrorActionPreference}
-        Write-Log "[Start] $($job.Name)"
+        $currentPipeline.Jobs += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime' = 0; ErrorAction = $ErrorActionPreference}
+        Write-CidneyLog "[Start] $($job.Name)"
     }
 }

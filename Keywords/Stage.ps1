@@ -32,18 +32,22 @@
     (
         [Parameter(Mandatory, Position = 0)]
         [string]
-        $Name,
+        $StageName,
         [Parameter(Mandatory, Position = 1)]
         [scriptblock]
         $StageBlock
     )
     
     Initialize-CidneyVariables -ScriptBlock $StageBlock -scope Local
+    
+    $currentPipeline = $Global:CidneySession[0].Pipeline
+    $currentPipeline.Add('Jobs', @())
 
-    $Global:CidneySession.Add('Jobs', @())
-
-    if ($Global:CidneySession.ShowProgress) { Write-Progress -Activity "Stage $Name" -Status 'Starting' -Id 1 }
-    Write-Log "[Start] Stage $Name"
+    if ($currentPipeline.ShowProgress) 
+    { 
+        Write-Progress -Activity "Stage $StageName" -Status 'Starting' -Id 1 
+    }
+    Write-CidneyLog "[Start] Stage $StageName"
 
     try
     {
@@ -55,32 +59,37 @@
             Invoke-Command -Command $block
 
             $count++ 
-            if ($Global:CidneySession.ShowProgress -and $Global:CidneyJobs.Count -eq 0) { Write-Progress -Activity "Stage $Name" -Status 'Processing' -Id 1 -PercentComplete ($count/$blocks.Count * 100)}
-         }
+            if ($currentPipeline.ShowProgress -and $currentPipeline.Jobs.Count -eq 0) 
+            { 
+                Write-Progress -Activity "Stage $StageName" -Status 'Processing' -Id 1 -PercentComplete ($count/$blocks.Count * 100)
+            }
+        }
 
-        Wait-CidneyJob -Jobs $Global:CidneySession.Jobs
-        foreach ($job in $Global:CidneySession.Jobs)
+        Wait-CidneyJob -Jobs $currentPipeline.Jobs
+        foreach ($job in $currentPipeline.Jobs)
         {
             if ($job.Job.State -match 'Failed|Stopped|Suspended|Disconnected') 
             {
                 Write-Warning "Job $($Job.Job.Name) timed out"
                 $job | Select-Object -ExpandProperty Job
-                Write-Output ''
             } 
         }  
     }
     finally
     {
-        foreach($var in $Global:CidneySession.LocalVariables)
+        foreach($var in $currentPipeline.LocalVariables)
         {
             Get-Variable -Name $var -Scope Local -ErrorAction SilentlyContinue | Remove-Variable -ErrorAction SilentlyContinue
         }
 
-        $Global:CidneySession.Remove('LocalVariables')
-        $Global:CidneySession.Remove('Jobs')
+        $currentPipeline.Remove('LocalVariables')
+        $currentPipeline.Remove('Jobs')
     }
 
-    if ($Global:CidneySession.ShowProgress) { Write-Progress -Activity "Stage $Name" -Status 'Completed' -Id 1 -Completed }       
-    Write-Log "[Done] Stage $Name"
+    if ($currentPipeline.ShowProgress) 
+    { 
+        Write-Progress -Activity "Stage $StageName" -Status 'Completed' -Id 1 -Completed 
+    }       
+    Write-CidneyLog "[Done] Stage $StageName"
 }
 

@@ -1,5 +1,11 @@
-﻿function IsDoBlock([scriptblock]$ScriptBlock)
+﻿function IsDoBlock
 {
+     param
+     (
+         [scriptblock]
+         $ScriptBlock
+     )
+
     $block = $ScriptBlock.ToString().Trim()
     if ($block)
     {

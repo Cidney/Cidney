@@ -1,8 +1,17 @@
-﻿function Initialize-CidneyVariables([scriptblock]$ScriptBlock, [string]$Scope = 'Global')
+﻿function Initialize-CidneyVariables
 {
-    if (-not $Global:CidneySession.Contains("$($Scope)Variables"))
+     param
+     (
+         [scriptblock]
+         $ScriptBlock,
+         [string]
+         $Scope = 'Global'
+     )
+
+    $currentPipeline = $Global:CidneySession[0].Pipeline
+    if (-not $currentPipeline.Contains("$($Scope)Variables"))
     {
-        $Global:CidneySession.Add("$($Scope)Variables", @())
+        $currentPipeline.Add("$($Scope)Variables", @())
     }
     
     if ($ScriptBlock.ToString().Trim())
@@ -20,8 +29,7 @@
             if (-not (Get-Variable -Name $name -Scope $Scope -ErrorAction SilentlyContinue))
             {
                 New-Variable -Name $name -Value $value -Scope $Scope -Force -ErrorAction SilentlyContinue
-             #   $Global:CidneySession["$($Scope)Variables"] += Get-Variable -Name $name -Scope $Scope              
-             $newVariables += Get-Variable -Name $name -Scope $Scope              
+                $newVariables += Get-Variable -Name $name -Scope $Scope              
             }
             else
             {
@@ -31,7 +39,7 @@
 
         if ($newVariables.Count -gt 0)
         {
-            $Global:CidneySession["$($Scope)Variables"] += $newVariables              
+            $currentPipeline["$($Scope)Variables"] += $newVariables              
         }
     }
 }

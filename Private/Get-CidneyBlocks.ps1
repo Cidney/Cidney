@@ -1,5 +1,13 @@
-﻿function Get-CidneyBlocks([scriptblock]$ScriptBlock, [object]$BoundParameters)
+﻿function Get-CidneyBlocks
 {
+     param
+     (
+         [scriptblock]
+         $ScriptBlock,
+         [Object]
+         $BoundParameters
+     )
+
     $blocks = @()
 
     $block = $ScriptBlock.ToString().Trim()

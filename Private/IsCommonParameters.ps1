@@ -1,5 +1,11 @@
-﻿function Get-CommonParameters([object]$BoundParameters)
+﻿function Get-CommonParameters
 {
+     param
+     (
+         [Object]
+         $BoundParameters
+     )
+
     $commonParams = ''
     
     if ($BoundParameters)
