@@ -80,16 +80,16 @@
     )
     
     $newLocalVariablesScript = @"
-    param([hashtable]`$Session, [string]`$Name) 
+    param([hashtable]`$Context, [string]`$Name) 
 
-    foreach(`$var in `$Session.LocalVariables) 
+    foreach(`$var in `$Context.LocalVariables) 
     { 
         New-Variable -Name `$var.Name -Value `$var.Value -Scope Local
     };
 "@ 
 
     $importModulesScript = @"
-    foreach(`$module in `$Session.Modules) 
+    foreach(`$module in `$Context.Modules) 
     { 
        
         if ((Get-Module -Name `$module) -eq `$null)
@@ -107,13 +107,13 @@
 
     $DoBlock = [scriptblock]::Create("$scriptHeader $($DoBlock.ToString())")
     
-    $currentPipeline = $Global:CidneySession[0].Pipeline
+    $context = Get-CidneyContext
    
     $params = @{
         #ThrottleLimit = Get-ThrottleLimit
         WarningAction = 'SilentlyContinue'   
         ScriptBlock = $DoBlock 
-        ArgumentList = @($currentPipeline, $name)
+        ArgumentList = @($context, $name)
     }
 
     if ($UserName)
@@ -133,7 +133,7 @@
             }
             $job.Name += " [$computer]"
             Write-CidneyLog "[Start] $($job.Name)"
-            $currentPipeline.Jobs += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime'= 0; ErrorAction = $ErrorActionPreference}
+            $context.Jobs += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime'= 0; ErrorAction = $ErrorActionPreference}
         }
     }
     else
@@ -143,7 +143,7 @@
         {
             $job.Name = "[Job$($Job.Id)] $Name"
         }
-        $currentPipeline.Jobs += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime' = 0; ErrorAction = $ErrorActionPreference}
+        $context.Jobs += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime' = 0; ErrorAction = $ErrorActionPreference}
         Write-CidneyLog "[Start] $($job.Name)"
     }
 }

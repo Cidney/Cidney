@@ -1,6 +1,6 @@
 ﻿$ScriptPath = Split-Path $MyInvocation.MyCommand.Path
 
-$Global:CidneySession = [System.Collections.ArrayList]@()
+$Global:CidneyContext = [System.Collections.ArrayList]@()
 $Global:CidneyImportModulesPreference = $false
 $Global:CidneyPipelineCount = -1
 
@@ -56,7 +56,11 @@ catch
 #endregion
 
 $ExecutionContext.SessionState.Module.OnRemove = {
-    Remove-Variable CidneySession -Scope Global -Force
+    Remove-Variable CidneyContext -Scope Global -Force
+    Remove-Variable CidneyImportModulesPreference -Scope Global -Force
+    Remove-Variable CidneyPipelineCount -Scope Global -Force
+    Remove-Item $Env:CidneyStore -Force
+    Remove-Item Env:CidneyStore -Force
 }
 
 Export-ModuleMember -Function Pipeline:

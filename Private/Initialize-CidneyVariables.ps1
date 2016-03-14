@@ -8,10 +8,10 @@
          $Scope = 'Global'
      )
 
-    $currentPipeline = $Global:CidneySession[0].Pipeline
-    if (-not $currentPipeline.Contains("$($Scope)Variables"))
+    $context = Get-CidneyContext
+    if (-not $context.Contains("$($Scope)Variables"))
     {
-        $currentPipeline.Add("$($Scope)Variables", @())
+        $context.Add("$($Scope)Variables", @())
     }
     
     if ($ScriptBlock.ToString().Trim())
@@ -39,7 +39,7 @@
 
         if ($newVariables.Count -gt 0)
         {
-            $currentPipeline["$($Scope)Variables"] += $newVariables              
+            $context["$($Scope)Variables"] += $newVariables              
         }
     }
 }

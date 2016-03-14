@@ -40,10 +40,10 @@
     
     Initialize-CidneyVariables -ScriptBlock $StageBlock -scope Local
     
-    $currentPipeline = $Global:CidneySession[0].Pipeline
-    $currentPipeline.Add('Jobs', @())
+    $context = Get-CidneyContext
+    $context.Add('Jobs', @())
 
-    if ($currentPipeline.ShowProgress) 
+    if ($context.ShowProgress) 
     { 
         Write-Progress -Activity "Stage $StageName" -Status 'Starting' -Id 1 
     }
@@ -59,14 +59,14 @@
             Invoke-Command -Command $block
 
             $count++ 
-            if ($currentPipeline.ShowProgress -and $currentPipeline.Jobs.Count -eq 0) 
+            if ($context.ShowProgress -and $context.Jobs.Count -eq 0) 
             { 
                 Write-Progress -Activity "Stage $StageName" -Status 'Processing' -Id 1 -PercentComplete ($count/$blocks.Count * 100)
             }
         }
 
-        Wait-CidneyJob -Jobs $currentPipeline.Jobs
-        foreach ($job in $currentPipeline.Jobs)
+        Wait-CidneyJob -Jobs $context.Jobs
+        foreach ($job in $context.Jobs)
         {
             if ($job.Job.State -match 'Failed|Stopped|Suspended|Disconnected') 
             {
@@ -77,16 +77,16 @@
     }
     finally
     {
-        foreach($var in $currentPipeline.LocalVariables)
+        foreach($var in $context.LocalVariables)
         {
             Get-Variable -Name $var -Scope Local -ErrorAction SilentlyContinue | Remove-Variable -ErrorAction SilentlyContinue
         }
 
-        $currentPipeline.Remove('LocalVariables')
-        $currentPipeline.Remove('Jobs')
+        $context.Remove('LocalVariables')
+        $context.Remove('Jobs')
     }
 
-    if ($currentPipeline.ShowProgress) 
+    if ($context.ShowProgress) 
     { 
         Write-Progress -Activity "Stage $StageName" -Status 'Completed' -Id 1 -Completed 
     }       

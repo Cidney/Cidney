@@ -10,7 +10,7 @@
 
     $count = 0
     $date = Get-Date
-    $currentPipeline = $Global:CidneySession[0].Pipeline
+    $context = Get-CidneyContext
     do
     {               
         $RunningJobs = [System.Collections.ArrayList]::new()
@@ -52,9 +52,9 @@
             }
         }
 
-        if ($currentPipeline.ShowProgress -and $currentPipeline.Jobs -and $currentPipeline.Jobs.Count -gt 0) 
+        if ($context.ShowProgress -and $context.Jobs -and $context.Jobs.Count -gt 0) 
         { 
-            Write-Progress -Activity "Stage $Name" -Status 'Processing' -Id 1 -PercentComplete ($count/$currentPipeline.Jobs.Count * 100)
+            Write-Progress -Activity "Stage $Name" -Status 'Processing' -Id 1 -PercentComplete ($count/$context.Jobs.Count * 100)
         }
 
         $jobs = $RunningJobs
