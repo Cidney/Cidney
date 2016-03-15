@@ -8,6 +8,10 @@
         A Cindey Pipeline: will run each Stage: one right after the other synchronously.
         Each Do: Block found will create a Job so they can be run asyncronously or in Parallel.
 
+        Note: Because the Do: keyword sets up jobs some may hang around in an error state if there are errors when executing. 
+        If this happens you can use the job functions in powershell to investigate and clean up. Wait-Job, Receive-Job and Remove-Job.
+        But if you just want to clean up quickly and do a reset you can call Invoke-Cidney -Force and it will clean up all Cidney jobs.
+        
         .EXAMPLE
         .\HelloWorld.ps1
 
@@ -17,6 +21,7 @@
                 Do: GetService { Get-Service B* }
             }
         }
+        Invoke-Cidney HelloWorld -verbose
 
         This example will do a Dir list and count the number of dll files, and run Get-Process as separate jobs and the Stage: will complete once all jobs are finished.
         Notice that Get-Service finished first even when it was listed second in the code.
@@ -53,6 +58,7 @@
         Stage:
         On:
         When:
+        Invoke-Cidney
     #>
 
 
@@ -76,28 +82,44 @@
         $ComputerName,
         [Parameter(DontShow)]
         [string]
-        $UserName
+        $UserName,
+        [Parameter(DontShow)]
+        [hashtable]
+        $Context
     )
     
-    $newLocalVariablesScript = @"
-    param([hashtable]`$Context, [string]`$Name) 
+    $newLocalVariablesScript = @'
 
-    foreach(`$var in `$Context.LocalVariables) 
+    param([hashtable]$__Context) 
+    
+    foreach($__var in $__Context.LocalVariables) 
     { 
-        New-Variable -Name `$var.Name -Value `$var.Value -Scope Local
-    };
-"@ 
+        $__name = $__var.Name
+        $__value = $__var.Value
 
-    $importModulesScript = @"
-    foreach(`$module in `$Context.Modules) 
-    { 
+        if (Get-Variable -Name $__name -Scope Local -ErrorAction SilentlyContinue)
+        { 
        
-        if ((Get-Module -Name `$module) -eq `$null)
+            Set-Variable -Name $__name -Value $__value -Scope Local
+        }
+        else
         {
-            `$null = Import-Module -Name `$module -ErrorAction SilentlyContinue
+            New-Variable -Name $__name -Value $__value -Scope Local
         }
     };
-"@ 
+'@ 
+
+    $importModulesScript = @'
+
+    foreach($__module in $__Context.Modules) 
+    { 
+       
+        if ((Get-Module -Name $__module) -eq $null)
+        {
+            $null = Import-Module -Name $__module -ErrorAction SilentlyContinue
+        }
+    };
+'@ 
 
     $scriptHeader = $newLocalVariablesScript
     if ($ImportModules)
@@ -106,14 +128,12 @@
     }
 
     $DoBlock = [scriptblock]::Create("$scriptHeader $($DoBlock.ToString())")
-    
-    $context = Get-CidneyContext
    
     $params = @{
         #ThrottleLimit = Get-ThrottleLimit
         WarningAction = 'SilentlyContinue'   
         ScriptBlock = $DoBlock 
-        ArgumentList = @($context, $name)
+        ArgumentList = $Context
     }
 
     if ($UserName)
@@ -129,11 +149,11 @@
             $job = Invoke-Command @params -ComputerName $computer -AsJob 
             if ($Name)
             {
-                $job.Name = "[Job$($Job.Id)] $Name"
+                $job.Name = "CI [Job$($Job.Id)] $Name"
             }
             $job.Name += " [$computer]"
             Write-CidneyLog "[Start] $($job.Name)"
-            $context.Jobs += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime'= 0; ErrorAction = $ErrorActionPreference}
+            $Context.Jobs += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime'= 0; ErrorAction = $ErrorActionPreference}
         }
     }
     else
@@ -141,9 +161,9 @@
         $job = Start-Job @params 
         if ($name)
         {
-            $job.Name = "[Job$($Job.Id)] $Name"
+            $job.Name = "CI [Job$($Job.Id)] $Name"
         }
-        $context.Jobs += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime' = 0; ErrorAction = $ErrorActionPreference}
+        $Context.Jobs += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime' = 0; ErrorAction = $ErrorActionPreference}
         Write-CidneyLog "[Start] $($job.Name)"
     }
 }

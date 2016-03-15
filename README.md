@@ -34,6 +34,8 @@ A Pipeline: is a named process that executes Stages sequentially one after the o
 		}
 	}
 
+    Invoke-Cidney 'My First Pipeline'
+
 Output:
 
 	Task 2
@@ -53,8 +55,9 @@ To get a clearer view of what is going on let's add a Verbose switch to the **Pi
 		Stage: Two {
 			Do: { Write-Output 'Task 3'}
 		}
-	} -Verbose
+	} 
 
+    Invoke-Cidney 'My First Pipeline' -Verbose
 Output:
 
 	VERBOSE: [03/08/16 9:36:03.978 AM] [Start] Pipeline My First Pipeline
@@ -104,6 +107,8 @@ There will be more documentation soon especially for other advanced commands lik
             }
         }
 
+        Invoke-Cidney HelloWorld -Verbose
+
         This example will do a Dir list and count the number of dll files, and run Get-Service as separate jobs and the Stage: will complete once all jobs are finished.
         Notice that Get-Service finished first even when it was listed second in the code.
 
@@ -151,6 +156,7 @@ On: <computer[]> [-Credential <pscredential>] [-ImportModules] <scriptblock>
                 }
             }
         }
+        Invoke-Cidney HelloWorld -Verbose
 
         Run ipconfig against Server1
 
@@ -164,6 +170,7 @@ On: <computer[]> [-Credential <pscredential>] [-ImportModules] <scriptblock>
                 }
             }
         }
+        Invoke-Cidney HelloWorld -Verbose
 
         Outputs the computer names of Server1 and Server2
 
@@ -185,6 +192,7 @@ The When: command lets you specify an event to listen for that you will run its 
 				New-Event MyEvent 
 			}
         }
+        Invoke-Cidney HelloWorld -Verbose
 
         Run ipconfig from Stage One when MyEvent is fired once Stage Two is run.
 

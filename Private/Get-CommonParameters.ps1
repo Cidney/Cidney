@@ -32,5 +32,7 @@
         }
     }
 
+    $commonParams += ' -Context $context'
+
     return $commonParams
 }

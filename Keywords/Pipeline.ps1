@@ -28,9 +28,9 @@
         Do:
         On:
         When:
+        Invoke-Cidney
     #>
 
-    [CmdletBinding()]
     param
     (
         [Parameter(Mandatory, Position = 0)]
@@ -40,60 +40,86 @@
         [scriptblock]
         $PipelineBlock,
         [switch]
-        $ShowProgress
+        $PassThru
     )
 
-    $Global:CidneyPipelineCount++
-    $context = New-CidneyContext -ShowProgress $ShowProgress
-
-    if ($ShowProgress) 
-    { 
-        Write-Progress -Activity "Pipeline $PipelineName" -Status 'Starting' -Id 0 
-    }
-
-    Write-CidneyLog "[Start] Pipeline $PipelineName" 
-
-    if ($ShowProgress) 
-    { 
-        Write-Progress -Activity "Pipeline $PipelineName" -Status 'Processing' -Id 0 
-    }
-        
-    try
+    $functionName = "Global:Pipeline:$PipelineName"
+    if ($Global:CidneyPipelineFunctions.ContainsKey($functionName))
     {
-        Initialize-CidneyVariables -ScriptBlock $PipelineBlock
-        $stages = Get-CidneyBlocks -ScriptBlock $PipelineBlock -BoundParameters $PSBoundParameters 
-        $count = 0
-        foreach($stage in $stages)
+        $Global:CidneyPipelineFunctions.Remove($functionName)
+    }
+    $Global:CidneyPipelineFunctions.Add($functionName, $PSBoundParameters)
+
+    $functionScript = {
+        [CmdletBinding()]
+        param
+        (
+            [string]
+            $PipelineName,
+            [scriptblock]
+            $PipelineBlock,
+            [switch]
+            $ShowProgress
+        )
+
+        $Global:CidneyPipelineCount++
+        $context = New-CidneyContext
+        $context.Add('ShowProgress', $ShowProgress)
+
+        if ($ShowProgress) 
+        { 
+            Write-Progress -Activity "Pipeline $PipelineName" -Status 'Starting' -Id 0 
+        }
+
+        Write-CidneyLog "[Start] Pipeline $PipelineName" 
+
+        if ($ShowProgress) 
+        { 
+            Write-Progress -Activity "Pipeline $PipelineName" -Status 'Processing' -Id 0 
+        }
+        
+        try
         {
-            if ($ShowProgress) 
-            { 
-                Write-Progress -Activity "Pipeline $PipelineName" -Status 'Processing' -Id 0 -PercentComplete ($count / $stages.Count * 100) 
+            Initialize-CidneyVariables -ScriptBlock $PipelineBlock -Context $context
+            $stages = Get-CidneyBlocks -ScriptBlock $PipelineBlock -BoundParameters $PSBoundParameters 
+            $count = 0
+            foreach($stage in $stages)
+            {
+                if ($ShowProgress) 
+                { 
+                    Write-Progress -Activity "Pipeline $PipelineName" -Status 'Processing' -Id 0 -PercentComplete ($count / $stages.Count * 100) 
+                }
+                $count++           
+    
+                Invoke-Command -Command $stage
+            }    
+        }
+        finally
+        {
+            foreach($cred in $context.CredentialStore.GetEnumerator())
+            {
+                Remove-Item $cred.Value -Force -ErrorAction SilentlyContinue
             }
-            $count++           
-    
-            Invoke-Command -Command $stage
-        }    
-    }
-    finally
-    {
-        foreach($cred in $context.CredentialStore.GetEnumerator())
-        {
-            Remove-Item $cred.Value -Force -ErrorAction SilentlyContinue
-        }
         
-        foreach($var in $context.GlobalVariables)
-        {
-            Remove-Variable -Name $var.Name -Scope Global
-        }
-        
-        Remove-CidneyContext -Context $context
-    }   
+            foreach($var in $context.LocalVariables)
+            {
+                Remove-Variable -Name $var.Name -Scope Local -ErrorAction SilentlyContinue
+            }
+        }   
     
-    Write-CidneyLog "[Done] Pipeline $PipelineName" 
-    if ($ShowProgress) 
-    { 
-        Write-Progress -Activity "Pipeline $PipelineName" -Status 'Completed' -ID 0 -Completed 
+        Write-CidneyLog "[Done] Pipeline $PipelineName" 
+        if ($ShowProgress) 
+        { 
+            Write-Progress -Activity "Pipeline $PipelineName" -Status 'Completed' -ID 0 -Completed 
+        }
+
+        $Global:CidneyPipelineCount--
     }
 
-    $Global:CidneyPipelineCount--
+    $result = New-item Function:\$functionName -Value $functionScript -Options AllScope, ReadOnly -Force
+
+    if ($PassThru)
+    {
+        $result
+    }
 }

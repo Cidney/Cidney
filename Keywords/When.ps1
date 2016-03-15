@@ -19,6 +19,7 @@
                 }
             }
         }
+        Invoke-Cidney HelloWorld -Verbose
 
         Run ipconfig when MyEvent is fired.
 
@@ -27,8 +28,7 @@
         Stage:
         Do:
         On:
-        Dsc:
-        At:
+        Invoke-Cidney
     #>
 
     [CmdletBinding()]
@@ -45,11 +45,13 @@
         [switch]
         $Wait,
         [Int32]
-        $Timeout = 300
+        $Timeout = 300,
+        [Parameter(DontShow)]
+        [hashtable]
+        $Context
     )
 
     $script = $WhenBlock.ToString().Trim() 
-  
     $script +=  @'
     
     $null = $eventSubscriber | Unregister-Event

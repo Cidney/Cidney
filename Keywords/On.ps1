@@ -19,6 +19,7 @@
                 }
             }
         }
+        Invoke-Cidney HelloWorld -Verbose
 
         Run ipconfig against Server1
 
@@ -32,6 +33,7 @@
                 }
             }
         }
+        Invoke-Cidney HelloWorld -Verbose
 
         Outputs the computer names of Server1 and Server2
 
@@ -39,6 +41,8 @@
         Pipeline:
         Stage:
         Do:
+        When:
+        Invoke-Cidney
     #>
 
     [CmdletBinding()]
@@ -53,10 +57,12 @@
         [PSCredential]
         $Credential,
         [switch]
-        $ImportModules
+        $ImportModules,
+        [Parameter(DontShow)]
+        [hashtable]
+        $Context
     )
 
-    $context = Get-CidneyContext
     $doBlocks = Get-CidneyBlocks -ScriptBlock $OnBlock 
 
     $invokeBlocks = @()
@@ -75,7 +81,7 @@
             $Credential | Export-Clixml $credPath
 
             $params += " -UserName $userName"
-            $context.CredentialStore.Add($userName, $credPath)
+            $Context.CredentialStore.Add($userName, $credPath)
         }
         if ($ImportModules -or $Global:CidneyImportModulesPreference)
         {

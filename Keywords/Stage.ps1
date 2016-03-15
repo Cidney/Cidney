@@ -22,9 +22,13 @@
                 Do: { Get-Process | Where Status -eq 'Running' }
             }
         }
+        Invoke-Cidney HelloWorld -Verbose
+
         .LINK
         Pipeline:
+        On:
         Do:
+        Invoke-Cidney
     #>
 
     [CmdletBinding()]
@@ -35,15 +39,16 @@
         $StageName,
         [Parameter(Mandatory, Position = 1)]
         [scriptblock]
-        $StageBlock
+        $StageBlock,
+        [hashtable]
+        $Context
     )
     
-    Initialize-CidneyVariables -ScriptBlock $StageBlock -scope Local
-    
-    $context = Get-CidneyContext
-    $context.Add('Jobs', @())
+    Initialize-CidneyVariables -ScriptBlock $StageBlock -Context $Context
+    $Context.LocalVariables += (Get-Variable -Name StageName)
+    $Context.Add('Jobs', @())
 
-    if ($context.ShowProgress) 
+    if ($Context.ShowProgress) 
     { 
         Write-Progress -Activity "Stage $StageName" -Status 'Starting' -Id 1 
     }
@@ -56,17 +61,17 @@
         $count = 0
         foreach($block in $blocks)
         {
-            Invoke-Command -Command $block
+            Invoke-Command -Command $block -ArgumentList $Context.LocalVariables
 
             $count++ 
-            if ($context.ShowProgress -and $context.Jobs.Count -eq 0) 
+            if ($Context.ShowProgress -and $Context.Jobs.Count -eq 0) 
             { 
                 Write-Progress -Activity "Stage $StageName" -Status 'Processing' -Id 1 -PercentComplete ($count/$blocks.Count * 100)
             }
         }
 
-        Wait-CidneyJob -Jobs $context.Jobs
-        foreach ($job in $context.Jobs)
+        Wait-CidneyJob -Context $Context
+        foreach ($job in $Context.Jobs)
         {
             if ($job.Job.State -match 'Failed|Stopped|Suspended|Disconnected') 
             {
@@ -77,16 +82,16 @@
     }
     finally
     {
-        foreach($var in $context.LocalVariables)
+        foreach($var in $Context.LocalVariables)
         {
             Get-Variable -Name $var -Scope Local -ErrorAction SilentlyContinue | Remove-Variable -ErrorAction SilentlyContinue
         }
 
-        $context.Remove('LocalVariables')
-        $context.Remove('Jobs')
+        $Context.Remove('LocalVariables')
+        $Context.Remove('Jobs')
     }
 
-    if ($context.ShowProgress) 
+    if ($Context.ShowProgress) 
     { 
         Write-Progress -Activity "Stage $StageName" -Status 'Completed' -Id 1 -Completed 
     }       

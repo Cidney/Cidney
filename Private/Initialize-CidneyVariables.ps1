@@ -4,14 +4,13 @@
      (
          [scriptblock]
          $ScriptBlock,
-         [string]
-         $Scope = 'Global'
+         [hashtable]
+         $Context
      )
 
-    $context = Get-CidneyContext
-    if (-not $context.Contains("$($Scope)Variables"))
+    if (-not $context.Contains('LocalVariables'))
     {
-        $context.Add("$($Scope)Variables", @())
+        $context.Add('LocalVariables', @())
     }
     
     if ($ScriptBlock.ToString().Trim())
@@ -26,20 +25,20 @@
             $name = $item.Left.VariablePath.UserPath
             $value = Invoke-Expression -Command $item.Right.Expression
 
-            if (-not (Get-Variable -Name $name -Scope $Scope -ErrorAction SilentlyContinue))
+            if (-not (Get-Variable -Name $name -Scope Local -ErrorAction SilentlyContinue))
             {
-                New-Variable -Name $name -Value $value -Scope $Scope -Force -ErrorAction SilentlyContinue
-                $newVariables += Get-Variable -Name $name -Scope $Scope              
+                New-Variable -Name $name -Value $value -Scope Local -Force -ErrorAction SilentlyContinue
+                $newVariables += Get-Variable -Name $name -Scope Local              
             }
             else
             {
-                Set-Variable -Name $name -Value $value -Scope $Scope -Force -ErrorAction SilentlyContinue
+                Set-Variable -Name $name -Value $value -Scope Local -Force -ErrorAction SilentlyContinue
             }                 
         } 
 
         if ($newVariables.Count -gt 0)
         {
-            $context["$($Scope)Variables"] += $newVariables              
+            $context.LocalVariables += $newVariables              
         }
     }
 }

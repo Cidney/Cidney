@@ -1,12 +1,12 @@
 ﻿@{
     RootModule = 'Cidney.psm1'
-    ModuleVersion = '0.9.2.0'
+    ModuleVersion = '0.9.5.0'
     GUID = '95f1121c-d1c5-4fc1-89c0-5da6e5cc2082'
     Author = 'Cidney Team'
     CompanyName = 'Cidney'
     Copyright = 'Copyright (c) 2016 by Cidney Team, licensed under Apache 2.0 License.'
     Description = 'This module defines a DSL for doing pipelines and stages for Continuous Integration and Deployment'
-    FunctionsToExport = 'Pipeline:','Stage:','Do:','On:','When:','Write-CidneyLog'
+    FunctionsToExport = 'Pipeline:','Stage:','Do:','On:','When:','Write-CidneyLog','Invoke-Cidney','Remove-CidneyPipeline', 'Get-CidneyPipeline'
     
     PrivateData = @{
         # PSData is module packaging and gallery metadata embedded in PrivateData
@@ -18,7 +18,7 @@
             Category = 'Scripting Techniques'
 
             # Keyword tags to help users find this module via navigations and search.
-            Tags = @('powershell','continuous integration','ci','devops', 'continusous deployment', 'continuous delivery', 'release management')
+            Tags = @('powershell','continuous integration','ci','devops', 'continuous deployment', 'continuous delivery', 'release management')
 
             # The web address of an icon which can be used in galleries to represent this module
             IconUri = ''

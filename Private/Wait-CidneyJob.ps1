@@ -4,13 +4,16 @@
     param
     (
         [Parameter()]
-        [System.Object[]]
-        $Jobs
+        [hashtable]
+        $Context
     )  
 
     $count = 0
     $date = Get-Date
-    $context = Get-CidneyContext
+    $jobs = $Context.Jobs
+    $jobCount = $jobs.Count
+    $showprogress = $Context.ShowProgress
+
     do
     {               
         $RunningJobs = [System.Collections.ArrayList]::new()
@@ -52,9 +55,9 @@
             }
         }
 
-        if ($context.ShowProgress -and $context.Jobs -and $context.Jobs.Count -gt 0) 
+        if ($showProgress -and $jobcount -gt 0) 
         { 
-            Write-Progress -Activity "Stage $Name" -Status 'Processing' -Id 1 -PercentComplete ($count/$context.Jobs.Count * 100)
+            Write-Progress -Activity "Stage $Name" -Status 'Processing' -Id 1 -PercentComplete ($count/$jobCount * 100)
         }
 
         $jobs = $RunningJobs
