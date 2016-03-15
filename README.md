@@ -29,11 +29,12 @@ I welcome any and all who wish to help out and contribute to this project.
 
 Cidney is a very easy way to handle multiple tasks in parallel runspaces in a structured way. There are only 5 keywords
 
- *Pipeline:
- *Stage: 
- *On:
- *Do:
- *When:
+- Pipeline:
+- Stage: 
+- On:
+- Do:
+- When:
+
 
 Everything starts with a **Pipeline:** 
 A Pipeline: is a named process that executes Stages sequentially one after the other. Inside a Stage: are Do: tasks which execute in parallel using powershell jobs. Let's look at a quick example:
@@ -232,4 +233,5 @@ The When: command lets you specify an event to listen for that you will run its 
         Run ipconfig from Stage One when MyEvent is fired once Stage Two is run.
 
 ----------
+
 
