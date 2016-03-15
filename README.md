@@ -4,7 +4,7 @@ A Continuous Integration and Deployment DSL in Powershell
 
 ----------
 
-Tags: CI, Continuous Integration, Continuous Deployment, DevOps, Powershell, DSL 
+Tags: CI, Continuous Integration, Continuous Deployment, DevOps, Powershell,  DSL,  DSC 
 
 **Install**
 
@@ -14,11 +14,25 @@ Add this module to C:\Program Files\WindowsPowershell\Modules\Cidney
 
 Import-Module Cidney
 
+**Help**
+Keywords and cmdlets have powershell help. 
+
+Get-Help Invoke-Cidney
+Get-Help Stage:
+
 I welcome any and all who wish to help out and contribute to this project.
 
 ----------
 
 **Cidney** is a Continuous Integration and Deployment DSL written in Powershell. Using the concept of **Pipelines** and **Stages** tasks can be performed sequentially and in parallel to easily automate your process.
+
+Cidney is a very easy way to handle multiple tasks in parallel runspaces in a structured way. There are only 5 keywords
+
+ *Pipeline:
+ *Stage: 
+ *On:
+ *Do:
+ *When:
 
 Everything starts with a **Pipeline:** 
 A Pipeline: is a named process that executes Stages sequentially one after the other. Inside a Stage: are Do: tasks which execute in parallel using powershell jobs. Let's look at a quick example:
@@ -82,7 +96,25 @@ Output:
 **Do:** tasks can run any powershell code in the scriptblock as a powershell job.
 **Pipeline:** and **Stage:** blocks will execute any cmdlet, function and assignment statements only.
 
-There will be more documentation soon especially for other advanced commands like **On:**, **Dsc:**, **When:** and **At:**
+**Pipelines no longer execute directly but now work more like functions. You define a pipeline and run it with Invoke-Cidney. See the help for Invoke-Cidney for more information.**
+
+This was done to better support Pipelines within Pipelines. 
+For Example:
+
+    Pipeline: One {
+        Write-output "Hello from Pipeline: One"
+        Invoke-Cidney -Name Two
+    }
+
+    Pipeline: Two {
+        Write-output "Hello from Pipeline: Two"
+    }
+
+    Invoke-Cidney One
+
+    Hello from Pipeline: One
+    Hello from Pipeline: Two
+    
 
 ----------
 
@@ -94,9 +126,11 @@ There will be more documentation soon especially for other advanced commands lik
 
  **Do:**
 
- A Cindey Pipeline: will run each Stage: one right after the other synchronously.
- Each Do: Block found will create a Job so they can be run asyncronously or in Parallel.
- Do: [<Name>] <ScriptBlock> 
+ A Cidney Pipeline: will run each Stage: one right after the other synchronously.
+ Each Do: Block found will create a Job so they can be run asynchronously ( or in Parallel.)
+ 
+
+  Do: [&lt;Name&gt;] &lt;ScriptBlock&gt;
 
          .\HelloWorld.ps1
 
@@ -145,7 +179,7 @@ There will be more documentation soon especially for other advanced commands lik
 
 On: command for Cidney Pipelines. Used between Stage: and Do: 
 The On: command lets you specify a computer(s) that you will run its script block against
-On: <computer[]> [-Credential <pscredential>] [-ImportModules] <scriptblock>
+On: &lt;computer[]&gt; [-Credential &lt;pscredential&gt;] [-ImportModules] &lt;scriptblock&gt;
         
         .\HelloWorld.ps1
 
@@ -197,3 +231,4 @@ The When: command lets you specify an event to listen for that you will run its 
         Run ipconfig from Stage One when MyEvent is fired once Stage Two is run.
 
 ----------
+
