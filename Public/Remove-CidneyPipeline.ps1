@@ -41,6 +41,15 @@
         $InputObject
     )
 
+    begin
+    {
+        if ($Name)
+        {
+            # if remove 'Pipeline:' from name incase it was added by user. We will add it back in later
+            $Name = $Name.Replace('Pipeline:','')
+        }
+    }
+    
     process
     {
         if (-not $InputObject)
@@ -53,8 +62,8 @@
         if ($InputObject)
         {
             $InputObject | Remove-Item -Force 
-            $Global:CidneyPipelineFunctions.Remove("Global:$functionName")
-            Write-Verbose "$InputObject.Name Removed"
+            $Global:CidneyPipelineFunctions.Remove("Script:$functionName")
+            Write-Verbose "$($InputObject.Name) Removed"
         }
     }
 }    

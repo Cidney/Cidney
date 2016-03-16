@@ -83,7 +83,7 @@
             $params += " -UserName $userName"
             $Context.CredentialStore.Add($userName, $credPath)
         }
-        if ($ImportModules -or $Global:CidneyImportModulesPreference)
+        if ($ImportModules -or $Script:CidneyImportModulesPreference)
         {
             $params += ' -ImportModules'
         }

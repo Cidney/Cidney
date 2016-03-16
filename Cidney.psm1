@@ -1,8 +1,8 @@
 ﻿$ScriptPath = Split-Path $MyInvocation.MyCommand.Path
 
-$Global:CidneyImportModulesPreference = $false
-$Global:CidneyPipelineCount = -1
-$Global:CidneyPipelineFunctions = @{}
+$Script:CidneyImportModulesPreference = $false
+$Script:CidneyPipelineCount = -1
+$Script:CidneyPipelineFunctions = @{}
 
 $Env:CidneyStore = Join-Path $env:LOCALAPPDATA 'Cidney'
 New-Item $Env:CidneyStore -ItemType Directory -Force
@@ -56,9 +56,9 @@ catch
 #endregion
 
 $ExecutionContext.SessionState.Module.OnRemove = {
-    Remove-Variable CidneyImportModulesPreference -Scope Global -Force -ErrorAction SilentlyContinue
-    Remove-Variable CidneyPipelineCount -Scope Global -Force -ErrorAction SilentlyContinue
-    Remove-Variable CidneyPipelineFunctions -Scope Global -Force -ErrorAction SilentlyContinue
+    Remove-Variable CidneyImportModulesPreference -Scope Script -Force -ErrorAction SilentlyContinue
+    Remove-Variable CidneyPipelineCount -Scope Script -Force -ErrorAction SilentlyContinue
+    Remove-Variable CidneyPipelineFunctions -Scope Script -Force -ErrorAction SilentlyContinue
 
   #  $CidneyPipelineFunctions | Remove-CidneyPipeline
 

@@ -66,17 +66,19 @@
         [parameter(ParameterSetName = 'Reset')]
         [switch]
         $Force
-        <#,
-        [object]
-        $Context#>
     )
     begin
     {
         if ($Force)
         {
-            Get-Job -Name CI* | Remove-Job -Force
-            $Global:CidneyImportModulesPreference = $false
-            $Global:CidneyPipelineCount = -1
+            $verbose = $PSCmdlet.MyInvocation.BoundParameters.ContainsKey('Verbose')
+
+            # Make sure we get and remove only Cidney jobs
+            Get-Job | Where where Name -match '(CI \[Job\d+\])' | Remove-Job -Force -Verbose:$verbose
+            $Script:CidneyImportModulesPreference = $false
+            $Script:CidneyPipelineCount = -1
+            
+            break
         }
     }
 
@@ -84,15 +86,15 @@
     {
         if (-not $InputObject)
         {
-            $functionName = "Global:PipeLine:$Name"
+            $functionName = "Script:PipeLine:$Name"
         }
 
         if ($InputObject)
         {
-            $functionName = "Global:$($InputObject.Name)"
+            $functionName = "Script:$($InputObject.Name)"
         }
 
-        $result = $Global:CidneyPipelineFunctions.GetEnumerator() | Where Name -eq $functionName
+        $result = $Script:CidneyPipelineFunctions.GetEnumerator() | Where Name -eq $functionName
         if ($result)
         {
             $params = $result | Select -ExpandProperty Value

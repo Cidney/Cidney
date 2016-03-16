@@ -43,12 +43,12 @@
         $PassThru
     )
 
-    $functionName = "Global:Pipeline:$PipelineName"
-    if ($Global:CidneyPipelineFunctions.ContainsKey($functionName))
+    $functionName = "Script:Pipeline:$PipelineName"
+    if ($Script:CidneyPipelineFunctions.ContainsKey($functionName))
     {
-        $Global:CidneyPipelineFunctions.Remove($functionName)
+        $Script:CidneyPipelineFunctions.Remove($functionName)
     }
-    $Global:CidneyPipelineFunctions.Add($functionName, $PSBoundParameters)
+    $Script:CidneyPipelineFunctions.Add($functionName, $PSBoundParameters)
 
     $functionScript = {
         [CmdletBinding()]
@@ -62,7 +62,7 @@
             $ShowProgress
         )
 
-        $Global:CidneyPipelineCount++
+        $Script:CidneyPipelineCount++
         $context = New-CidneyContext
         $context.Add('ShowProgress', $ShowProgress)
 
@@ -113,7 +113,7 @@
             Write-Progress -Activity "Pipeline $PipelineName" -Status 'Completed' -ID 0 -Completed 
         }
 
-        $Global:CidneyPipelineCount--
+        $Script:CidneyPipelineCount--
     }
 
     $result = New-item Function:\$functionName -Value $functionScript -Options AllScope, ReadOnly -Force
