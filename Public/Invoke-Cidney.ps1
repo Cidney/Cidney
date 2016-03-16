@@ -74,7 +74,7 @@
             $verbose = $PSCmdlet.MyInvocation.BoundParameters.ContainsKey('Verbose')
 
             # Make sure we get and remove only Cidney jobs
-            Get-Job | Where where Name -match '(CI \[Job\d+\])' | Remove-Job -Force -Verbose:$verbose
+            Get-Job | Where Name -match '(CI \[Job\d+\])' | Remove-Job -Force -Verbose:$verbose
             $Script:CidneyImportModulesPreference = $false
             $Script:CidneyPipelineCount = -1
             
