@@ -87,27 +87,6 @@
         [hashtable]
         $Context
     )
-    
-    $newLocalVariablesScript = @'
-
-    param([hashtable]$__Context) 
-    
-    foreach($__var in $__Context.LocalVariables) 
-    { 
-        $__name = $__var.Name
-        $__value = $__var.Value
-
-        if (Get-Variable -Name $__name -Scope Local -ErrorAction SilentlyContinue)
-        { 
-       
-            Set-Variable -Name $__name -Value $__value -Scope Local
-        }
-        else
-        {
-            New-Variable -Name $__name -Value $__value -Scope Local
-        }
-    };
-'@ 
 
     $importModulesScript = @'
 
@@ -121,13 +100,13 @@
     };
 '@ 
 
-    $scriptHeader = $newLocalVariablesScript
+    $scriptHeader = ''
     if ($ImportModules)
     {
         $scriptHeader += $importModulesScript
     }
 
-    $DoBlock = [scriptblock]::Create("$scriptHeader $($DoBlock.ToString())")
+    $DoBlock = New-ParamScriptBlock -Statements "$scriptHeader $($DoBlock.ToString())"
    
     $params = @{
         #ThrottleLimit = Get-ThrottleLimit
@@ -147,10 +126,7 @@
         foreach($computer in $ComputerName)
         {
             $job = Invoke-Command @params -ComputerName $computer -AsJob 
-            if ($Name)
-            {
-                $job.Name = "CI [Job$($Job.Id)] $Name"
-            }
+            $job.Name = "CI [Job$($Job.Id)] $Name"
             $job.Name += " [$computer]"
             Write-CidneyLog "[Start] $($job.Name)"
             $Context.Jobs += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime'= 0; ErrorAction = $ErrorActionPreference}
@@ -159,10 +135,7 @@
     else
     {
         $job = Start-Job @params 
-        if ($name)
-        {
-            $job.Name = "CI [Job$($Job.Id)] $Name"
-        }
+        $job.Name = "CI [Job$($Job.Id)] $Name"
         $Context.Jobs += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime' = 0; ErrorAction = $ErrorActionPreference}
         Write-CidneyLog "[Start] $($job.Name)"
     }

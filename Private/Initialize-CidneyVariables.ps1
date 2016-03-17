@@ -1,12 +1,12 @@
 ﻿function Initialize-CidneyVariables
 {
-     param
-     (
-         [scriptblock]
-         $ScriptBlock,
-         [hashtable]
-         $Context
-     )
+    param
+    (
+        [scriptblock]
+        $ScriptBlock,
+        [hashtable]
+        $Context
+    )
 
     if (-not $context.Contains('LocalVariables'))
     {
@@ -23,7 +23,14 @@
         {
             $item = $assignment
             $name = $item.Left.VariablePath.UserPath
-            $value = Invoke-Expression -Command $item.Right.Expression
+            if ($item.Right.Expression)
+            {
+                $value = Invoke-Expression -Command $item.Right.Expression
+            }
+            else
+            {
+                $value = Invoke-Command -Command ([scriptblock]::Create($Item.Right.Extent.Text))
+            }
 
             if (-not (Get-Variable -Name $name -Scope Local -ErrorAction SilentlyContinue))
             {

@@ -8,33 +8,20 @@
         $BoundParameters
     )
     
-    $paramHeader = @'
-    param([object[]]$__Variables)
-    
-    foreach($__var in $__Variables)
-    {
-        $__name = $__var.Name
-        $__value = $__var.Value
-
-        if(-not (Get-Variable $__name -ErrorAction SilentlyContinue))
-        {
-            New-Variable -Name $__name -Value $__value
-        }
-    };
-'@
-
     $blocks = @()
+    $statements = @()
 
     $block = $ScriptBlock.ToString().Trim()
     if ($block)
     {
         $ast = [System.Management.Automation.Language.Parser]::ParseInput($block, [ref] $null, [ref] $null);
-        
-        $commands = $AST.FindAll({$args[0] -is [System.Management.Automation.Language.CommandAst]}, $false) 
+        $commands = $AST.FindAll({$args[0] -is [System.Management.Automation.Language.CommandAst] }, $false) 
         foreach($command in $commands)
         { 
             $commonParams = ''
-            if ($command.CommandElements[0].Value -match 'Pipeline:|Stage:|Do:|On:|When:|At:')  
+
+            $value = $command.CommandElements[0].Value
+            if ($value -match 'Pipeline:|Stage:|Do:|On:|When:|At:')  
             {
                 $params = Get-CommonParameters -BoundParameters $BoundParameters
                 foreach($param in $params.Trim().Split(' '))
@@ -44,13 +31,23 @@
                         $commonParams += ' {0}' -f $param
                     }
                 }
+
+                if ($statements)
+                {
+                    $blocks += $statements
+                    $statements = @()
+                }
                 $blocks += [ScriptBlock]::Create("$command$commonParams")
             }
             else
             {
-                $blocks += [ScriptBlock]::Create("$paramHeader $command")
+                $statements += "$($command.Extent.Text)`r"
             }
         }
+    }
+    if ($statements)
+    {       
+        $blocks +=  $statements
     }
 
     return $blocks

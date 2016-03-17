@@ -31,22 +31,44 @@
         Get-CidneyPipeline
     #>
 
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName ='Name')]
     param
     (
-        [string]
-        $Name,
-        [parameter(ValueFromPipeline)]
+        [parameter(ValueFromPipeline, ParameterSetName = 'pipeline')]
         [object[]]
         $InputObject
     )
 
+    DynamicParam 
+    {
+        $attribute = [System.Management.Automation.ParameterAttribute]::new()
+        $attribute.ParameterSetName = 'Name'
+        $attribute.Position = 0
+        $attribute.Mandatory = $true
+
+        $pipelines = (Get-CidneyPipeline) -join ';'
+        $ValidateSet = [System.Management.Automation.ValidateSetAttribute]::new(($pipelines -replace 'Pipeline: ' -split ';'))
+
+        $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
+        $attributeCollection.Add($attribute)
+        $attributeCollection.Add($ValidateSet)
+
+        $dynamicParam = [System.Management.Automation.RuntimeDefinedParameter]::new('PipelineName', [string], $attributeCollection)
+
+        $params = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
+        $params.Add($dynamicParam.Name, $dynamicParam)
+
+        return $params
+    }
+
     begin
     {
-        if ($Name)
+        $pipelineName = $PSBoundParameters.PipelineName
+
+        if ($pipelineName)
         {
-            # if remove 'Pipeline:' from name incase it was added by user. We will add it back in later
-            $Name = $Name.Replace('Pipeline:','')
+            # if remove 'Pipeline:' from name in case it was added by user. We will add it back in later
+            $pipelineName = $pipelineName.Replace('Pipeline: ','')
         }
     }
     
@@ -54,15 +76,14 @@
     {
         if (-not $InputObject)
         {
-
-            $InputObject = Get-item "Function:Pipeline:$Name"
+            $InputObject = Get-item "Function:Pipeline: $pipelineName"
         }
     
         $functionName = "$($InputObject.Name)"
         if ($InputObject)
         {
             $InputObject | Remove-Item -Force 
-            $Global:CidneyPipelineFunctions.Remove("Script:$functionName")
+            $Script:CidneyPipelineFunctions.Remove("Script:$functionName")
             Write-Verbose "$($InputObject.Name) Removed"
         }
     }

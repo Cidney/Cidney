@@ -53,9 +53,6 @@
     [CmdletBinding(DefaultParameterSetName ='Name')]
     param
     (
-        [Parameter(Position = 0, ParameterSetName = 'Name')]
-        [string]
-        $Name,
         [parameter(ValueFromPipeline, ParameterSetName = 'pipeline')]
         [object[]]
         $InputObject,
@@ -67,6 +64,40 @@
         [switch]
         $Force
     )
+ 
+    DynamicParam 
+    {
+        $script = @'
+            $pipeline = $_
+            $pipelines = (Get-CidneyPipeline) -replace 'Pipeline: '
+            if($pipelines -notcontains $pipeline) 
+            { 
+                throw "$pipeline is not a valid Cidney pipeline.`n`nValid Pipelines:`n$($pipelines -join ', ')"
+            }
+            $true
+'@
+        $scriptBlock = [scriptblock]::Create($script)
+        $attribute = [System.Management.Automation.ParameterAttribute]::new()
+        $attribute.ParameterSetName = 'Name'
+        $attribute.Position = 0
+        $attribute.Mandatory = $true
+
+        $pipelines = (Get-CidneyPipeline) -join ';'
+        $validateScript = [System.Management.Automation.ValidateScriptAttribute]::new($scriptBlock)
+        $validateSet = [System.Management.Automation.ValidateSetAttribute]::new(($pipelines -replace 'Pipeline: ' -split ';'))
+      
+        $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
+        $attributeCollection.Add($attribute)
+        $attributeCollection.Add($validateScript)
+        $attributeCollection.Add($validateSet)
+       
+        $dynamicParam = [System.Management.Automation.RuntimeDefinedParameter]::new('PipelineName', [string], $attributeCollection)
+        $newParam = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
+        $newParam.Add($dynamicParam.Name, $dynamicParam)
+
+        return $newParam
+    }
+
     begin
     {
         if ($Force)
@@ -75,18 +106,21 @@
 
             # Make sure we get and remove only Cidney jobs
             Get-Job | Where Name -match '(CI \[Job\d+\])' | Remove-Job -Force -Verbose:$verbose
-            $Script:CidneyImportModulesPreference = $false
             $Script:CidneyPipelineCount = -1
             
             break
         }
+
+        $Script:CidneyShowProgressPreference = $Script:CidneyShowProgressPreference -or $ShowProgress
     }
 
     process 
     {
+        $pipelineName = $PSBoundParameters.PipelineName
+
         if (-not $InputObject)
         {
-            $functionName = "Script:PipeLine:$Name"
+            $functionName = "Script:PipeLine: $PipelineName"
         }
 
         if ($InputObject)
@@ -101,12 +135,16 @@
             
             if ($params)
             {
+                if (-not $params.ContainsKey('ShowProgress'))
+                {
+                    $params.Add('ShowProgress', $CidneyShowProgressPreference)
+                }
                 & $functionName @params
             }
         }
         else
         {
-            Write-Error "Pipeline $Name was not found."
+            Write-Error "Pipeline $PipelineName was not found."
         }
-    }    
-}
+    } 
+} 

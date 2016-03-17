@@ -26,7 +26,7 @@
                 Write-CidneyLog "[Results] $($job.Job.Name)"
                 $job.Job | Receive-Job 
                 Write-CidneyLog "[$($Job.Job.State)] $($job.Job.Name)"
-                $job.Job | Remove-Job
+                $job.Job | Remove-Job 
             } 
             else 
             {

@@ -44,24 +44,24 @@
         $Context
     )
     
-    Initialize-CidneyVariables -ScriptBlock $StageBlock -Context $Context
-    $Context.LocalVariables += (Get-Variable -Name StageName)
-    $Context.Add('Jobs', @())
-
-    if ($Context.ShowProgress) 
-    { 
-        Write-Progress -Activity "Stage $StageName" -Status 'Starting' -Id 1 
-    }
-    Write-CidneyLog "[Start] Stage $StageName"
-
     try
     {
-        $blocks = Get-CidneyBlocks -ScriptBlock $stageBlock -BoundParameters $PSBoundParameters
+        Initialize-CidneyVariables -ScriptBlock $StageBlock -Context $Context
+        $Context.LocalVariables += (Get-Variable -Name StageName)
+        if (-not $Context.ContainsKey('Jobs'))   {$Context.Add('Jobs', @())}
+    
+        if ($Context.ShowProgress) 
+        { 
+            Write-Progress -Activity "Stage $StageName" -Status 'Starting' -Id 1 
+        }
+        Write-CidneyLog "[Start] Stage $StageName"
 
+        $blocks = Get-CidneyBlocks -ScriptBlock $stageBlock -BoundParameters $PSBoundParameters
         $count = 0
         foreach($block in $blocks)
         {
-            Invoke-Command -Command $block -ArgumentList $Context.LocalVariables
+            $block = New-ParamScriptBlock -Statements $block
+            Invoke-Command -Command $block -ArgumentList $Context
 
             $count++ 
             if ($Context.ShowProgress -and $Context.Jobs.Count -eq 0) 
@@ -69,7 +69,7 @@
                 Write-Progress -Activity "Stage $StageName" -Status 'Processing' -Id 1 -PercentComplete ($count/$blocks.Count * 100)
             }
         }
-
+        
         Wait-CidneyJob -Context $Context
         foreach ($job in $Context.Jobs)
         {
