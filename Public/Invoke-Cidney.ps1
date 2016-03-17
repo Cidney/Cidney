@@ -131,14 +131,17 @@
         $result = $Script:CidneyPipelineFunctions.GetEnumerator() | Where Name -eq $functionName
         if ($result)
         {
+            
             $params = $result | Select -ExpandProperty Value
             
             if ($params)
             {
+                $params.Remove('Passthru')
                 if (-not $params.ContainsKey('ShowProgress'))
                 {
                     $params.Add('ShowProgress', $CidneyShowProgressPreference)
                 }
+
                 & $functionName @params
             }
         }
