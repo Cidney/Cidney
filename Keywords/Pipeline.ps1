@@ -101,11 +101,8 @@
                     }
                     $count++           
     
-                    Invoke-Command -Command $stage 
+                    Invoke-Command -Command $stage -ArgumentList $context
                 }    
-            }
-            catch
-            {
             }
             finally
             {

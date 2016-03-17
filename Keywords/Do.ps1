@@ -106,7 +106,7 @@
         $scriptHeader += $importModulesScript
     }
 
-    $DoBlock = New-ParamScriptBlock -Statements "$scriptHeader $($DoBlock.ToString())"
+    $DoBlock = New-ParamScriptBlock -Script "$scriptHeader $($DoBlock.ToString())"
    
     $params = @{
         #ThrottleLimit = Get-ThrottleLimit

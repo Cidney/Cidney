@@ -56,11 +56,16 @@
         }
         Write-CidneyLog "[Start] Stage $StageName"
 
-        $blocks = Get-CidneyBlocks -ScriptBlock $stageBlock -BoundParameters $PSBoundParameters
+        $blocks = Get-Cidneystatements -ScriptBlock $stageBlock -BoundParameters $PSBoundParameters
         $count = 0
         foreach($block in $blocks)
         {
-            $block = New-ParamScriptBlock -Statements $block
+            if ($Context.ShowProgress) 
+            { 
+                Write-Progress -Activity "Stage $StageName" -Status 'Processing' -Id 1
+            }
+
+            $block = New-ParamScriptBlock -Script $block
             Invoke-Command -Command $block -ArgumentList $Context
 
             $count++ 

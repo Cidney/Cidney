@@ -136,11 +136,12 @@
             
             if ($params)
             {
-                $params.Remove('Passthru')
+                $null = $params.Remove('Passthru')
                 if (-not $params.ContainsKey('ShowProgress'))
                 {
                     $params.Add('ShowProgress', $CidneyShowProgressPreference)
                 }
+                $params.ShowProgress = $CidneyShowProgressPreference
 
                 & $functionName @params
             }

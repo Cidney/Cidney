@@ -3,7 +3,7 @@
     param
     (
         [string[]]
-        $Statements
+        $Script
     )
     
     $paramHeader = @'
@@ -26,6 +26,6 @@
     }
 '@
 
-    $newScriptBlock = "$paramHeader`n$Statements"
+    $newScriptBlock = "$paramHeader`n$Script"
     return [scriptBlock]::Create($newScriptBlock)
 }
