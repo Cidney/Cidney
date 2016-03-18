@@ -11,8 +11,11 @@ build: false
 test_script:
     - ps: |
         Import-Module 'C:\projects\cidney\cidney.psd1' -force
-        $result = Invoke-Pester -PassThru -ExcludeTag Incomplete
-        if ($result.FailedCount -gt 0) { 
-            throw "$($result.FailedCount) tests failed."
+        pipeline: CidneyBuild {
+            Stage: Pester {
+                Do: { Import-Module Cidney; Invoke-Pester -Script 'C:\projects\cidney\Tests\Pipeline.tests.ps1' }
+                Do: { Import-Module Cidney; Invoke-Pester -Script 'C:\projects\cidney\Tests\Stage.tests.ps1' }
+            }
         }
-   
+
+        Invoke-Cidney CidneyBuild -Verbose
