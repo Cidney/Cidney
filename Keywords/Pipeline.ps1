@@ -74,6 +74,7 @@
             $Script:CidneyPipelineCount++
             $context = New-CidneyContext
             $context.Add('ShowProgress', $ShowProgress)
+            $context.Add('CurrentStage', '')
 
             if ($ShowProgress) 
             { 
@@ -115,15 +116,15 @@
                 {
                     Remove-Variable -Name $var.Name -Scope Local -ErrorAction SilentlyContinue
                 }
+
+                $Script:CidneyPipelineCount--
             }   
     
             Write-CidneyLog "[Done] Pipeline $PipelineName" 
             if ($ShowProgress) 
             { 
-                Write-Progress -Activity "Pipeline $PipelineName" -Status 'Completed' -ID 0 -Completed 
+               # Write-Progress -Activity "Pipeline $PipelineName" -Status 'Completed' -ID 0 -Completed 
             }
-
-            $Script:CidneyPipelineCount--
         }
 
         $result = New-item Function:\$functionName -Value $functionScript -Options AllScope, ReadOnly -Force

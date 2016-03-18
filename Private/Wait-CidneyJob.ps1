@@ -57,7 +57,7 @@
 
         if ($showProgress -and $jobcount -gt 0) 
         { 
-            Write-Progress -Activity "Stage $Name" -Status 'Processing' -Id 1 -PercentComplete ($count/$jobCount * 100)
+            Write-Progress -Activity "Stage $($Context.CurrentStage)" -Status 'Processing' -Id ($Script:CidneyPipelineCount + 1) -PercentComplete ($count/$jobCount * 100)
         }
 
         $jobs = $RunningJobs

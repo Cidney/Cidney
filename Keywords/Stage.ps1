@@ -48,12 +48,17 @@
     {
         Initialize-CidneyVariables -ScriptBlock $StageBlock -Context $Context
         $Context.LocalVariables += (Get-Variable -Name StageName)
-        if (-not $Context.ContainsKey('Jobs'))   {$Context.Add('Jobs', @())}
-    
+        if (-not $Context.ContainsKey('Jobs'))   
+        {
+            $Context.Add('Jobs', @())
+        }
+
         if ($Context.ShowProgress) 
         { 
-            Write-Progress -Activity "Stage $StageName" -Status 'Starting' -Id 1 
+            Write-Progress -Activity "Stage $StageName" -Status 'Starting' -Id ($Script:CidneyPipelineCount + 1) 
         }
+        $Context.CurrentStage = $StageName
+
         Write-CidneyLog "[Start] Stage $StageName"
 
         $blocks = Get-Cidneystatements -ScriptBlock $stageBlock -BoundParameters $PSBoundParameters
@@ -62,7 +67,7 @@
         {
             if ($Context.ShowProgress) 
             { 
-                Write-Progress -Activity "Stage $StageName" -Status 'Processing' -Id 1
+                Write-Progress -Activity "Stage $StageName" -Status 'Processing' -Id ($Script:CidneyPipelineCount + 1)
             }
 
             $block = New-ParamScriptBlock -Script $block
@@ -71,7 +76,7 @@
             $count++ 
             if ($Context.ShowProgress -and $Context.Jobs.Count -eq 0) 
             { 
-                Write-Progress -Activity "Stage $StageName" -Status 'Processing' -Id 1 -PercentComplete ($count/$blocks.Count * 100)
+                Write-Progress -Activity "Stage $StageName" -Status 'Processing' -Id ($Script:CidneyPipelineCount + 1) -PercentComplete ($count/$blocks.Count * 100)
             }
         }
         
@@ -98,7 +103,7 @@
 
     if ($Context.ShowProgress) 
     { 
-        Write-Progress -Activity "Stage $StageName" -Status 'Completed' -Id 1 -Completed 
+        Write-Progress -Activity "Stage $StageName" -Status 'Completed' -Id ($Script:CidneyPipelineCount + 1) -Completed 
     }       
     Write-CidneyLog "[Done] Stage $StageName"
 }
