@@ -3,7 +3,6 @@
 #---------------------------------# 
 os: WMF 5
 version: 0.9.2.{build}
-environment:
 install: 
   - cinst -y pester
 
