@@ -13,8 +13,8 @@ test_script:
         Import-Module 'C:\projects\cidney\cidney.psd1' -force
         pipeline: CidneyBuild {
             Stage: Pester {
-                Do: { Import-Module Cidney; Invoke-Pester -Script 'C:\projects\cidney\Tests\Pipeline.tests.ps1' }
-                Do: { Import-Module Cidney; Invoke-Pester -Script 'C:\projects\cidney\Tests\Stage.tests.ps1' }
+                Do: { Import-Module C:\projects\cidney\cidney.psd1; Invoke-Pester -Script 'C:\projects\cidney\Tests\Pipeline.tests.ps1' }
+                Do: { Import-Module C:\projects\cidney\cidney.psd1; Invoke-Pester -Script 'C:\projects\cidney\Tests\Stage.tests.ps1' }
             }
         }
 
