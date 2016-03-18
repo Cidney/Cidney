@@ -53,7 +53,7 @@ Pipeline: 'Embedded Pipeline' {
 }
 
 # This is the correct way to calla pipeline from inside a pipeline
-Pipeline: 'Calling Embedded Pipeline' {
+Pipeline: 'Invoking Pipeline in Pipeline' {
     Invoke-Cidney 'Pipeline'
     Invoke-Cidney 'Pipeline with Variables'
 }
@@ -194,9 +194,9 @@ Describe 'Embedded Pipeline' {
     }
 }
 
-Describe 'Calling Embedded Pipeline' {
+Describe 'Invoking Pipelines from Pipeline' {
     It 'Should output No Stage and Stage One' {
-        Invoke-Cidney 'Calling Embedded Pipeline' | should be 'Pipeline', 'A'
+        Invoke-Cidney 'Invoking Pipeline in Pipeline' | should be 'Pipeline', 'A'
     }
 }
 
