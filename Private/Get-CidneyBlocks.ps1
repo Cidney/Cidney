@@ -61,7 +61,7 @@ function Get-CidneyStatements
         { 
             $commonParams = ''
             $value = $statement.Extent.Text
-            if ($value -match 'Pipeline:|Stage:|Do:|On:|When:|At:')  
+            if ($value -match 'Stage:|Do:|On:|When:|At:')  
             {
                 $params = Get-CommonParameters -BoundParameters $BoundParameters
                 foreach($param in $params.Trim().Split(' '))
@@ -87,8 +87,8 @@ function Get-CidneyStatements
     }
 
     if ($statementblocks)
-    {
-        $blocks += [ScriptBlock]::Create($statementblocks -join ';')
+    {         
+        $blocks += New-ParamScriptBlock -Script ($statementblocks -join ';')
     }
 
     return $blocks

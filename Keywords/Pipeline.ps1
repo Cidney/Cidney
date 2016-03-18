@@ -44,7 +44,7 @@
         [switch]
         $PassThru,
         # Added so that the adavanced parameters like Verbose wont be shown. -Verbose is passed 
-        # via cmndlet Invoke-Cidney 
+        # via cmdlet Invoke-Cidney 
         [Parameter(DontShow)]
         [switch]
         $Dummy
@@ -52,7 +52,7 @@
 
     end
     {
-        $functionName = "Script:Pipeline: $PipelineName"
+        $functionName = "Global:Pipeline: $PipelineName"
         if ($Script:CidneyPipelineFunctions.ContainsKey($functionName))
         {
             $Script:CidneyPipelineFunctions.Remove($functionName)
@@ -68,13 +68,16 @@
                 [scriptblock]
                 $PipelineBlock,
                 [switch]
-                $ShowProgress
+                $ShowProgress,
+                [hashtable]
+                $Context
             )
 
             $Script:CidneyPipelineCount++
             $context = New-CidneyContext
             $context.Add('ShowProgress', $ShowProgress)
             $context.Add('CurrentStage', '')
+            $Context.Add('PipelineName', $PipelineName)
 
             if ($ShowProgress) 
             { 
@@ -91,7 +94,7 @@
             try
             {
                 Initialize-CidneyVariables -ScriptBlock $PipelineBlock -Context $context
-                $stages = Get-CidneyBlocks -ScriptBlock $PipelineBlock -BoundParameters $PSBoundParameters 
+                $stages = Get-CidneyStatements -ScriptBlock $PipelineBlock -BoundParameters $PSBoundParameters 
 
                 $count = 0
                 foreach($stage in $stages)
@@ -121,13 +124,9 @@
             }   
     
             Write-CidneyLog "[Done] Pipeline $PipelineName" 
-            if ($ShowProgress) 
-            { 
-               # Write-Progress -Activity "Pipeline $PipelineName" -Status 'Completed' -ID 0 -Completed 
-            }
         }
 
-        $result = New-item Function:\$functionName -Value $functionScript -Options AllScope, ReadOnly -Force
+        $result = New-item Function:\$functionName -Value $functionScript -Force
 
         if ($PassThru)
         {

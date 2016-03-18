@@ -47,7 +47,6 @@
     try
     {
         Initialize-CidneyVariables -ScriptBlock $StageBlock -Context $Context
-        $Context.LocalVariables += (Get-Variable -Name StageName)
         if (-not $Context.ContainsKey('Jobs'))   
         {
             $Context.Add('Jobs', @())
@@ -70,7 +69,6 @@
                 Write-Progress -Activity "Stage $StageName" -Status 'Processing' -Id ($Script:CidneyPipelineCount + 1)
             }
 
-            $block = New-ParamScriptBlock -Script $block
             Invoke-Command -Command $block -ArgumentList $Context
 
             $count++ 

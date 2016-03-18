@@ -111,6 +111,7 @@
             break
         }
 
+        $oldProgressPreference = $Script:CidneyShowProgressPreference
         $Script:CidneyShowProgressPreference = $Script:CidneyShowProgressPreference -or $ShowProgress
     }
 
@@ -120,12 +121,12 @@
 
         if (-not $InputObject)
         {
-            $functionName = "Script:PipeLine: $PipelineName"
+            $functionName = "Global:Pipeline: $PipelineName"
         }
 
         if ($InputObject)
         {
-            $functionName = "Script:$($InputObject.Name)"
+            $functionName = "Global:$($InputObject.Name)"
         }
 
         $result = $Script:CidneyPipelineFunctions.GetEnumerator() | Where Name -eq $functionName
@@ -151,4 +152,9 @@
             Write-Error "Pipeline $PipelineName was not found."
         }
     } 
+    
+    end
+    {
+        $Script:CidneyShowProgressPreference = $oldProgressPreference
+    }
 } 

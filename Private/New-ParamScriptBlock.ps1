@@ -7,9 +7,9 @@
     )
     
     $paramHeader = @'
-    param([hashtable]$__Context) 
+    param([hashtable]$Context) 
     
-    foreach($__var in $__Context.LocalVariables) 
+    foreach($__var in $Context.LocalVariables) 
     { 
         $__name = $__var.Name
         $__value = $__var.Value

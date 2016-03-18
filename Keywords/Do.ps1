@@ -90,7 +90,7 @@
 
     $importModulesScript = @'
 
-    foreach($__module in $__Context.Modules) 
+    foreach($__module in $Context.Modules) 
     { 
        
         if ((Get-Module -Name $__module) -eq $null)

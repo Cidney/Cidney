@@ -31,7 +31,7 @@
         Get-CidneyPipeline
     #>
 
-    [CmdletBinding(DefaultParameterSetName ='Name')]
+   [CmdletBinding(DefaultParameterSetName ='Name')]
     param
     (
         [parameter(ValueFromPipeline, ParameterSetName = 'pipeline')]
@@ -53,7 +53,7 @@
         $attributeCollection.Add($attribute)
         $attributeCollection.Add($ValidateSet)
 
-        $dynamicParam = [System.Management.Automation.RuntimeDefinedParameter]::new('PipelineName', [string], $attributeCollection)
+        $dynamicParam = [System.Management.Automation.RuntimeDefinedParameter]::new('Name', [string], $attributeCollection)
 
         $params = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
         $params.Add($dynamicParam.Name, $dynamicParam)
@@ -63,12 +63,12 @@
 
     begin
     {
-        $pipelineName = $PSBoundParameters.PipelineName
+        $Name = $PSBoundParameters.Name
 
-        if ($pipelineName)
+        if ($Name)
         {
             # if remove 'Pipeline:' from name in case it was added by user. We will add it back in later
-            $pipelineName = $pipelineName.Replace('Pipeline: ','')
+            $Name = $Name.Replace('Pipeline: ','')
         }
     }
     
@@ -76,13 +76,13 @@
     {
         if (-not $InputObject)
         {
-            $InputObject = Get-item "Function:Pipeline: $pipelineName"
+            $InputObject = Get-item "Function:\Script:Pipeline: $Name"
         }
     
         $functionName = "$($InputObject.Name)"
         if ($InputObject)
         {
-            $InputObject | Remove-Item -Force 
+            $InputObject | Remove-Item -Force -Verbose:($PSBoundParameters.Verbose -eq $true)
             $Script:CidneyPipelineFunctions.Remove("Script:$functionName")
             Write-Verbose "$($InputObject.Name) Removed"
         }
