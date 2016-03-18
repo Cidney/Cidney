@@ -6,24 +6,11 @@ version: 0.9.2.{build}
 install: 
   - cinst -y pester
 
-#---------------------------------# 
-#      build configuration        # 
-#---------------------------------# 
-
-build: false
-
-#---------------------------------# 
-#      test configuration         # 
-#---------------------------------# 
-
 test_script:
     - ps: |
         Import-Module 'C:\projects\cidney\cidney.psd1' -force
-        $testResultsFile = ".\TestsResults.xml"
-        $res = Invoke-Pester -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru -ExcludeTag Incomplete
-        (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path $testResultsFile))
-        Get-ChildItem "$ENV:APPVEYOR_BUILD_FOLDER\Cidney\Artifacts\*.*" | Foreach-Object { Push-AppveyorArtifact $_ }
-        if ($res.FailedCount -gt 0) { 
-            throw "$($res.FailedCount) tests failed."
+        $result = Invoke-Pester -PassThru -ExcludeTag Incomplete
+        if ($result.FailedCount -gt 0) { 
+            throw "$($result.FailedCount) tests failed."
         }
    
