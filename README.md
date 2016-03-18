@@ -1,6 +1,7 @@
+[![Join the chat at https://gitter.im/Cidney/Cidney](https://badges.gitter.im/Cidney/Cidney.svg)](https://gitter.im/Cidney/Cidney?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 # **Cidney**
 
-[![Join the chat at https://gitter.im/Cidney/Cidney](https://badges.gitter.im/Cidney/Cidney.svg)](https://gitter.im/Cidney/Cidney?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 A Continuous Integration and Deployment DSL in Powershell
 
