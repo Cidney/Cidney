@@ -6,6 +6,8 @@ version: 0.9.2.{build}
 install: 
   - cinst -y pester
 
+build: false
+
 test_script:
     - ps: |
         Import-Module 'C:\projects\cidney\cidney.psd1' -force
