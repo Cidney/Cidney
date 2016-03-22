@@ -123,7 +123,6 @@ To Invoke directly:
 
     Pipeline: One {
         Write-output "Hello from Pipeline: One"
-        Invoke-Cidney -Name Two
     } -Invoke
 
     Hello from Pipeline: One
