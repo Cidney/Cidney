@@ -33,9 +33,8 @@ Pipeline: 'Do Get-Service' {
 
 Pipeline: 'Do Get-Service' {
     Stage: One {
-        on: $env:COMPUTERNAME {
         Do: { Get-Service BITS }
-    }}
+    }
 }
 
 Pipeline: 'Do WriteOutput' {
@@ -103,10 +102,8 @@ Pipeline: 'Do Invoke-Pipeline' {
         Do: { 
            Pipeline: 'Do Get-Service' {
               Stage: One {
-               on: $env:COMPUTERNAME {
-                   Do: { Get-Service BITS }
-                   }
-               }
+                Do: { Get-Service BITS }
+                }
            } -Invoke           
         }
     }
