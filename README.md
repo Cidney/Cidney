@@ -131,7 +131,7 @@ To Invoke directly:
 **Pipeline:**
 
 
-  Pipeline: [-PipelineName] &lt;string&gt; [[-PipelineBlock] &lt;scriptblock&gt;] [-Invoke] [-ShowProgress] [-PassThru] 
+  Pipeline: [-PipelineName] &lt;string&gt; [-PipelineBlock] &lt;scriptblock&gt; [-Invoke] [-ShowProgress] [-PassThru] 
  
  Docs coming soon
 
@@ -148,10 +148,10 @@ To Invoke directly:
  Each Do: Block found will create a Job so they can be run asynchronously ( or in Parallel.)
  
 
-  Do: [[-DoBlock] &lt;scriptblock&gt;] [-TimeOut &lt;int&gt;] [-MaxThreads &lt;int&gt;] [-SleepTimer &lt;int&gt;] [-ComputerName &lt;string[]&gt;] [-UserName &lt;string&gt;] [-Credential &lt;pscredential&gt;] [-UseSSL] [-Passthru] 
+  Do: [-DoBlock] &lt;scriptblock&gt; [-TimeOut &lt;int&gt;] [-MaxThreads &lt;int&gt;] [-SleepTimer &lt;int&gt;] [-ComputerName &lt;string[]&gt;] [-UserName &lt;string&gt;] [-Credential &lt;pscredential&gt;] [-UseSSL] [-Passthru] 
     [-Context &lt;hashtable&gt;] [&lt;CommonParameters&gt;]
 
-  Do: [[-Name] &lt;string&gt;] [[-DoBlock] &lt;scriptblock&gt;] [-TimeOut &lt;int&gt;] [-MaxThreads &lt;int&gt;] [-SleepTimer &lt;int&gt;] [-ComputerName &lt;string[]&gt;] [-UserName &lt;string&gt;] [-Credential &lt;pscredential&gt;] [-UseSSL] 
+  Do: [[-Name] &lt;string&gt;] [-DoBlock] &lt;scriptblock&gt; [-TimeOut &lt;int&gt;] [-MaxThreads &lt;int&gt;] [-SleepTimer &lt;int&gt;] [-ComputerName &lt;string[]&gt;] [-UserName &lt;string&gt;] [-Credential &lt;pscredential&gt;] [-UseSSL] 
     [-Passthru] [-Context &lt;hashtable&gt;] [&lt;CommonParameters&gt;]
   
          .\HelloWorld.ps1
@@ -203,7 +203,7 @@ On: command for Cidney Pipelines. Used between Stage: and Do:
 The On: command lets you specify a computer(s) that you will run its script block against
 
 
-  On: [-ComputerName] &lt;string[]&gt; [[-OnBlock] &lt;scriptblock&gt;] [-Credential &lt;pscredential&gt;] [-UseSSL] [-TimeOut &lt;int&gt;] [-MaxThreads &lt;int&gt;] [-SleepTimer &lt;int&gt;] [-Context &lt;hashtable&gt;]
+  On: [-ComputerName] &lt;string[]&gt; [-OnBlock] &lt;scriptblock&gt; [-Credential &lt;pscredential&gt;] [-UseSSL] [-TimeOut &lt;int&gt;] [-MaxThreads &lt;int&gt;] [-SleepTimer &lt;int&gt;] [-Context &lt;hashtable&gt;]
         
         .\HelloWorld.ps1
 
@@ -239,7 +239,7 @@ When: command for Cidney Pipelines. Used between Stage: and Do:
 The When: command lets you specify an event to listen for that you will run its script block against 
       
         
-  When: [-Event] &lt;Object&gt; [[-WhenBlock] &lt;scriptblock&gt;] [-EventObject &lt;Object&gt;] [-Wait] [-Timeout &lt;int&gt;] 
+  When: [-Event] &lt;Object&gt; [-WhenBlock] &lt;scriptblock&gt; [-EventObject &lt;Object&gt;] [-Wait] [-Timeout &lt;int&gt;] 
 
         .\HelloWorld.ps1
         
