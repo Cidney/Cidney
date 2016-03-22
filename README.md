@@ -1,6 +1,6 @@
-# **Cidney**
+# **Cidney** [![Join the chat at https://gitter.im/Cidney/Cidney](https://badges.gitter.im/Cidney/Cidney.svg)](https://gitter.im/Cidney/Cidney?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build status](https://ci.appveyor.com/api/projects/status/j0jqgja6d352pkhc/branch/master?svg=true)](https://ci.appveyor.com/project/RobertKozak/cidney/branch/master)
 
-A Continuous Integration and Deployment DSL in Powershell
+Continuous Integration and Deployment Pipelines in Powershell
 
 ----------
 
