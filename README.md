@@ -131,14 +131,14 @@ To Invoke directly:
 **Pipeline:**
 
 
-  Pipeline: [-PipelineName] &lt;string&gt; [[-PipelineBlock] &lt;scriptblock&gt;] [-Invoke] [-ShowProgress] [-PassThru] [-Dummy] [&lt;CommonParameters&gt;]
+  Pipeline: [-PipelineName] &lt;string&gt; [[-PipelineBlock] &lt;scriptblock&gt;] [-Invoke] [-ShowProgress] [-PassThru] 
  
  Docs coming soon
 
  **Stage:**
 
 
-  Stage: [-StageName] &lt;string&gt; [[-StageBlock] &lt;scriptblock&gt;] [-Context &lt;hashtable&gt;] [&lt;CommonParameters&gt;]
+  Stage: [-StageName] &lt;string&gt; [[-StageBlock] &lt;scriptblock&gt;] 
 
  Docs coming soon
 
@@ -203,8 +203,7 @@ On: command for Cidney Pipelines. Used between Stage: and Do:
 The On: command lets you specify a computer(s) that you will run its script block against
 
 
-  On: [-ComputerName] &lt;string[]&gt; [[-OnBlock] &lt;scriptblock&gt;] [-Credential &lt;pscredential&gt;] [-UseSSL] [-TimeOut &lt;int&gt;] [-MaxThreads &lt;int&gt;] [-SleepTimer &lt;int&gt;] [-Context &lt;hashtable&gt;] 
-    [&lt;CommonParameters&gt;]
+  On: [-ComputerName] &lt;string[]&gt; [[-OnBlock] &lt;scriptblock&gt;] [-Credential &lt;pscredential&gt;] [-UseSSL] [-TimeOut &lt;int&gt;] [-MaxThreads &lt;int&gt;] [-SleepTimer &lt;int&gt;] [-Context &lt;hashtable&gt;]
         
         .\HelloWorld.ps1
 
@@ -240,7 +239,7 @@ When: command for Cidney Pipelines. Used between Stage: and Do:
 The When: command lets you specify an event to listen for that you will run its script block against 
       
         
-  When: [-Event] &lt;Object&gt; [[-WhenBlock] &lt;scriptblock&gt;] [-EventObject &lt;Object&gt;] [-Wait] [-Timeout &lt;int&gt;] [-Context &lt;hashtable&gt;] [&lt;CommonParameters&gt;]
+  When: [-Event] &lt;Object&gt; [[-WhenBlock] &lt;scriptblock&gt;] [-EventObject &lt;Object&gt;] [-Wait] [-Timeout &lt;int&gt;] 
 
         .\HelloWorld.ps1
         
