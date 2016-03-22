@@ -10,14 +10,15 @@ build: false
 
 test_script:
     - ps: |
-        Import-Module 'C:\projects\cidney\cidney.psd1' -force
+	    C:\projects\cidney\tests\TestCidney.ps1
+        #Import-Module 'C:\projects\cidney\cidney.psd1' -force
 
-        pipeline: CidneyBuild {
-            $Path = (Get-Module Cidney).ModuleBase
-            Stage: Pester {
-                Do: { Invoke-Pester -Script "$path\Tests\Pipeline.Tests.ps1" }
-                Do: { Invoke-Pester -Script "$path\Tests\Stage.Tests.ps1" }
-                Do: { Invoke-Pester -Script "$path\Tests\Do.Tests.ps1" }
-                Do: { Invoke-Pester -Script "$path\Tests\Pipeline.Do.Tests.ps1" }
-            }
-        } -Invoke -Verbose
+        #pipeline: CidneyBuild {
+        #    $Path = (Get-Module Cidney).ModuleBase
+        #    Stage: Pester {
+        #        Do: { Invoke-Pester -Script "$path\Tests\Pipeline.Tests.ps1" }
+        #        Do: { Invoke-Pester -Script "$path\Tests\Stage.Tests.ps1" }
+        #        Do: { Invoke-Pester -Script "$path\Tests\Do.Tests.ps1" }
+        #        Do: { Invoke-Pester -Script "$path\Tests\Pipeline.Do.Tests.ps1" }
+        #    }
+        #} -Invoke -Verbose

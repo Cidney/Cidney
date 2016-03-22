@@ -28,9 +28,9 @@ Pipeline: 'Do Timing 128 threads' {
 #region Tests
 #About 250ms per thread to setup seconds for setup so add (250 * 16) to result
 Describe 'Performance Tests' {
-    It 'should take less than 9 seconds to run 16 Threads sleeping for 5 seconds each' {
+    It 'should take less than 10 seconds to run 16 Threads sleeping for 5 seconds each' {
         $result = Measure-Command { Invoke-Cidney 'Do Timing 16 Threads' }
-        $result.Seconds -le 5 + 4 | should be $true
+        $result.Seconds -le 5 + 5 | should be $true
     }    
     It 'should take less than 14 seconds to run 32 threads sleeping for 5 seconds each' {
         $result = Measure-Command { Invoke-Cidney 'Do Timing 32 Threads' }
