@@ -3,6 +3,7 @@
 #
 
 Import-Module 'c:\projects\Cidney\Cidney.psd1' -force -Verbose
+Import-Module Pester -Force -Verbose
 
 pipeline: CidneyBuild {
     $Path = (Get-Module Cidney).ModuleBase
