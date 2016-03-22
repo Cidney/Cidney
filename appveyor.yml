@@ -10,7 +10,7 @@ build: false
 
 test_script:
     - ps: |
-        Import-Module c:\project\Cidney\Cidney.psd1 -force
+        Import-Module 'C:\projects\cidney\cidney.psd1' -force
 
         pipeline: CidneyBuild {
             $Path = (Get-Module Cidney).ModuleBase
