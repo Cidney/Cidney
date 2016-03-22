@@ -86,7 +86,7 @@
                     }
 
                     $job.Handle = $null
-                    Write-Warning "** Job $($Job.Name) timed out"
+                    Write-Error "Job $($Job.Name) Failed"
                     $job 
                 } 
             }

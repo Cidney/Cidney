@@ -76,12 +76,12 @@
     foreach($doBlock in $doBlocks)
     {
         $params = "-MaxThreads $MaxThreads"
-        if ($ComputerName)
+        if ($PSBoundParameters['ComputerName'])
         {
             $computerNames = $ComputerName -Join ','
             $params += " -ComputerName $ComputerNames"
         }
-        if ($Credential)
+        if ($PSBoundParameters['Credential'])
         {
             $userName = $Credential.UserName -replace '\\', '_' 
             $credPath = Join-Path $Env:CidneyStore "$($userName)Credentials.xml"
@@ -90,19 +90,19 @@
             $params += " -UserName $userName"
             $Context.CredentialStore.Add($userName, $credPath)
         }
-        if ($UseSSL)
+        if ($PSBoundParameters['UseSSL'])
         {
             $params += " -UseSSL $UseSSL"
         }
-        if ($MaxThreads)
+        if ($PSBoundParameters['MaxThreads'])
         {
             $params += " -MaxThreads $MaxThreads"
         }
-        if ($TimeOut)
+        if ($PSBoundParameters['TimeOut'])
         {
             $params += " -Timeout $TimeOut"
         }
-        if ($SleepTimer)
+        if ($PSBoundParameters['SleepTimer'])
         {
             $params += " -SleepTimer $SleepTimer"
         }
