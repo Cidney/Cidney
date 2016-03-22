@@ -138,7 +138,7 @@ To Invoke directly:
  **Stage:**
 
 
-  Stage: [-StageName] &lt;string&gt; [[-StageBlock] &lt;scriptblock&gt;] 
+  Stage: [-StageName] &lt;string&gt; [-StageBlock] &lt;scriptblock&gt;
 
  Docs coming soon
 
@@ -149,10 +149,9 @@ To Invoke directly:
  
 
   Do: [-DoBlock] &lt;scriptblock&gt; [-TimeOut &lt;int&gt;] [-MaxThreads &lt;int&gt;] [-SleepTimer &lt;int&gt;] [-ComputerName &lt;string[]&gt;] [-UserName &lt;string&gt;] [-Credential &lt;pscredential&gt;] [-UseSSL] [-Passthru] 
-    [-Context &lt;hashtable&gt;] [&lt;CommonParameters&gt;]
 
   Do: [[-Name] &lt;string&gt;] [-DoBlock] &lt;scriptblock&gt; [-TimeOut &lt;int&gt;] [-MaxThreads &lt;int&gt;] [-SleepTimer &lt;int&gt;] [-ComputerName &lt;string[]&gt;] [-UserName &lt;string&gt;] [-Credential &lt;pscredential&gt;] [-UseSSL] 
-    [-Passthru] [-Context &lt;hashtable&gt;] [&lt;CommonParameters&gt;]
+    [-Passthru] 
   
          .\HelloWorld.ps1
 
@@ -203,7 +202,7 @@ On: command for Cidney Pipelines. Used between Stage: and Do:
 The On: command lets you specify a computer(s) that you will run its script block against
 
 
-  On: [-ComputerName] &lt;string[]&gt; [-OnBlock] &lt;scriptblock&gt; [-Credential &lt;pscredential&gt;] [-UseSSL] [-TimeOut &lt;int&gt;] [-MaxThreads &lt;int&gt;] [-SleepTimer &lt;int&gt;] [-Context &lt;hashtable&gt;]
+  On: [-ComputerName] &lt;string[]&gt; [-OnBlock] &lt;scriptblock&gt; [-Credential &lt;pscredential&gt;] [-UseSSL] [-TimeOut &lt;int&gt;] [-MaxThreads &lt;int&gt;] [-SleepTimer &lt;int&gt;]
         
         .\HelloWorld.ps1
 
