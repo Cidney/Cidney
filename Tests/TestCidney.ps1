@@ -1,13 +1,15 @@
-﻿
+﻿# I dont have credentials to access the appveyor machine this runs on. So instead of 
+# using the On: keyword to import the modules I import them directly in the Do: block
+#
+
+Import-Module Cidney -force
+
 pipeline: CidneyBuild {
+    $Path = (Get-Module Cidney).ModuleBase
     Stage: Pester {
-        #Do: { Invoke-Pester -Path 'C:\Program Files\WindowsPowerShell\Modules\Cidney\Tests\Pipeline.tests.ps1' -Quiet -Passthru | select -ExpandProperty TestResult | select Describe, Context, Name, Result, Time | Format-Table -AutoSize }
-        #Do: { Invoke-Pester -Path 'C:\Program Files\WindowsPowerShell\Modules\Cidney\Tests\Stage.tests.ps1' -Quiet -Passthru | select -ExpandProperty TestResult | select Describe, Context, Name, Result, Time | Format-Table -AutoSize }
-        #Do: { Invoke-Pester -Path 'C:\Program Files\WindowsPowerShell\Modules\Cidney\Tests\Do.tests.ps1' -Quiet -Passthru | select -ExpandProperty TestResult | select Describe, Context, Name, Result, Time | Format-Table -AutoSize }
- 
-#        Do: { Invoke-Pester -Path 'C:\Program Files\WindowsPowerShell\Modules\Cidney\Tests\Pipeline.tests.ps1' -Quiet -Passthru | Select TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount, Time| Format-Table -AutoSize }
-#        Do: { Invoke-Pester -Path 'C:\Program Files\WindowsPowerShell\Modules\Cidney\Tests\Stage.tests.ps1' -Quiet -Passthru | Select TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount, Time| Format-Table -AutoSize }
-#        Do: { Invoke-Pester -Path 'C:\Program Files\WindowsPowerShell\Modules\Cidney\Tests\Do.tests.ps1' -Quiet -Passthru | Select TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount, Time| Format-Table -AutoSize }
-        Do: { Invoke-Pester -Path 'C:\Program Files\WindowsPowerShell\Modules\Cidney\Tests\Do.tests.ps1' }
+        Do: { Invoke-Pester -Script "$path\Tests\Pipeline.Tests.ps1" }
+        Do: { Invoke-Pester -Script "$path\Tests\Stage.Tests.ps1" }
+        Do: { Invoke-Pester -Script "$path\Tests\Do.Tests.ps1" }
+        Do: { Invoke-Pester -Script "$path\Tests\Pipeline.Do.Tests.ps1" }
     }
 } -Invoke -Verbose

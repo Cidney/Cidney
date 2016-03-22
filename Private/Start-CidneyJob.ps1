@@ -38,7 +38,11 @@
             }
         }
         
-        $Script:RsSessionState.ImportPSModule((Get-Module Cidney))
+        $cidney = Get-Module Cidney -ErrorAction SilentlyContinue
+        if ($cidney)
+        {
+            $Script:RsSessionState.ImportPSModule($cidney)
+        }
     }
 
     if (-not $Script:RunspacePool -or $Script:RunspacePool.RunspacePoolStateInfo.State -ne 'Opened')

@@ -55,7 +55,8 @@ Pipeline: 'Invoking Pipeline in Pipeline 1' {
 
 # This is 2of 2 correct ways to call a pipeline from inside a pipeline
 Pipeline: 'Invoking Pipeline in Pipeline 2' {
-    .\Tests\EmbeddedPipelineScript.ps1
+    $path = (Get-Module Cidney).ModuleBase
+    & "$path\Tests\EmbeddedPipelineScript.ps1"
 }
 #endregion
 
