@@ -1,4 +1,5 @@
-﻿pipeline: CidneyBuild {
+﻿Import-Module 'c:\projects\Cidney\Cidney.psd1'
+pipeline: CidneyBuild {
     $Path = (Get-Module Cidney).ModuleBase
     Stage: Pester {
         Do: { Import-Module 'c:\projects\Cidney\Cidney.psd1', Pester; Invoke-Pester -Script "$path\Tests\Pipeline.Tests.ps1" }
