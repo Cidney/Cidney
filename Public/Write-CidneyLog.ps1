@@ -7,7 +7,7 @@
         $Message
     )
 
-    $indentLevel = $Script:CidneyPipelineCount
+    $indentLevel = $CidneyPipelineCount
     if($indentLevel -lt 0)
     {
         $indentLevel = 0

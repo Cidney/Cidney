@@ -1,75 +1,92 @@
 ﻿#region Pipeline configurations
 Pipeline: 'Pipeline' {
-    Write-Output "$PipelineName"
+    Do: {
+        Write-Output "$PipelineName"
+    }
 }
 
 Pipeline: 'Pipeline with Variables' {
-    $A = 'A'
-    Write-Output "$A"
+    Do: {
+        $A = 'A'
+        Write-Output "$A"
+    }
 }
 
 Pipeline: 'Pipeline with If (true)' {
-    $A = 'A'
-    if ($A -eq 'A')
-    { $true} else {$false}
+    Do: {
+        $A = 'A'
+        if ($A -eq 'A')
+        { $true} else {$false}
+    }
 }
 
 Pipeline: 'Pipeline with If (false)' {
-    $A = 'A'
-    if ($A -eq 'B')
-    { $true} else {$false}
+    Do: {
+        $A = 'A'
+        if ($A -eq 'B')
+        { $true} else {$false}
+    }
 }
 
 Pipeline: 'Pipeline Get-Service' {
-    (Get-service Bits).DisplayName
+    Do: {
+        (Get-service Bits).DisplayName
+    }
 }
 
 Pipeline: 'Pipeline Context' {
-    $context
+    Do: {
+        $context
+    }
+}
+
+Pipeline: 'Pipeline Context and Variable' {
+    Do: {
+        $a = 'Test'
+        $context
+    }
 }
 
 Pipeline: 'Pipeline CidneyShowProgressPreference' {
-    $CidneyShowProgressPreference
+    Do: {
+        $CidneyShowProgressPreference
+    }
 }
 
 Pipeline: 'Pipeline CidneyPipelineCount' {
-    $CidneyPipelineCount
+    Do: {
+        $CidneyPipelineCount
+    }
 }
 
 Pipeline: 'Pipeline CidneyPipelineCount 2 Pipelines' {
-    Invoke-Cidney 'Pipeline CidneyPipelineCount'
+    Do: {
+        Invoke-Cidney 'Pipeline CidneyPipelineCount'
+    }
 }
 
 # Cannot have pipelines within pipelines
 Pipeline: 'Embedded Pipeline' {
-    Pipeline: A { Write-Output "$PipelineName"}
-    Pipeline: B { Write-Output "$PipelineName"}
-    Pipeline: C { Write-Output "$PipelineName"}
+    Do: {
+        Pipeline: A { Write-Output "$PipelineName"}
+        Pipeline: B { Write-Output "$PipelineName"}
+        Pipeline: C { Write-Output "$PipelineName"}
+    }
 }
 
-# This is 1 of 2 correct ways to call a pipeline from inside a pipeline
-Pipeline: 'Invoking Pipeline in Pipeline 1' {
-    Invoke-Cidney 'Pipeline'
-    Invoke-Cidney 'Pipeline with Variables'
-}
-
-# This is 2of 2 correct ways to call a pipeline from inside a pipeline
-Pipeline: 'Invoking Pipeline in Pipeline 2' {
-    .\Tests\EmbeddedPipelineScript.ps1
+# This is the correct way to call a pipeline from inside a pipeline
+Pipeline: 'Invoking Pipeline in Pipeline' {
+    Do: {
+        Invoke-Cidney 'Pipeline'
+        Invoke-Cidney 'Pipeline with Variables'
+    }
 }
 #endregion
 
 #region Tests
-Describe 'Pipeline Tests' {
+<#Describe 'Pipeline Tests' {
     It "Pipeline should have the name 'Pipeline'" {
         Invoke-Cidney 'Pipeline' | Should be 'Pipeline'
-    }
-    It 'Pipeline should passthru' {
-
-        $result = Pipeline: 'Pipeline Passthru' {
-        } -PassThru
-
-        $result.Name | Should be 'Pipeline: Pipeline Passthru'
     }
     It "Pipeline should have a variable A with value of 'A'" {
         Invoke-Cidney 'Pipeline with Variables' | Should be 'A'
@@ -88,8 +105,8 @@ Describe 'Pipeline Tests' {
         It 'Pipeline should have a Context that is not null' {
             $result | Should not BeNullOrEmpty
         }
-        It 'Pipeline should have a Context with 7 entries' {
-            $result.Count | Should be 7
+        It 'Pipeline should have a Context with 9 entries' {
+            $result.Count | Should be 9
         }
     }
     Context 'CurrentStage' {
@@ -131,7 +148,18 @@ Describe 'Pipeline Tests' {
             $result | Should be 'Pipeline Context'
         }
     }
-
+    Context 'LocalVaribles' {
+        $result = (Invoke-Cidney 'Pipeline Context and Variable')
+        It 'Context.LocalVariables is not empty' {
+            $result.LocalVariables | Should not BeNullOrEmpty 
+        }
+        It 'Context should have 1 variables' {
+            $result.LocalVariables.Count| Should be 1
+        }
+        It "Context should have Var = 'Test'" {
+            $result.LocalVariables[0].Value | Should be 'Test'
+        }
+    }
     Context 'Modules' {
         $result = (Invoke-Cidney 'Pipeline Context').Modules
         It 'Pipeline Context should have a Modules entry' {
@@ -159,12 +187,8 @@ Describe 'Pipeline Tests' {
     It 'Should not have embedded pipelines' {
         Invoke-Cidney 'Embedded Pipeline' | should throw
     }
-    It 'Should output from invoking pipline 1' {
-        Invoke-Cidney 'Invoking Pipeline in Pipeline 1' | should be 'Pipeline', 'A'
-    }
-    It 'Should output from invoking pipline 2' {
-        $result = Invoke-Cidney 'Invoking Pipeline in Pipeline 2'
-        $result | should be 'Pipeline'
+    It 'Should output No Stage and Stage One' {
+        Invoke-Cidney 'Invoking Pipeline in Pipeline' | should be 'Pipeline', 'A'
     }
     It 'With 1 Pipeline CidneyPipelineCount should be 0' {
         Invoke-Cidney 'Pipeline CidneyPipelineCount' | should be 0
@@ -172,7 +196,7 @@ Describe 'Pipeline Tests' {
     It 'With 2 Pipelines CidneyPipelineCount should be 1' {
             Invoke-Cidney 'Pipeline CidneyPipelineCount 2 Pipelines' | should be 1
     }
-}
+}#>
 
 #endregion
 

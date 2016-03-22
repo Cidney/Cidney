@@ -68,15 +68,16 @@
         [Parameter(Position = 0, ParameterSetName='Name')]
         [string]
         $Name = '',
-        [Parameter(Mandatory, Position = 1, ParameterSetName='Name')]
-        [Parameter(Mandatory, Position = 0, ParameterSetName='ScriptBlock')]
+        [Parameter(Position = 1, ParameterSetName='Name')]
+        [Parameter(Position = 0, ParameterSetName='ScriptBlock')]
         [scriptblock]
-        $DoBlock,
+        $DoBlock = $(Throw 'No Do: block provided. (Did you put the open curly brace on the next line?)'),
         [int]
         $TimeOut = [int]::MaxValue,
-        [Parameter(DontShow)]
-        [switch]
-        $ImportModules,
+        [int]
+        $MaxThreads,
+        [int]
+        $SleepTimer = 100,
         [Parameter(DontShow)]
         [string[]]
         $ComputerName,
@@ -88,28 +89,7 @@
         $Context
     )
 
-    $importModulesScript = @'
-
-    foreach($__module in $Context.Modules) 
-    { 
-       
-        if ((Get-Module -Name $__module) -eq $null)
-        {
-            $null = Import-Module -Name $__module -ErrorAction SilentlyContinue
-        }
-    };
-'@ 
-
-    $scriptHeader = ''
-    if ($ImportModules)
-    {
-        $scriptHeader += $importModulesScript
-    }
-
-    $DoBlock = New-ParamScriptBlock -Script "$scriptHeader $($DoBlock.ToString())"
-   
     $params = @{
-        #ThrottleLimit = Get-ThrottleLimit
         WarningAction = 'SilentlyContinue'   
         ScriptBlock = $DoBlock 
         ArgumentList = $Context
@@ -125,18 +105,22 @@
     {
         foreach($computer in $ComputerName)
         {
-            $job = Invoke-Command @params -ComputerName $computer -AsJob 
-            $job.Name = "CI [Job$($Job.Id)] $Name"
+            $job = Start-CidneyJob -Script $DoBlock -Context $Context -SleepTimer $SleepTimer -TimeOut $TimeOut
+            $job.Name = "CI [Job$($Job.Id)]"
+            if ($Name)
+            {
+                $job.Name += " $Name"
+            }
             $job.Name += " [$computer]"
             Write-CidneyLog "[Start] $($job.Name)"
-            $Context.Jobs += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime'= 0; ErrorAction = $ErrorActionPreference}
+            $Context.Jobs += $job
         }
     }
     else
     {
-        $job = Start-Job @params 
+        $job = Start-CidneyJob -Script $DoBlock -Context $Context -SleepTimer $sleepTimer -Timeout $TimeOut
         $job.Name = "CI [Job$($Job.Id)] $Name"
-        $Context.Jobs += [PSCustomObject]@{'Job' = $job; 'TimeOut' = $Timeout; 'ExecutionTime' = 0; ErrorAction = $ErrorActionPreference}
+        $Context.Jobs += $job
         Write-CidneyLog "[Start] $($job.Name)"
     }
 }

@@ -37,10 +37,16 @@
         [Parameter(Mandatory, Position = 0, ParameterSetName = 'pipeline')]
         [string]
         $PipelineName,
-        [Parameter(Mandatory, Position = 1, ParameterSetName = 'pipeline')]
+        [Parameter(Position = 1, ParameterSetName = 'pipeline')]
         [scriptblock]
-        $PipelineBlock,
-        [Parameter(Position = 2, ParameterSetName = 'pipeline')]
+        $PipelineBlock= $(Throw 'No Pipeline: block provided. (Did you put the open curly brace on the next line?)'),
+        [Parameter(ParameterSetName = 'pipeline')]
+        [switch]
+        $Invoke,
+        [Parameter(ParameterSetName = 'pipeline')]
+        [switch]
+        $ShowProgress,
+        [Parameter(ParameterSetName = 'pipeline')]
         [switch]
         $PassThru,
         # Added so that the adavanced parameters like Verbose wont be shown. -Verbose is passed 
@@ -49,88 +55,96 @@
         [switch]
         $Dummy
     )
-
-    end
+    
+    $functionName = "Global:Pipeline: $PipelineName"
+    if ($CidneyPipelineFunctions.ContainsKey($functionName))
     {
-        $functionName = "Global:Pipeline: $PipelineName"
-        if ($Script:CidneyPipelineFunctions.ContainsKey($functionName))
-        {
-            $Script:CidneyPipelineFunctions.Remove($functionName)
+        $CidneyPipelineFunctions.Remove($functionName)
+    }
+    $CidneyPipelineFunctions.Add($functionName, $PSBoundParameters)
+
+    $functionScript = {
+        [CmdletBinding()]
+        param
+        (
+            [string]
+            $PipelineName,
+            [scriptblock]
+            $PipelineBlock,
+            [switch]
+            $ShowProgress,
+            [hashtable]
+            $Context
+        )
+
+        $CidneyPipelineCount++
+        $context = New-CidneyContext
+        $context.Add('ShowProgress', $ShowProgress)
+        $context.Add('CurrentStage', '')
+        $Context.Add('PipelineName', $PipelineName)
+        $Context.Add('CurrentPath', (Get-Location))
+
+        if ($ShowProgress) 
+        { 
+            Write-Progress -Activity "Pipeline $PipelineName" -Status 'Starting' -Id 0 
         }
-        $Script:CidneyPipelineFunctions.Add($functionName, $PSBoundParameters)
 
-        $functionScript = {
-            [CmdletBinding()]
-            param
-            (
-                [string]
-                $PipelineName,
-                [scriptblock]
-                $PipelineBlock,
-                [switch]
-                $ShowProgress,
-                [hashtable]
-                $Context
-            )
+        Write-CidneyLog "[Start] Pipeline $PipelineName" 
 
-            $Script:CidneyPipelineCount++
-            $context = New-CidneyContext
-            $context.Add('ShowProgress', $ShowProgress)
-            $context.Add('CurrentStage', '')
-            $Context.Add('PipelineName', $PipelineName)
-
-            if ($ShowProgress) 
-            { 
-                Write-Progress -Activity "Pipeline $PipelineName" -Status 'Starting' -Id 0 
-            }
-
-            Write-CidneyLog "[Start] Pipeline $PipelineName" 
-
-            if ($ShowProgress) 
-            { 
-                Write-Progress -Activity "Pipeline $PipelineName" -Status 'Processing' -Id 0 
-            }
+        if ($ShowProgress) 
+        { 
+            Write-Progress -Activity "Pipeline $PipelineName" -Status 'Processing' -Id 0 
+        }
         
-            try
-            {
-                Initialize-CidneyVariables -ScriptBlock $PipelineBlock -Context $context
-                $stages = Get-CidneyStatements -ScriptBlock $PipelineBlock -BoundParameters $PSBoundParameters 
-
-                $count = 0
-                foreach($stage in $stages)
-                {
-                    if ($ShowProgress) 
-                    { 
-                        Write-Progress -Activity "Pipeline $PipelineName" -Status 'Processing' -Id 0 -PercentComplete ($count / $stages.Count * 100) 
-                    }
-                    $count++           
-    
-                    Invoke-Command -Command $stage -ArgumentList $context
-                }    
-            }
-            finally
-            {
-                foreach($cred in $context.CredentialStore.GetEnumerator())
-                {
-                    Remove-Item $cred.Value -Force -ErrorAction SilentlyContinue
-                }
-        
-                foreach($var in $context.LocalVariables)
-                {
-                    Remove-Variable -Name $var.Name -Scope Local -ErrorAction SilentlyContinue
-                }
-
-                $Script:CidneyPipelineCount--
-            }   
-    
-            Write-CidneyLog "[Done] Pipeline $PipelineName" 
-        }
-
-        $result = New-item Function:\$functionName -Value $functionScript -Force
-
-        if ($PassThru)
+        try
         {
-            $result
+            $stages = Get-CidneyStatements -ScriptBlock $PipelineBlock -BoundParameters $PSBoundParameters 
+
+            $count = 0
+            foreach($stage in $stages)
+            {
+                if ($ShowProgress) 
+                { 
+                    Write-Progress -Activity "Pipeline $PipelineName" -Status 'Processing' -Id 0 -PercentComplete ($count / $stages.Count * 100) 
+                }
+                $count++           
+    
+            Invoke-CidneyBlock -ScriptBlock $stage -Context $Context
+            }  
+                
+            Wait-CidneyJob -Context $Context    
         }
+        finally
+        {
+            foreach($cred in $context.CredentialStore.GetEnumerator())
+            {
+                Remove-Item $cred.Value -Force -ErrorAction SilentlyContinue
+            }
+
+            $CidneyPipelineCount--
+        }   
+
+        if ($Script:RunspacePool -and $Script:RunspacePool.RunspacePoolStateInfo.State -ne 'Closed')
+        {
+            $Script:RsSessionState = $null
+            $null = $Script:RunspacePool.Close()
+            $null = $Script:RunspacePool.Dispose()
+            [gc]::Collect()
+        }
+        
+        $Global:CidneyJobCount = 0
+        Write-CidneyLog "[Done] Pipeline $PipelineName" 
+    }
+
+    $result = New-item Function:\$functionName -Value $functionScript -Force
+
+    if ($PassThru)
+    {
+        $result
+    }
+    
+    if ($Invoke)
+    {
+        $result | Invoke-Cidney -ShowProgress:$ShowProgress
     }
 }

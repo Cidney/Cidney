@@ -76,14 +76,14 @@
     {
         if (-not $InputObject)
         {
-            $InputObject = Get-item "Function:\Script:Pipeline: $Name"
+            $InputObject = Get-item "Function:\Global:Pipeline: $Name"
         }
     
         $functionName = "$($InputObject.Name)"
         if ($InputObject)
         {
             $InputObject | Remove-Item -Force -Verbose:($PSBoundParameters.Verbose -eq $true)
-            $Script:CidneyPipelineFunctions.Remove("Script:$functionName")
+            $CidneyPipelineFunctions.Remove("Global:$functionName")
             Write-Verbose "$($InputObject.Name) Removed"
         }
     }

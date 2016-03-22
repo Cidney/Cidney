@@ -1,6 +1,6 @@
 ﻿function New-CidneyContext
 {
-    $CidneyContext = @{}
+    $CidneyContext = [hashtable]::Synchronized(@{})
     $CidneyContext.Add('Pipeline','Pipeline:'+[guid]::NewGuid())
     $CidneyContext.Add('Modules', (Get-Module))
     $CidneyContext.Add('CredentialStore', @{})

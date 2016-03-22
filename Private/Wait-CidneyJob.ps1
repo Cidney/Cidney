@@ -10,59 +10,79 @@
 
     $count = 0
     $date = Get-Date
-    $jobs = $Context.Jobs
     $jobCount = $jobs.Count
     $showprogress = $Context.ShowProgress
 
-    do
-    {               
-        $RunningJobs = [System.Collections.ArrayList]::new()
-        foreach ($job in $jobs) 
+    if ($Context.Jobs)
+    {
+        try
         {
-            $job.ExecutionTime = (New-TimeSpan $date).TotalSeconds
-            if ($job.Job.State -match 'Completed|Failed|Stopped|Suspended|Disconnected') 
-            {
-                $count++
-                Write-CidneyLog "[Results] $($job.Job.Name)"
-                $job.Job | Receive-Job 
-                Write-CidneyLog "[$($Job.Job.State)] $($job.Job.Name)"
-                $job.Job | Remove-Job 
-            } 
-            else 
-            {
-                if($job.Timeout -and $job.ExecutionTime -ge $Job.Timeout)
-                {                
-	                $Job.Job | Stop-Job
-                    while ((Get-Job -Id $job.Job.Id).State -ne 'Stopped')
+            $RunningJobs = [System.Collections.ArrayList]::new($Context.Jobs)
+            do
+            {               
+                $job = $RunningJobs[0]
+                $job.ExecutionTime = (New-TimeSpan $date).TotalSeconds
+                if ($job.Handle.IsCompleted) 
+                {
+                    $count++
+                    Write-CidneyLog "[Results] $($job.Name)"
+                    if ($job.Thread)
                     {
-                        Start-Sleep -Milliseconds 100
+                        if ($job.Thread -and $job.Thread.HadErrors)
+                        {
+                            $job.Thread.Streams.Error.ReadAll() | foreach { Write-Error $PSItem }
+                        }
+                    
+                        $job.Thread.EndInvoke($Job.Handle)
+                        $job.Thread.Dispose()
+                        $job.Thread = $Null
                     }
+                    $job.Handle = $Null
+                    $RunningJobs.Remove($job)
 
-                    $Job.Job | Remove-Job    
-                    Write-CidneyLog "[$($Job.Job.State)] $($job.Job.Name)"
-
-                    if ($job.ErrorAction -eq 'Stop')
-                    {
-                        Throw "$($Job.Job.Name) Timed out"
+                    Write-CidneyLog "[Completed] $($job.Name)"
+                } 
+                else 
+                {
+                    if($job.ExecutionTime -ge $Job.Timeout)
+                    {          
+                        $job.Thread.Dispose()
+                        $job.Thread = $null  
+                            
+                        if ($job.ErrorAction -eq 'Stop')
+                        {
+                            Throw "$($Job.Name) Timed out"
+                        }
+                        else
+                        {
+                            Write-Verbose "$($Job.Name) Timed out"
+                            Continue            
+                        }     
                     }
-                    else
-                    {
-                        Continue            
-                    }     
                 }
 
-                [void]$RunningJobs.Add($job)
+                if ($showProgress -and $jobcount -gt 0) 
+                { 
+                    Write-Progress -Activity "Stage $($Context.CurrentStage)" -Status 'Processing' -Id ($CidneyPipelineCount + 1) -PercentComplete ($count/$jobCount * 100)
+                }
+
+                if ($job)
+                {
+                    Start-Sleep -Milliseconds $Job.SleepTimer
+                }
+            } 
+            While($RunningJobs.Count -ne 0)
+        }
+        finally
+        {
+            foreach ($job in $Context.Jobs)
+            {
+                if ($job.Handle) 
+                {
+                    Write-Warning "** Job $($Job.Name) timed out"
+                    $job 
+                } 
             }
         }
-
-        if ($showProgress -and $jobcount -gt 0) 
-        { 
-            Write-Progress -Activity "Stage $($Context.CurrentStage)" -Status 'Processing' -Id ($Script:CidneyPipelineCount + 1) -PercentComplete ($count/$jobCount * 100)
-        }
-
-        $jobs = $RunningJobs
-        
-        Start-Sleep -Milliseconds 100
-    } 
-    While($jobs.Count -ne 0)
+    }
 }

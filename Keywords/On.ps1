@@ -51,13 +51,13 @@
         [Parameter(Mandatory, Position = 0)]
         [string[]]
         $ComputerName = $Env:COMPUTERNAME,       
-        [Parameter(Mandatory, Position = 1)]
+        [Parameter(Position = 1)]
         [scriptblock]
-        $OnBlock,
+        $OnBlock = $(Throw 'No On: block provided. (Did you put the open curly brace on the next line?)'),
         [PSCredential]
         $Credential,
-        [switch]
-        $ImportModules,
+        [int]
+        $MaxThreads,
         [Parameter(DontShow)]
         [hashtable]
         $Context
@@ -69,10 +69,11 @@
                 
     foreach($doBlock in $doBlocks)
     {
+        $params = "-MaxThreads $MaxThreads"
         if ($ComputerName)
         {
             $computerNames = $ComputerName -Join ','
-            $params = "-ComputerName $ComputerNames"
+            $params += " -ComputerName $ComputerNames"
         }
         if ($Credential)
         {
@@ -83,14 +84,10 @@
             $params += " -UserName $userName"
             $Context.CredentialStore.Add($userName, $credPath)
         }
-        if ($ImportModules -or $Script:CidneyImportModulesPreference)
-        {
-            $params += ' -ImportModules'
-        }
         
         $scriptBlock = '{0} {1}' -f $doBlock.ToString().Trim(), $params
         $block = [scriptBlock]::Create($scriptBlock)
         
-        Invoke-Command -ScriptBlock $block            
+        Invoke-Command -ScriptBlock $block
     }
 }

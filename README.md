@@ -1,8 +1,9 @@
-# **Cidney** [![Join the chat at https://gitter.im/Cidney/Cidney](https://badges.gitter.im/Cidney/Cidney.svg)](https://gitter.im/Cidney/Cidney?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build status](https://ci.appveyor.com/api/projects/status/j0jqgja6d352pkhc/branch/master?svg=true)](https://ci.appveyor.com/project/RobertKozak/cidney/branch/master)
+# **Cidney**
 
-Continuous Integration and Deployment Pipelines in Powershell
+A Continuous Integration and Deployment DSL in Powershell
 
 ----------
+
 Tags: CI, Continuous Integration, Continuous Deployment, DevOps, Powershell,  DSL,  DSC 
 
 **Install**
@@ -37,7 +38,7 @@ Cidney is a very easy way to handle multiple tasks in parallel runspaces in a st
 
 
 Everything starts with a **Pipeline:** 
-A Pipeline: is a named process that executes Stages sequentially one after the other. Inside a Stage: are Do: tasks which execute in parallel using powershell jobs. Let's look at a quick example:
+A Pipeline: is a named process that executes Stages sequentially one after the other. Inside a Stage: are Do: tasks which execute in parallel using runspaces and threads. Let's look at a quick example:
 
 	Pipeline: 'My First Pipeline' {
 		Stage: One {
@@ -145,7 +146,7 @@ For Example:
 
         Invoke-Cidney HelloWorld -Verbose
 
-        This example will do a Dir list and count the number of dll files, and run Get-Service as separate jobs and the Stage: will complete once all jobs are finished.
+        This example will do a Dir list and count the number of dll files, and run Get-Service as separate threads and the Stage: will complete once all threads are finished.
         Notice that Get-Service finished first even when it was listed second in the code.
 
         VERBOSE: [03/06/16 4:53:39.556 PM] [Start] Pipeline HelloWorld
@@ -181,7 +182,7 @@ For Example:
 
 On: command for Cidney Pipelines. Used between Stage: and Do: 
 The On: command lets you specify a computer(s) that you will run its script block against
-On: &lt;computer[]&gt; [-Credential &lt;pscredential&gt;] [-ImportModules] &lt;scriptblock&gt;
+On: &lt;computer[]&gt; [-Credential &lt;pscredential&gt;] &lt;scriptblock&gt;
         
         .\HelloWorld.ps1
 

@@ -13,7 +13,7 @@
     $block = $ScriptBlock.ToString().Trim()
     if ($block)
     {
-        $ast = [System.Management.Automation.Language.Parser]::ParseInput($block, [ref] $null, [ref] $null);
+        $ast = [System.Management.Automation.Language.Parser]::ParseInput($block, [ref] $null, [ref] $null)
         $commands = $AST.FindAll({$args[0] -is [System.Management.Automation.Language.pipelineast] }, $false) 
         foreach($command in $commands)
         { 
@@ -51,22 +51,22 @@ function Get-CidneyStatements
     
     $statementblocks = @()
     $blocks = @()
-
+    $OFS = "`n`r"
     $block = $ScriptBlock.ToString().Trim()
     if ($block)
     {
-        #$ast = [System.Management.Automation.Language.Parser]::ParseInput($block, [ref] $null, [ref] $null);
+        #$ast = [System.Management.Automation.Language.Parser]::ParseInput($block, [ref] $null, [ref] $null)
         $statements = $ScriptBlock.AST.EndBlock.Statements
         foreach($statement in $statements)
         { 
             $commonParams = ''
             $value = $statement.Extent.Text
-            if ($value -match 'Stage:|Do:|On:|When:|At:')  
+            if ($value -match '^Stage:|^Do:|^On:|^When:|^At:')  
             {
                 $params = Get-CommonParameters -BoundParameters $BoundParameters
                 foreach($param in $params.Trim().Split(' '))
                 { 
-                    if ($statement.ToString().Trim() -notmatch $param)
+                    if ($statement.ToString().Trim() -notmatch "^$param")
                     {
                         $commonParams += ' {0}' -f $param
                     }
@@ -74,7 +74,7 @@ function Get-CidneyStatements
 
                 if ($statementblocks)
                 {
-                    $blocks += [ScriptBlock]::Create($statementblocks -join ';')
+                    $blocks += [ScriptBlock]::Create($statementblocks)
                     $statementblocks = @()
                 }
                 $blocks += [ScriptBlock]::Create("$value$commonParams")
@@ -88,8 +88,9 @@ function Get-CidneyStatements
 
     if ($statementblocks)
     {         
-        $blocks += New-ParamScriptBlock -Script ($statementblocks -join ';')
+        $blocks += [scriptblock]::Create($statementblocks)
     }
 
+    Remove-Variable OFS
     return $blocks
 }

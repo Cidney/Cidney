@@ -72,7 +72,7 @@
             $pipelines = (Get-CidneyPipeline) -replace 'Pipeline: '
             if($pipelines -notcontains $pipeline) 
             { 
-                throw "$pipeline is not a valid Cidney pipeline.`n`nValid Pipelines:`n$($pipelines -join ', ')"
+                throw "`'$pipeline`' is not a valid Cidney pipeline.`n`nValid Pipelines:`n$($pipelines -join ', ')"
             }
             $true
 '@
@@ -106,13 +106,14 @@
 
             # Make sure we get and remove only Cidney jobs
             Get-Job | Where Name -match '(CI \[Job\d+\])' | Remove-Job -Force -Verbose:$verbose
-            $Script:CidneyPipelineCount = -1
+            $CidneyPipelineCount = -1
+            $Global:CidneyJobCount = 0
             
             break
         }
 
-        $oldProgressPreference = $Script:CidneyShowProgressPreference
-        $Script:CidneyShowProgressPreference = $Script:CidneyShowProgressPreference -or $ShowProgress
+        $oldProgressPreference = $CidneyShowProgressPreference
+        $CidneyShowProgressPreference = $CidneyShowProgressPreference -or $ShowProgress
     }
 
     process 
@@ -129,22 +130,22 @@
             $functionName = "Global:$($InputObject.Name)"
         }
 
-        $result = $Script:CidneyPipelineFunctions.GetEnumerator() | Where Name -eq $functionName
+        $result = $CidneyPipelineFunctions.GetEnumerator() | Where Name -eq $functionName
         if ($result)
         {
-            
-            $params = $result | Select -ExpandProperty Value
+            $params = $result.Value
             
             if ($params)
             {
                 $null = $params.Remove('Passthru')
+                $null = $params.Remove('Invoke')
                 if (-not $params.ContainsKey('ShowProgress'))
                 {
                     $params.Add('ShowProgress', $CidneyShowProgressPreference)
                 }
                 $params.ShowProgress = $CidneyShowProgressPreference
 
-                & $functionName @params
+                & "$functionName" @params
             }
         }
         else
@@ -155,6 +156,6 @@
     
     end
     {
-        $Script:CidneyShowProgressPreference = $oldProgressPreference
+        $CidneyShowProgressPreference = $oldProgressPreference
     }
-} 
+}

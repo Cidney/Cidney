@@ -37,9 +37,9 @@
         [Parameter(Mandatory, Position = 0)]
         [object]
         $Event,
-        [Parameter(Mandatory, Position = 1)]
+        [Parameter(Position = 1)]
         [scriptblock]
-        $WhenBlock,
+        $WhenBlock = $(Throw 'No When: block provided. (Did you put the open curly brace on the next line?)'),
         [object]
         $EventObject,
         [switch]
