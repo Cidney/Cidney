@@ -133,7 +133,7 @@ For Example:
  Each Do: Block found will create a Job so they can be run asynchronously ( or in Parallel.)
  
 
-  Do: [&lt;Name&gt;] &lt;ScriptBlock&gt;
+  Do: [[-Name] &lt;string&gt;] [-DoBlock]&lt;scriptblock&gt; [-TimeOut &lt;Int&gt;] [-MaxThreads &lt;int&gt;] [-SleepTimer &lt;Int&gt;] [-UserName &lt;string&gt;] [-Credential &lt;pscredential&gt;] [-UseSSL] [-Passthru]
 
          .\HelloWorld.ps1
 
@@ -182,7 +182,9 @@ For Example:
 
 On: command for Cidney Pipelines. Used between Stage: and Do: 
 The On: command lets you specify a computer(s) that you will run its script block against
-On: &lt;computer[]&gt; [-Credential &lt;pscredential&gt;] &lt;scriptblock&gt;
+
+
+  On: [-ComputerName]&lt;string[]&gt; [-OnBlock]&lt;scriptblock&gt; [-Credential &lt;pscredential&gt;] [-MaxThreads &lt;Int&gt;] [-TimeOut &lt;Int&gt;] [-SleepTimer &lt;Int&gt;] [-UseSSL] 
         
         .\HelloWorld.ps1
 
@@ -216,7 +218,10 @@ On: &lt;computer[]&gt; [-Credential &lt;pscredential&gt;] &lt;scriptblock&gt;
 
 When: command for Cidney Pipelines. Used between Stage: and Do:
 The When: command lets you specify an event to listen for that you will run its script block against 
+      
         
+  When: [-Event]&lt;object&gt; [-WhenBlock]&lt;scriptblock&gt; [-EventObject &lt;object&gt;] [-Wait] [-TimeOut &lt;Int&gt;] 
+
         .\HelloWorld.ps1
         
         Pipeline: HelloWorld {

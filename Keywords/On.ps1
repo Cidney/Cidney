@@ -50,14 +50,20 @@
     (
         [Parameter(Mandatory, Position = 0)]
         [string[]]
-        $ComputerName = $Env:COMPUTERNAME,       
+        $ComputerName,       
         [Parameter(Position = 1)]
         [scriptblock]
         $OnBlock = $(Throw 'No On: block provided. (Did you put the open curly brace on the next line?)'),
         [PSCredential]
         $Credential,
+        [switch]
+        $UseSSL,
+        [int]
+        $TimeOut,
         [int]
         $MaxThreads,
+        [int]
+        $SleepTimer,
         [Parameter(DontShow)]
         [hashtable]
         $Context
@@ -84,7 +90,23 @@
             $params += " -UserName $userName"
             $Context.CredentialStore.Add($userName, $credPath)
         }
-        
+        if ($UseSSL)
+        {
+            $params += " -UseSSL $UseSSL"
+        }
+        if ($MaxThreads)
+        {
+            $params += " -MaxThreads $MaxThreads"
+        }
+        if ($TimeOut)
+        {
+            $params += " -Timeout $TimeOut"
+        }
+        if ($SleepTimer)
+        {
+            $params += " -SleepTimer $SleepTimer"
+        }
+
         $scriptBlock = '{0} {1}' -f $doBlock.ToString().Trim(), $params
         $block = [scriptBlock]::Create($scriptBlock)
         

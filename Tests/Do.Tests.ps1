@@ -10,7 +10,7 @@ Pipeline: 'Do Local Variable in Pipeline' {
     Stage: One {
         Do: { Write-Output $ABC }
         }
-}
+} -invoke
 
 Pipeline: 'Do Local Variable in Stage' {
     Stage: One {
@@ -38,22 +38,10 @@ Pipeline: 'Do Get-Service' {
     }}
 }
 
-Pipeline: 'Do WriteHost' {
-    Stage: One {
-        Do: { Write-Host 'Host'}
-    }
-}
-
 Pipeline: 'Do WriteOutput' {
     Stage: One {
         Do: { Write-Output 'Output'}
         Do: { 'Another output' }
-    }
-}
-
-Pipeline: 'Do WriteError' {
-    Stage: One {
-        Do: { Write-Error 'error'}
     }
 }
 
@@ -134,14 +122,14 @@ Pipeline: 'Do Invoke-Pipeline 2' {
 
 #region Tests
 Describe 'Do Tests' {
-<#   context 'Global' {
+   context 'Global' {
         Remove-Variable ABC -Scope Global -ErrorAction SilentlyContinue
         $Global:Abc = 'ABC'
         It 'should return global variable' {
             Invoke-Cidney 'Do Global Variable' | should be 'ABC'
         }
         Remove-Variable ABC -Scope Global -ErrorAction SilentlyContinue
-    }#>
+    }
     context 'Local' {
         It 'should return local variable from Pipeline' {
             Invoke-Cidney 'Do Local Variable in Pipeline' | should be 'ABC'
@@ -153,14 +141,9 @@ Describe 'Do Tests' {
             Invoke-Cidney 'Do Local Variable in do' | should be 'ABC'
         }
     }
- <#   It 'should return the BITS Service' {
+    It 'should return the BITS Service' {
         $result = Invoke-Cidney 'Do Get-Service' 
         $result.Name | should be 'BITS'
-    }
-
-    It 'should not return console output' {
-        $result = Invoke-Cidney 'Do WriteHost' 
-        $result | should  BeNullOrEmpty
     }
 
     It 'should return Write-Output' {
@@ -169,10 +152,7 @@ Describe 'Do Tests' {
         $result[0] | should be 'Output'
         $result[1] | should be 'Another output'
     }
-    It 'should return an error in call' {
-        $result = Invoke-Cidney 'Do WriteError' 
-        $result | should throw
-    }
+
     It 'should return the BITS Service from 32 different Do Blocks' {
         $result = Invoke-Cidney 'Do Get-Service 32 Times' 
         $result.Name[0] | should be 'BITS'
@@ -194,7 +174,10 @@ Describe 'Do Tests' {
     It 'should return the pipleline name from Invoked Pipeline 2' {
         $result = Invoke-Cidney 'Do Invoke-Pipeline 2' 
         $result | should be 'Pipeline'
-    }#>
+    }
+    It 'should be able to invoke do: outside of stage and pipeline' {
+        Do: { $env:COMPUTERNAME } -PassThru | Wait-CidneyJob | should be $env:COMPUTERNAME
+    }
 }
 #endregion
 

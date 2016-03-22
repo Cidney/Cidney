@@ -4,6 +4,10 @@
     (
         [scriptblock]
         $Script,
+        [string]
+        $ComputerName,
+        [switch]
+        $UseSSL,
         [int]
         $MaxThreads = 16,
         [int]
@@ -16,10 +20,24 @@
         $Context
     )
 
+    $remoteScript = {
+        param([string]$computer, [scriptblock]$script, [switch]$useSSL, [hashtable]$context) 
+
+        if (-not $context.RemoteSessions.ContainsKey($computer))
+        {
+            $session = New-PSSession -ComputerName $computer -Credential $context.Credential -UseSSL:$useSSL
+            $context.RemoteSessions.Add($computer, $session) 
+        }
+
+        $session = $context.RemoteSessions.$computer
+        Invoke-Command -ScriptBlock $script -Session $session -ArgumentList $context
+    }
+
     if (-not $Script:RsSessionState)
     {
         $Script:RsSessionState = [system.management.automation.runspaces.initialsessionstate]::CreateDefault()
-
+        $Script:RsSessionState.ExecutionPolicy = 'RemoteSigned'
+        $Script:RsSessionState.ApartmentState = 'STA'
         foreach($globalVar in (Get-Variable -Scope Global))
         {
             $sessionVar = $Script:RsSessionState.Variables.Item($globalVar.Name)
@@ -51,13 +69,24 @@
         {
             $MaxThreads = Get-ThrottleLimit
         }
+
+<#        $Script:RunspaceConnection = [system.management.automation.runspaces.WSManConnectionInfo]::new([System.Management.Automation.Runspaces.PSSessionType]::DefaultRemoteShell)
+        $Script:RunspaceConnection.ComputerName = 'BeverlyHills6.hankeyinvestments.com'
+#>
         $Script:RunspacePool = [runspacefactory]::CreateRunspacePool(1, $MaxThreads, $Script:RsSessionState, $Host)
-        $Script:RunspacePool.ApartmentState = 'STA'
         $Script:RunspacePool.Open()   
     }
 
-    $PSThread = [powershell]::Create().AddScript($Script).AddParameter('Context', $Context) 
+    if ($ComputerName)
+    {
+        $PSThread = [powershell]::Create().AddScript($remoteScript).AddParameter('Computer', $ComputerName).AddParameter('UseSSL', $UseSSL).AddParameter('Script', $Script).AddParameter('Context', $Context)  
+    }
+    else
+    {
+        $PSThread = [powershell]::Create().AddScript($Script).AddParameter('Context', $Context) 
+    }
     
+
     $null = $PSThread.RunspacePool = $Script:RunspacePool
     $job = [PSCustomObject]@{
         Thread = $PSThread

@@ -89,8 +89,8 @@ Describe 'Pipeline Tests' {
         It 'Pipeline should have a Context that is not null' {
             $result | Should not BeNullOrEmpty
         }
-        It 'Pipeline should have a Context with 7 entries' {
-            $result.Count | Should be 7
+        It 'Pipeline should have a Context with 9 entries' {
+            $result.Count | Should be 9
         }
     }
     Context 'CurrentStage' {

@@ -78,16 +78,25 @@
         $MaxThreads,
         [int]
         $SleepTimer = 100,
-        [Parameter(DontShow)]
         [string[]]
         $ComputerName,
-        [Parameter(DontShow)]
         [string]
         $UserName,
+        [pscredential]
+        $Credential,
+        [switch]
+        $UseSSL,
+        [switch]
+        $Passthru,
         [Parameter(DontShow)]
         [hashtable]
         $Context
     )
+
+    if (-not $Context)
+    {
+        $Context = New-CidneyContext
+    }
 
     $params = @{
         WarningAction = 'SilentlyContinue'   
@@ -98,6 +107,10 @@
     if ($UserName)
     {
         $credential = Import-Clixml (Join-Path $Env:CidneyStore "$($UserName)Credentials.xml") 
+    }
+
+    if ($Credential)
+    {
         $params.Add('Credential', $Credential)
     }
 
@@ -105,7 +118,7 @@
     {
         foreach($computer in $ComputerName)
         {
-            $job = Start-CidneyJob -Script $DoBlock -Context $Context -SleepTimer $SleepTimer -TimeOut $TimeOut
+            $job = Start-CidneyJob -Script $DoBlock -ComputerName $computer -Context $Context -SleepTimer $SleepTimer -TimeOut $TimeOut -useSSL:$UseSSL
             $job.Name = "CI [Job$($Job.Id)]"
             if ($Name)
             {
@@ -122,5 +135,10 @@
         $job.Name = "CI [Job$($Job.Id)] $Name"
         $Context.Jobs += $job
         Write-CidneyLog "[Start] $($job.Name)"
+    }
+
+    if ($PassThru)
+    {
+        return $Context
     }
 }

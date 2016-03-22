@@ -75,3 +75,4 @@ Export-ModuleMember -Function Write-CidneyLog
 Export-ModuleMember -Function Invoke-Cidney 
 Export-ModuleMember -Function Get-CidneyPipeline
 Export-ModuleMember -Function Remove-CidneyPipeline
+Export-ModuleMember -Function Wait-CidneyJob

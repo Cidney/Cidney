@@ -3,14 +3,14 @@
     [CmdletBinding()]
     param
     (
-        [Parameter()]
+        [Parameter(ValueFromPipelineByPropertyName, ValueFromPipeline)]
         [hashtable]
         $Context
     )  
 
     $count = 0
     $date = Get-Date
-    $jobCount = $jobs.Count
+    $jobCount = $Context.Jobs.Count
     $showprogress = $Context.ShowProgress
 
     if ($Context.Jobs)
@@ -79,6 +79,13 @@
             {
                 if ($job.Handle) 
                 {
+                    if ($job.Thread)
+                    {
+                        $job.Thread.Dispose()
+                        $job.Thread = $null
+                    }
+
+                    $job.Handle = $null
                     Write-Warning "** Job $($Job.Name) timed out"
                     $job 
                 } 

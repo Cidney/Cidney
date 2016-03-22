@@ -40,17 +40,18 @@
         [Parameter(Position = 1)]
         [scriptblock]
         $StageBlock  = $(Throw 'No Stage: block provided. (Did you put the open curly brace on the next line?)'),
+        [Parameter(DontShow)]
         [hashtable]
         $Context
     )
     
     try
     {        
-        if (-not $Context.ContainsKey('Jobs'))   
+        if (-not $Context)
         {
-            $Context.Add('Jobs', @())
+            $Context = New-CidneyContext
         }
-
+        
         if ($Context.ShowProgress) 
         { 
             Write-Progress -Activity "Stage $StageName" -Status 'Starting' -Id ($CidneyPipelineCount + 1) 
@@ -64,7 +65,7 @@
         foreach($block in $blocks)
         {
             if ($Context.ShowProgress) 
-            { `
+            { 
                 Write-Progress -Activity "Stage $StageName" -Status 'Processing' -Id ($CidneyPipelineCount + 1)
             }
 

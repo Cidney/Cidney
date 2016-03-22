@@ -82,7 +82,6 @@
         $context.Add('ShowProgress', $ShowProgress)
         $context.Add('CurrentStage', '')
         $Context.Add('PipelineName', $PipelineName)
-        $Context.Add('CurrentPath', (Get-Location))
 
         if ($ShowProgress) 
         { 
@@ -109,7 +108,7 @@
                 }
                 $count++           
     
-            Invoke-CidneyBlock -ScriptBlock $stage -Context $Context
+                Invoke-CidneyBlock -ScriptBlock $stage -Context $Context
             }  
                 
             Wait-CidneyJob -Context $Context    
@@ -119,6 +118,11 @@
             foreach($cred in $context.CredentialStore.GetEnumerator())
             {
                 Remove-Item $cred.Value -Force -ErrorAction SilentlyContinue
+            }
+
+            foreach($session in $Context.RemoteSessions.Values)
+            {
+                Remove-PSSession $session
             }
 
             $CidneyPipelineCount--
@@ -133,6 +137,7 @@
         }
         
         $Global:CidneyJobCount = 0
+        $Context = $null
         Write-CidneyLog "[Done] Pipeline $PipelineName" 
     }
 
