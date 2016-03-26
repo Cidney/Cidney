@@ -35,13 +35,11 @@
     param
     (
         [Parameter(Mandatory, Position = 0)]
-        [object]
+        [string]
         $Event,
         [Parameter(Position = 1)]
         [scriptblock]
         $WhenBlock = $(Throw 'No When: block provided. (Did you put the open curly brace on the next line?)'),
-        [object]
-        $EventObject,
         [switch]
         $Wait,
         [Int32]
@@ -51,22 +49,19 @@
         $Context
     )
 
-    $script = $WhenBlock.ToString().Trim() 
-    $script +=  @'
-    
-    $null = $eventSubscriber | Unregister-Event
-    $null = $eventSubscriber.Action | Remove-Job
-'@
+    $script = "`$Global:CidneyEventOutput.Add(`$event, @($($WhenBlock.ToString().Trim())))"
 
+    $script += @'
+    
+    $Global:CidneyEvents += $event
+
+    if (-not $Global:CidneyEventSubscribers.Contains($EventSubscriber))
+    {
+        $Global:CidneyEventSubscribers += $EventSubscriber
+    }
+'@
     $eventAction = [ScriptBlock]::Create($script)
-    if ($EventObject)
-    {
-        $null = Register-ObjectEvent $object $Event -Action $eventAction -MaxTriggerCount 1 
-    }
-    else
-    {
-        $null = Register-EngineEvent -SourceIdentifier $Event -Action $eventAction -MaxTriggerCount 1 
-    }
+    $null = Register-EngineEvent -SourceIdentifier $Event -Action $eventAction  #-MaxTriggerCount 1 
 
     if ($wait)
     {

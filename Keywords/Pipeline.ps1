@@ -83,6 +83,8 @@
         $context.Add('CurrentStage', '')
         $Context.Add('PipelineName', $PipelineName)
 
+        $Global:CidneyEvents = @()
+
         if ($ShowProgress) 
         { 
             Write-Progress -Activity "Pipeline $PipelineName" -Status 'Starting' -Id 0 
@@ -124,6 +126,35 @@
             {
                 Remove-PSSession $session
             }
+
+            $removeKeys = @()
+            foreach($output in $Global:CidneyEventOutput.GetEnumerator())
+            {
+                $output.Value
+                $removeKeys += $output.Key
+            }
+
+            foreach($key in $removeKeys)
+            {
+                $Global:CidneyEventOutput.Remove($key)
+            }
+
+            foreach($event in $Global:CidneyEvents)
+            {
+               $job = Get-Job -Name $event.SourceIdentifier -ErrorAction SilentlyContinue
+
+                if ($job)
+                {                    
+                    Remove-Job $job -Force
+                }
+            }
+
+            foreach($event in $Global:CidneyEventSubscribers)
+            {
+                $event | Unregister-Event -Force -ErrorAction SilentlyContinue
+            }
+            
+            $Global:CidneyEventSubscribers = @()
 
             $CidneyPipelineCount--
         }   

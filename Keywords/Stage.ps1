@@ -83,7 +83,18 @@
     finally
     {
         $Context.Remove('Jobs')
-        
+        $removeKeys = @()
+        foreach($output in $Global:CidneyEventOutput.GetEnumerator())
+        {
+            $output.Value
+            $removeKeys += $output.Key
+        }
+
+        foreach($key in $removeKeys)
+        {
+            $Global:CidneyEventOutput.Remove($key)
+        }
+
         if ($Script:RunspacePool -and $Script:RunspacePool.RunspacePoolStateInfo.State -ne 'Closed')
         {
             $Script:RsSessionState = $null

@@ -2,16 +2,27 @@
 
 Pipeline: HelloWorld {
     Stage: One {
-        When: MyEvent {
+        When: MyEvent1 {
             Write-Host 'HelloWorld from Stage One'
-           # Start-Process C:\Windows\System32\notepad.exe
-        } -Wait -Timeout 10
+            Write-Output 'HelloWorld from Stage One'
+        } 
     }
-     
     Stage: Two {
-        Write-Output 'Stage Two'
-        $null = New-Event MyEvent
+        When: MyEvent2 {
+            Write-Host 'HelloWorld from Stage Two'
+            Write-Output 'HelloWorld from Stage Two'
+        } 
     }
-} -Verbose -ShowProgress
+} -Verbose -Invoke
 
+
+Pipeline: HelloWorld2 {
+    Stage: One {
+        Write-Output 'Helloworld2'
+        Send-Event MyEvent2
+        Send-Event MyEvent1
+        Send-Event MyEvent1
+        Send-Event MyEvent2
+    }
+} -Verbose -Invoke
 

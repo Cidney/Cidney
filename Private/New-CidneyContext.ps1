@@ -7,7 +7,7 @@
     $CidneyContext.Add('CurrentPath', (Get-Location))
     $CidneyContext.Add('Jobs', @())
     $CidneyContext.Add('RemoteSessions', @{})
-
+    
     return $CidneyContext
 }
 

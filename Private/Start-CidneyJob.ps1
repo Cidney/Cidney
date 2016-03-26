@@ -61,11 +61,11 @@
             $null = $Script:RsSessionState.ImportPSSnapIn($snapin, [ref]$null)
         }
 
-        $null = $Script:RsSessionState.ImportPSModule('Cindey')
+        $null = $Script:RsSessionState.ImportPSModule('Cidney')
         foreach($module in $Global:CidneyImportedModules)
         {
             $null = $Script:RsSessionState.ImportPSModule($module.Name)
-        }       
+        }   
     }
 
     if (-not $Script:RunspacePool -or $Script:RunspacePool.RunspacePoolStateInfo.State -ne 'Opened')

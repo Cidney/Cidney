@@ -3,6 +3,8 @@
 $Global:CidneyJobCount = 0
 $CidneyPipelineCount = -1
 $CidneyPipelineFunctions = @{}
+$Global:CidneyEventSubscribers = @()
+$Global:CidneyEventOutput = @{}
 $Global:CidneyImportedModules = @()
 $Global:CidneyAddedSnapins = @()
 
@@ -79,3 +81,4 @@ Export-ModuleMember -Function Invoke-Cidney
 Export-ModuleMember -Function Get-CidneyPipeline
 Export-ModuleMember -Function Remove-CidneyPipeline
 Export-ModuleMember -Function Wait-CidneyJob
+Export-ModuleMember -Function Send-Event

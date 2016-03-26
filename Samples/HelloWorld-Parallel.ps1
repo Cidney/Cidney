@@ -9,4 +9,4 @@
         Do: { Find-Package *tfs* | Select-Object Name,Version,Summary }
         Do: { Get-Service | Where-Object Status -eq 'Running'}
     } 
-} -Verbose -ShowProgress
+} -Verbose -Invoke -ShowProgress
