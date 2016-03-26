@@ -3,6 +3,8 @@
 $Global:CidneyJobCount = 0
 $CidneyPipelineCount = -1
 $CidneyPipelineFunctions = @{}
+$Global:CidneyImportedModules = @()
+$Global:CidneyAddedSnapins = @()
 
 $Env:CidneyStore = Join-Path $env:LOCALAPPDATA 'Cidney'
 New-Item $Env:CidneyStore -ItemType Directory -Force
@@ -56,13 +58,14 @@ catch
 #endregion
 
 $ExecutionContext.SessionState.Module.OnRemove = {
-    Remove-Variable CidneyPipelineCount -Scope Script -Force -ErrorAction SilentlyContinue
-    Remove-Variable CidneyPipelineFunctions -Scope Script -Force -ErrorAction SilentlyContinue
+    Remove-Variable CidneyPipelineCount -Force -ErrorAction SilentlyContinue
+    Remove-Variable CidneyPipelineFunctions -Force -ErrorAction SilentlyContinue
+    Remove-Variable CidneyImportedModules -Scope Global -Force -ErrorAction SilentlyContinue
+    Remove-Variable CidneyAddedSnapins -Scope Global -Force -ErrorAction SilentlyContinue
 
   #  $CidneyPipelineFunctions | Remove-CidneyPipeline
 
     Remove-Item $Env:CidneyStore -Force
-    Remove-Item Env:CidneyStore -Force
 }
 
 Export-ModuleMember -Function Pipeline:

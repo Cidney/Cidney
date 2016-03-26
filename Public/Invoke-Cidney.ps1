@@ -46,7 +46,6 @@
         On:
         Do:
         When:
-        Invoke-Cidney
         Remove-CidneyPipeline
     #>
     

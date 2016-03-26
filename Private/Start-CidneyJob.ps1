@@ -13,7 +13,7 @@
         [int]
         $SleepTimer = 100,
         [int]
-        $TimeOut = 100,
+        $TimeOut = 1800, # Default TimeOut is 30 mins
         [int]
         $MaxResultTime = 120,
         [hashtable]
@@ -56,11 +56,16 @@
             }
         }
         
-        $cidney = Get-Module Cidney -ErrorAction SilentlyContinue
-        if ($cidney)
+        foreach($snapin in ($Global:CidneyAddedSnapins | Select -First 1))
         {
-            $Script:RsSessionState.ImportPSModule($cidney)
+            $null = $Script:RsSessionState.ImportPSSnapIn($snapin, [ref]$null)
         }
+
+        $null = $Script:RsSessionState.ImportPSModule('Cindey')
+        foreach($module in $Global:CidneyImportedModules)
+        {
+            $null = $Script:RsSessionState.ImportPSModule($module.Name)
+        }       
     }
 
     if (-not $Script:RunspacePool -or $Script:RunspacePool.RunspacePoolStateInfo.State -ne 'Opened')
@@ -70,9 +75,6 @@
             $MaxThreads = Get-ThrottleLimit
         }
 
-<#        $Script:RunspaceConnection = [system.management.automation.runspaces.WSManConnectionInfo]::new([System.Management.Automation.Runspaces.PSSessionType]::DefaultRemoteShell)
-        $Script:RunspaceConnection.ComputerName = 'BeverlyHills6.hankeyinvestments.com'
-#>
         $Script:RunspacePool = [runspacefactory]::CreateRunspacePool(1, $MaxThreads, $Script:RsSessionState, $Host)
         $Script:RunspacePool.Open()   
     }
@@ -86,8 +88,8 @@
         $PSThread = [powershell]::Create().AddScript($Script).AddParameter('Context', $Context) 
     }
     
-
     $null = $PSThread.RunspacePool = $Script:RunspacePool
+
     $job = [PSCustomObject]@{
         Thread = $PSThread
         Handle = $PSThread.BeginInvoke()

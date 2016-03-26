@@ -87,7 +87,6 @@
 
                     $job.Handle = $null
                     Write-Error "Job $($Job.Name) Failed"
-                    $job 
                 } 
             }
         }

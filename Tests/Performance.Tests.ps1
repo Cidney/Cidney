@@ -23,6 +23,14 @@ Pipeline: 'Do Timing 128 threads' {
         }   
     }
 }
+Pipeline: 'Do Timing 1024 threads' {
+    Stage: One: {
+        foreach ($num in 1..1024)
+        {
+            Do: { if (($num  % 10) -eq 0){ Write-Output "Test:$num"} } -Context $Context 
+        }   
+    }
+}
 #endregion
 
 #region Tests
@@ -30,15 +38,24 @@ Pipeline: 'Do Timing 128 threads' {
 Describe 'Performance Tests' {
     It 'should take less than 10 seconds to run 16 Threads sleeping for 5 seconds each' {
         $result = Measure-Command { Invoke-Cidney 'Do Timing 16 Threads' }
-        $result.Seconds -le 5 + 5 | should be $true
+        $result.TotalSeconds -le 10 | should be $true
     }    
-    It 'should take less than 14 seconds to run 32 threads sleeping for 5 seconds each' {
+    It 'should take less than 15 seconds to run 32 threads sleeping for 5 seconds each' {
         $result = Measure-Command { Invoke-Cidney 'Do Timing 32 Threads' }
-        $result.Seconds -le (5*(32/16)) + 4 | should be $true
+        $result.TotalSeconds -le 15 | should be $true
     }
     It 'should take less than 20 seconds to run 128 threads sleeping for 2 seconds each' {
         $result = Measure-Command { Invoke-Cidney 'Do Timing 128 Threads' }
-        $result.Seconds -le (2*(128/16)) + 4 | should be $true
+        $result.TotalSeconds -le (2*(128/16)) + 4 | should be $true
+    }
+    It 'should take less than 120 seconds to run 1024 threads' {
+        $result = Measure-Command { Invoke-Cidney 'Do Timing 1024 Threads' }
+        $result.TotalSeconds -le 120 | should be $true
+    }
+    It 'should be faster that powershell jobs' {
+        $result1 = Measure-Command { Invoke-Cidney 'Do Timing 16 Threads' }
+        $result2 = Measure-Command { foreach($num in 1..16) { Invoke-Command { Sleep 5 } -asJob -ComputerName localhost }; Get-job | Receive-Job -Wait -AutoRemoveJob}
+        $result1.TotalSeconds -le $result2.TotalSeconds | should be $true
     }
 }
 #endregion
