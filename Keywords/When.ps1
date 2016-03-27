@@ -61,7 +61,7 @@
     }
 '@
     $eventAction = [ScriptBlock]::Create($script)
-    $null = Register-EngineEvent -SourceIdentifier $Event -Action $eventAction  #-MaxTriggerCount 1 
+    $null = Register-EngineEvent -SourceIdentifier $Event -Action $eventAction #-MaxTriggerCount 1 
 
     if ($wait)
     {

@@ -32,13 +32,13 @@ Pipeline: 'Trigger 3 events' {
 Pipeline: 'When with 2 Stages' {
     Stage: 'Stage One' {
         When: EventA {
-             Write-output 'Stage One'
+             Write-Output 'Stage One'
         }   
     }
 
     Stage: 'Stage Two' {
         When: EventB {
-             Write-output 'Stage Two'
+             Write-Output 'Stage Two'
         }   
    }
 } 
@@ -52,10 +52,10 @@ Pipeline: 'Trigger 4 events' {
     }
 }
 
-Pipeline: 'Trigger event from Do:' {
+<#Pipeline: 'Trigger event from Do:' {
     Do: { Send-Event EventA }
 }
-
+#>
 #endregion
 
 #region Tests
@@ -78,11 +78,11 @@ Describe 'When Tests' {
         $result.count | Should be 4
         $result | should be @('Stage Two','Stage One','Stage One', 'Stage Two')
     }
-#    It 'Should output stage name from event in Do' {
-#        Invoke-Cidney 'When with 2 Stages'
-#        $result = Invoke-Cidney 'Trigger event from Do:'
-#        $result | should be 'Stage One'
-#    }
+<#    It 'Should output stage name from event in Do' {
+        Invoke-Cidney 'When with 2 Stages'
+        $result = Invoke-Cidney 'Trigger event from Do:'
+        $result | should be 'Stage One'
+    }#>
 
     It 'Should not have any left over jobs' {
         Get-Job | Should beNullOrEmpty

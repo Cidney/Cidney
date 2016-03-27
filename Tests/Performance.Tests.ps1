@@ -1,4 +1,4 @@
-﻿#region Pipeline configurations
+﻿<##region Pipeline configurations
 Pipeline: 'Do Timing 16 threads' {
     Stage: One: {
         foreach ($num in 1..16)
@@ -62,4 +62,4 @@ Describe 'Performance Tests' {
 
 #region Cleanup
 Get-CidneyPipeline | Remove-CidneyPipeline
-#endregion
+#endregion#>

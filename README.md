@@ -148,10 +148,9 @@ To Invoke directly:
  Each Do: Block found will create a Job so they can be run asynchronously ( or in Parallel.)
  
 
-  Do: [-DoBlock] &lt;scriptblock&gt; [-TimeOut &lt;int&gt;] [-MaxThreads &lt;int&gt;] [-SleepTimer &lt;int&gt;] [-ComputerName &lt;string[]&gt;] [-UserName &lt;string&gt;] [-Credential &lt;pscredential&gt;] [-UseSSL] [-Passthru] 
+  Do: [-DoBlock] &lt;scriptblock&gt; [-TimeOut &lt;int&gt;] [-MaxThreads &lt;int&gt;] [-SleepTimer &lt;int&gt;] [-Passthru] 
 
-  Do: [[-Name] &lt;string&gt;] [-DoBlock] &lt;scriptblock&gt; [-TimeOut &lt;int&gt;] [-MaxThreads &lt;int&gt;] [-SleepTimer &lt;int&gt;] [-ComputerName &lt;string[]&gt;] [-UserName &lt;string&gt;] [-Credential &lt;pscredential&gt;] [-UseSSL] 
-    [-Passthru] 
+  Do: [[-Name] &lt;string&gt;] [-DoBlock] &lt;scriptblock&gt; [-TimeOut &lt;int&gt;] [-MaxThreads &lt;int&gt;] [-SleepTimer &lt;int&gt;] [-Passthru] 
   
          .\HelloWorld.ps1
 

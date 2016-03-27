@@ -6,6 +6,6 @@
         [string]
         $Name
     )
-
+    
     $event = New-Event $Name -Sender 'Cidney' 
 }
