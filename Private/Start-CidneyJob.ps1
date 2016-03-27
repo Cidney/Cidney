@@ -61,7 +61,8 @@
             $null = $Script:RsSessionState.ImportPSSnapIn($snapin, [ref]$null)
         }
 
-        $null = $Script:RsSessionState.ImportPSModule('Cidney')
+        $cidneyPath = (Get-Module Cidney).Path
+        $null = $Script:RsSessionState.ImportPSModule($cidneyPath)
         foreach($module in $Global:CidneyImportedModules)
         {
             $null = $Script:RsSessionState.ImportPSModule($module.Name)
