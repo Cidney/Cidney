@@ -111,7 +111,8 @@ Pipeline: 'Do Invoke-Pipeline' {
 Pipeline: 'Do Invoke-Pipeline 2' {
     Stage: One: {
         Do: { 
-           & 'C:\Program Files\WindowsPowerShell\Modules\Cidney\Tests\EmbeddedPipelineScript.ps1'
+            $path = Split-Path (Get-Module Cidney).Path -Parent
+           & "$Path\Tests\EmbeddedPipelineScript.ps1"
         }
     }
 }
