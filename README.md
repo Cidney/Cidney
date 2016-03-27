@@ -264,7 +264,7 @@ Note: All though this is a simple implementation Register-EngineEvent you can us
 	pipeline: TimerTest {
 	    $Timer =[timers.timer]::new()
 	    When: Timer.Done {
-	        Write-host "Timer Elapse Event: $(get-date -Format ‘HH:mm:ss’)"
+	        Write-host "Timer Elapse Event: $(get-date -Format 'HH:mm:ss')"
 	        if ($Global:TimerCount++ -ge 3)
 	        {
 	            $Timer.Stop()
@@ -282,7 +282,7 @@ Note: All though this is a simple implementation Register-EngineEvent you can us
 	        $timer.AutoReset = $true
 	
 	        $job = Register-ObjectEvent -InputObject $global:timer `
-	          -EventName elapsed –SourceIdentifier ATimer -Action { 
+	          -EventName elapsed -SourceIdentifier ATimer -Action { 
 	            Send-Event Timer.Done 
 	        }  
 	
@@ -301,3 +301,6 @@ output
 	[53.41ms] PS Cidney> 	
 
 ----------
+	
+	
+
