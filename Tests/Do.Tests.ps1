@@ -10,7 +10,7 @@ Pipeline: 'Do Local Variable in Pipeline' {
     Stage: One {
         Do: { Write-Output $ABC }
         }
-} -invoke
+} -Invoke
 
 Pipeline: 'Do Local Variable in Stage' {
     Stage: One {

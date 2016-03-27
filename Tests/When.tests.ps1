@@ -54,8 +54,8 @@ Pipeline: 'Trigger 4 events' {
 
 <#Pipeline: 'Trigger event from Do:' {
     Do: { Send-Event EventA }
-}
-#>
+}#>
+
 #endregion
 
 #region Tests

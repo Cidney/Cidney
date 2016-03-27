@@ -1,10 +1,13 @@
-﻿Import-Module 'c:\projects\Cidney\Cidney.psd1'
+﻿#$BasePath = 'c:\Program Files\WindowsPowershell\Modules\Cidney\'
+$BasePath = 'c:\Projects\Cidney\'
+Import-module (Join-path $BasePath 'Cidney.psd1')
 pipeline: CidneyBuild {
-    $Path = (Get-Module Cidney).ModuleBase
+    Import-Module Pester
     Stage: Pester {
-        Do: { Import-Module 'c:\projects\Cidney\Cidney.psd1', Pester; Invoke-Pester -Script "$path\Tests\Pipeline.Tests.ps1" }
-        Do: { Import-Module 'c:\projects\Cidney\Cidney.psd1', Pester; Invoke-Pester -Script "$path\Tests\Stage.Tests.ps1" }
-        Do: { Import-Module 'c:\projects\Cidney\Cidney.psd1', Pester; Invoke-Pester -Script "$path\Tests\Do.Tests.ps1" }
-        Do: { Import-Module 'c:\projects\Cidney\Cidney.psd1', Pester; Invoke-Pester -Script "$path\Tests\Pipeline.Do.Tests.ps1" }
+        Do: { Invoke-Pester -Script "$BasePath\Tests\Pipeline.Tests.ps1" }
+        Do: { Invoke-Pester -Script "$BasePath\Tests\Stage.Tests.ps1" }
+        Do: { Invoke-Pester -Script "$BasePath\Tests\Do.Tests.ps1" }
+        Do: { Invoke-Pester -Script "$BasePath\Tests\Pipeline.Do.Tests.ps1" }
+        Do: { Invoke-Pester -Script "$BasePath\Tests\When.Tests.ps1" }
     }
 } -Invoke -Verbose

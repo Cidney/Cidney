@@ -1,4 +1,4 @@
-﻿<##region Pipeline configurations
+﻿#region Pipeline configurations
 Pipeline: 'Do Timing 16 threads' {
     Stage: One: {
         foreach ($num in 1..16)
@@ -35,7 +35,7 @@ Pipeline: 'Do Timing 1024 threads' {
 
 #region Tests
 #About 250ms per thread to setup seconds for setup so add (250 * 16) to result
-Describe 'Performance Tests' {
+Describe -Tag Performance 'Performance Tests' {
     It 'should take less than 10 seconds to run 16 Threads sleeping for 5 seconds each' {
         $result = Measure-Command { Invoke-Cidney 'Do Timing 16 Threads' }
         $result.TotalSeconds -le 10 | should be $true
@@ -62,4 +62,4 @@ Describe 'Performance Tests' {
 
 #region Cleanup
 Get-CidneyPipeline | Remove-CidneyPipeline
-#endregion#>
+#endregion
