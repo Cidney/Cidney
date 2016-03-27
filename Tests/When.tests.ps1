@@ -52,6 +52,37 @@ Pipeline: 'Trigger 4 events' {
     }
 }
 
+pipeline: TimerTest {
+    $Global:Timer =[timers.timer]::new()
+    When: Timer.Done {
+        $Global:TimerResult = 'Timer Elapsed'
+        if ($Global:TimerCount++ -ge 1)
+        {
+            $Timer.Stop()
+            $Timer.Dispose()
+            Unregister-Event ATimer
+            Get-Job ATimer | Remove-Job -Force
+
+            Unregister-Event Timer.Done
+            Get-Job Timer.Done | Remove-Job -Force
+        }
+
+    }
+
+    Stage: StartTimer {
+        $Global:TimerCount = 1
+        
+        $timer.Interval = 3000
+        $timer.AutoReset = $true
+
+        $job = Register-ObjectEvent -InputObject $global:timer -EventName elapsed –SourceIdentifier ATimer -Action { 
+            Send-Event Timer.Done 
+        }  
+
+        $timer.start() 
+    }
+} 
+
 <#Pipeline: 'Trigger event from Do:' {
     Do: { Send-Event EventA }
 }#>
@@ -84,6 +115,12 @@ Describe 'When Tests' {
         $result | should be 'Stage One'
     }#>
 
+    It 'Should do complex Events like Timer' {
+        $Global:TimerResult = ''
+        Invoke-Cidney TimerTest 
+        Sleep -Seconds 5
+        $Global:TimerResult | Should be 'Timer Elapsed' 
+    }
     It 'Should not have any left over jobs' {
         Get-Job | Should beNullOrEmpty
     }

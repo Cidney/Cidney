@@ -194,6 +194,10 @@ To Invoke directly:
         VERBOSE: [03/06/16 4:53:40.606 PM] [Done] Stage One
         VERBOSE: [03/06/16 4:53:40.607 PM] [Done] Pipeline HelloWorld
 
+NOTE: Current issues with Do: 
+
+  - Write-Host will be out of sequence with the Verbose output. Write-Host happens immediately while regular pipeline output is captured and displayed after the stage or pipeline in order
+  - You cannot start an Event from a Do: block. Send-Event will not work inside a Do: block. 
 
 **On:**
 
@@ -233,11 +237,11 @@ The On: command lets you specify a computer(s) that you will run its script bloc
 
 **When:**
 
-When: command for Cidney Pipelines. Used between Stage: and Do:
-The When: command lets you specify an event to listen for that you will run its script block against 
-      
-        
-  When: [-Event] &lt;Object&gt; [-WhenBlock] &lt;scriptblock&gt; [-EventObject &lt;Object&gt;] [-Wait] [-Timeout &lt;int&gt;] 
+When: command for Cidney Pipelines. 
+
+The When: command lets you specify an event to listen for that you will run its script block against. This is a simple implementation of Register-EngineEvent in which an Event name is registered with the When: block. It will not execute until the event it is waiting for is raised with Send-Event (which is a wrapper for New-Event.) The When: block and the act of raising the Event can be in different pipelines.
+
+ When: [-Event] &lt;string&gt; [-WhenBlock] &lt;scriptblock&gt; [-EventObject &lt;Object&gt;] [-Wait] [-Timeout &lt;int&gt;] 
 
         .\HelloWorld.ps1
         
@@ -255,6 +259,45 @@ The When: command lets you specify an event to listen for that you will run its 
 
         Run ipconfig from Stage One when MyEvent is fired once Stage Two is run.
 
+Note: All though this is a simple implementation Register-EngineEvent you can use more complex events like Cim, WMI and Object events but just calling Send-Event in the action of these events.
+       
+	pipeline: TimerTest {
+	    $Timer =[timers.timer]::new()
+	    When: Timer.Done {
+	        Write-host "Timer Elapse Event: $(get-date -Format ‘HH:mm:ss’)"
+	        if ($Global:TimerCount++ -ge 3)
+	        {
+	            $Timer.Stop()
+	            $Timer.Dispose()
+	            Unregister-Event ATimer
+	            Get-Job ATimer | Remove-Job -Force
+	        }
+	
+	    }
+	
+	    Stage: StartTimer {
+	        $Global:TimerCount = 1
+	        
+	        $timer.Interval = 3000
+	        $timer.AutoReset = $true
+	
+	        $job = Register-ObjectEvent -InputObject $global:timer `
+	          -EventName elapsed –SourceIdentifier ATimer -Action { 
+	            Send-Event Timer.Done 
+	        }  
+	
+	        $timer.start() 
+	    }
+	} -Invoke
+
+output
+
+	[0.00ms] PS Cidney> Invoke-Cidney TimerTest
+	
+	[53.41ms] PS Cidney> Timer Elapse Event: 15:26:27
+	Timer Elapse Event: 15:26:30
+	Timer Elapse Event: 15:26:33
+	
+	[53.41ms] PS Cidney> 	
+
 ----------
-
-
