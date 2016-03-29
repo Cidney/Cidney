@@ -62,6 +62,20 @@ Pipeline: 'Embedded Stage in Stage' {
         Stage: 'B' { Write-Output 'B'}
     }
 }
+
+Pipeline: 'Stage with Variable outside stage' {
+    $Stage_A = 'A'
+    Stage: One {
+        Write-Output "$Stage_A"
+    }
+}
+
+Pipeline: 'Stage with Variable inside stage' {
+    Stage: One {
+        $Stage_B = 'B'
+        Write-Output "$Stage_B"
+    }
+}
 #endregion
 
 #region Tests
@@ -89,6 +103,14 @@ Describe 'Stage Tests' {
     }
     It 'Pipeline should handle stages inside stages' {
         Invoke-Cidney 'Embedded Stage in Stage' | should be 'B' 
+    }
+    It "Stage should have a variable Stage_A with value of 'A'" {
+        $result = Invoke-Cidney 'Stage with Variable outside Stage' 
+        $result | Should be 'A'
+    }
+    It "Stage should have a variable Stage_B with value of 'B'" {
+        $result = Invoke-Cidney 'Stage with Variable Inside Stage' 
+        $result | Should be 'B'
     }
 }
 #endregion

@@ -47,6 +47,25 @@
     
     try
     {        
+    $paramHeader = @'
+param([hashtable]$__context__)
+
+if ($__context__ -and $__context__.LocalVariables)
+{
+    foreach($__var__ in $__context__.LocalVariables)
+    {
+        if (-not (Get-Variable $__var__.Name -ErrorAction SilentlyContinue))
+        {
+            New-Variable -Name $__var__.Name -Value $__var__.Value
+        }
+        else
+        {
+            Set-Variable -Name -Name $__var__.Name -Value $__var__.Value 
+        }
+    }
+}
+
+'@
         if (-not $Context)
         {
             $Context = New-CidneyContext
@@ -64,6 +83,9 @@
         $count = 0
         foreach($block in $blocks)
         {
+            $block = $block.ToString().Trim()
+            $block = [scriptblock]::Create("$paramHeader`r`n$block")
+
             if ($Context.ShowProgress) 
             { 
                 Write-Progress -Activity "Stage $StageName" -Status 'Processing' -Id ($CidneyPipelineCount + 1)

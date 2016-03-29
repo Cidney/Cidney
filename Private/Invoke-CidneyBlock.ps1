@@ -15,7 +15,7 @@
     $variables = @{}
 
     $localVariables = (Get-Variable -Scope Local | Where { $_.GetType().Name -eq 'PSVariable'}) 
-    
+
     Invoke-Command -Command $ScriptBlock -ArgumentList $Context -NoNewScope
     
     $variables = (Get-Variable -Scope Local | Where {$_.GetType().Name -eq 'PSVariable' }) 
