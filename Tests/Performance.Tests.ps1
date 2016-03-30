@@ -38,19 +38,19 @@ Pipeline: 'Do Timing 1024 threads' {
 Describe -Tag Performance 'Performance Tests' {
     It 'should take less than 10 seconds to run 16 Threads sleeping for 5 seconds each' {
         $result = Measure-Command { Invoke-Cidney 'Do Timing 16 Threads' }
-        $result.TotalSeconds -le 10 | should be $true
+        ([int]$result.TotalSeconds) -le 10 | should be $true
     }    
     It 'should take less than 15 seconds to run 32 threads sleeping for 5 seconds each' {
         $result = Measure-Command { Invoke-Cidney 'Do Timing 32 Threads' }
-        $result.TotalSeconds -le 15 | should be $true
+        ([int]$result.TotalSeconds) -le 15 | should be $true
     }
     It 'should take less than 20 seconds to run 128 threads sleeping for 2 seconds each' {
         $result = Measure-Command { Invoke-Cidney 'Do Timing 128 Threads' }
-        $result.TotalSeconds -le (2*(128/16)) + 4 | should be $true
+        ([int]$result.TotalSeconds) -le (2*(128/16)) + 4 | should be $true
     }
     It 'should take less than 120 seconds to run 1024 threads' {
         $result = Measure-Command { Invoke-Cidney 'Do Timing 1024 Threads' }
-        $result.TotalSeconds -le 120 | should be $true
+        ([int]$result.TotalSeconds) -le 120 | should be $true
     }
     It 'should be faster that powershell jobs' {
         $result1 = Measure-Command { Invoke-Cidney 'Do Timing 16 Threads' }

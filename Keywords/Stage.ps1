@@ -78,7 +78,6 @@ if ($__context__ -and $__context__.LocalVariables)
         $Context.CurrentStage = $StageName
 
         Write-CidneyLog "[Start] Stage $StageName"
-
         $blocks = Get-Cidneystatements -ScriptBlock $stageBlock -BoundParameters $PSBoundParameters
         $count = 0
         foreach($block in $blocks)
@@ -104,7 +103,7 @@ if ($__context__ -and $__context__.LocalVariables)
     }
     finally
     {
-        $Context.Remove('Jobs')
+        $Context.Jobs = @()
         $removeKeys = @()
         foreach($output in $Global:CidneyEventOutput.GetEnumerator())
         {

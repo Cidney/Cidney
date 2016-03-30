@@ -10,7 +10,7 @@ Pipeline: 'Do Local Variable in Pipeline' {
     Stage: One {
         Do: { Write-Output $ABC }
         }
-} -Invoke
+} 
 
 Pipeline: 'Do Local Variable in Stage' {
     Stage: One {
@@ -23,12 +23,6 @@ Pipeline: 'Do Local Variable in Do' {
     Stage: One {
         Do: { $Abc = 'abc'; Write-Output $ABC }
         }
-}
-
-Pipeline: 'Do Get-Service' {
-    Stage: One {
-        Do: { Get-Variable }
-    }
 }
 
 Pipeline: 'Do Get-Service' {
@@ -176,7 +170,7 @@ Describe 'Do Tests' {
     It 'should be able to invoke do: outside of stage and pipeline' {
         Do: { $env:COMPUTERNAME } -PassThru | Wait-CidneyJob | should be $env:COMPUTERNAME
     }
-}
+} -tag Do
 #endregion
 
 #region Cleanup

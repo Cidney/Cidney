@@ -69,7 +69,7 @@
         $Context
     )
 
-    $doBlocks = Get-CidneyBlocks -ScriptBlock $OnBlock 
+    $doBlocks = Get-DoBlocks -ScriptBlock $OnBlock 
 
     $invokeBlocks = @()
                 
