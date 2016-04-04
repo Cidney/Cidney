@@ -56,7 +56,7 @@
             }
         }
         
-        foreach($snapin in ($Global:CidneyAddedSnapins | Select -First 1))
+        foreach($snapin in ($Global:CidneyAddedSnapins | Select-Object -First 1))
         {
             $null = $Script:RsSessionState.ImportPSSnapIn($snapin, [ref]$null)
         }

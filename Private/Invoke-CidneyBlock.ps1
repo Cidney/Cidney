@@ -5,20 +5,20 @@
     (
         [Parameter(Mandatory)]
         [scriptblock]
-        $ScriptBlock,
+        $ScriptBlock = $null,
         [Parameter(Mandatory)]
         [hashtable]
-        $Context
+        $Context = $null
     )
     
     $localVariables = @{}
     $variables = @{}
 
-    $localVariables = (Get-Variable -Scope Local | Where { $_.GetType().Name -eq 'PSVariable'}) 
+    $localVariables = (Get-Variable -Scope Local | Where-Object { $_.GetType().Name -eq 'PSVariable'}) 
 
     Invoke-Command -Command $ScriptBlock -ArgumentList $Context -NoNewScope
     
-    $variables = (Get-Variable -Scope Local | Where {$_.GetType().Name -eq 'PSVariable' }) 
+    $variables = (Get-Variable -Scope Local | Where-Object {$_.GetType().Name -eq 'PSVariable' }) 
     if ($localVariables.Count -ne $variables.Count)
     {
         $localVariables = Compare-Object -ReferenceObject $variables -DifferenceObject $localVariables -PassThru -Property Name

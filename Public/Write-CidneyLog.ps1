@@ -4,7 +4,7 @@
     (
         [parameter(ValueFromPipeline)]
         [string]
-        $Message
+        $Message = $null
     )
 
     $indentLevel = $CidneyPipelineCount

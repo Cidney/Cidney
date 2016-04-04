@@ -36,7 +36,7 @@
     (
         [Parameter(Mandatory, Position = 0)]
         [string]
-        $Event,
+        $Event = '',
         [Parameter(Position = 1)]
         [scriptblock]
         $WhenBlock = $(Throw 'No When: block provided. (Did you put the open curly brace on the next line?)'),
@@ -46,7 +46,7 @@
         $Timeout = 300,
         [Parameter(DontShow)]
         [hashtable]
-        $Context
+        $Context = $null
     )
 
     $script = "`$Global:CidneyEventOutput.Add(`$event, @($($WhenBlock.ToString().Trim())))"

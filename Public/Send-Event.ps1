@@ -4,8 +4,8 @@
     (
         [Parameter(Mandatory)]
         [string]
-        $Name
+        $Name = $null
     )
     
-    $event = New-Event $Name -Sender 'Cidney' 
+    $null = New-Event $Name -Sender 'Cidney' 
 }

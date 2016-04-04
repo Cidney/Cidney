@@ -50,29 +50,27 @@
     (
         [Parameter(Mandatory, Position = 0)]
         [string[]]
-        $ComputerName,       
+        $ComputerName = '',       
         [Parameter(Position = 1)]
         [scriptblock]
         $OnBlock = $(Throw 'No On: block provided. (Did you put the open curly brace on the next line?)'),
         [PSCredential]
-        $Credential,
+        $Credential = $null,
         [switch]
         $UseSSL,
         [int]
-        $TimeOut,
+        $TimeOut = 1800,
         [int]
-        $MaxThreads,
+        $MaxThreads = 8,
         [int]
-        $SleepTimer,
+        $SleepTimer = 100,
         [Parameter(DontShow)]
         [hashtable]
-        $Context
+        $Context = $null
     )
 
     $doBlocks = Get-DoBlocks -ScriptBlock $OnBlock 
 
-    $invokeBlocks = @()
-                
     foreach($doBlock in $doBlocks)
     {
         $params = "-MaxThreads $MaxThreads"

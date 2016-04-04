@@ -36,7 +36,7 @@
     (
         [parameter(ValueFromPipeline, ParameterSetName = 'pipeline')]
         [object[]]
-        $InputObject
+        $InputObject = $null
     )
 
     DynamicParam 

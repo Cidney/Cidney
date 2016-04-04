@@ -38,5 +38,5 @@
     $functionName = "Pipeline: $Name"
 
     # Return the list of Pipeline functions except for the Pipeline: keyword
-    Get-item "Function:$functionName" -ErrorAction SilentlyContinue | Where Name -ne 'Pipeline:' 
+    Get-item "Function:$functionName" -ErrorAction SilentlyContinue | Where-Object Name -ne 'Pipeline:' 
 }    

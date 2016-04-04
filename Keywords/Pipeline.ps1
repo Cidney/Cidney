@@ -36,7 +36,7 @@
     (
         [Parameter(Mandatory, Position = 0, ParameterSetName = 'pipeline')]
         [string]
-        $PipelineName,
+        $PipelineName = '',
         [Parameter(Position = 1, ParameterSetName = 'pipeline')]
         [scriptblock]
         $PipelineBlock= $(Throw 'No Pipeline: block provided. (Did you put the open curly brace on the next line?)'),
@@ -56,6 +56,9 @@
         $Dummy
     )
     
+    $CidneyPipelineCount = -1
+    $CidneyPipelineFunctions = @{}
+
     $functionName = "Global:Pipeline: $PipelineName"
     if ($CidneyPipelineFunctions.ContainsKey($functionName))
     {
@@ -99,7 +102,7 @@
         
         try
         {
-            $stages = Get-CidneyStatements -ScriptBlock $PipelineBlock -BoundParameters $PSBoundParameters 
+            $stages = Get-CidneyStatement -ScriptBlock $PipelineBlock -BoundParameters $PSBoundParameters 
 
             $count = 0
             foreach($stage in $stages)

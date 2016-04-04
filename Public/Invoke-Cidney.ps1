@@ -54,7 +54,7 @@
     (
         [parameter(ValueFromPipeline, ParameterSetName = 'pipeline')]
         [object[]]
-        $InputObject,
+        $InputObject = $null,
         [Parameter(ParameterSetName = 'Name')]
         [Parameter(ParameterSetName = 'pipeline')]
         [switch]
@@ -104,8 +104,7 @@
             $verbose = $PSCmdlet.MyInvocation.BoundParameters.ContainsKey('Verbose')
 
             # Make sure we get and remove only Cidney jobs
-            Get-Job | Where Name -match '(CI \[Job\d+\])' | Remove-Job -Force -Verbose:$verbose
-            $CidneyPipelineCount = -1
+            Get-Job | Where-Object Name -match '(CI \[Job\d+\])' | Remove-Job -Force -Verbose:$verbose
             $Global:CidneyJobCount = 0
             
             break
@@ -129,7 +128,7 @@
             $functionName = "Global:$($InputObject.Name)"
         }
 
-        $result = $CidneyPipelineFunctions.GetEnumerator() | Where Name -eq $functionName
+        $result = $CidneyPipelineFunctions.GetEnumerator() | Where-Object Name -eq $functionName
         if ($result)
         {
             $params = $result.Value

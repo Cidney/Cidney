@@ -5,7 +5,7 @@
     (
         [Parameter(ValueFromPipelineByPropertyName, ValueFromPipeline)]
         [hashtable]
-        $Context
+        $Context = $null
     )  
 
     $count = 0
@@ -30,7 +30,7 @@
                     {
                         if ($job.Thread -and $job.Thread.HadErrors)
                         {
-                            $job.Thread.Streams.Error.ReadAll() | foreach { Write-Error $PSItem }
+                            $job.Thread.Streams.Error.ReadAll() | ForEach-Object { Write-Error $PSItem }
                         }
                     
                         $job.Thread.EndInvoke($Job.Handle)

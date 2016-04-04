@@ -36,13 +36,13 @@
     (
         [Parameter(Mandatory, Position = 0)]
         [string]
-        $StageName,
+        $StageName ='',
         [Parameter(Position = 1)]
         [scriptblock]
         $StageBlock  = $(Throw 'No Stage: block provided. (Did you put the open curly brace on the next line?)'),
         [Parameter(DontShow)]
         [hashtable]
-        $Context
+        $Context = $null
     )
     
     try
@@ -78,7 +78,7 @@ if ($__context__ -and $__context__.LocalVariables)
         $Context.CurrentStage = $StageName
 
         Write-CidneyLog "[Start] Stage $StageName"
-        $blocks = Get-Cidneystatements -ScriptBlock $stageBlock -BoundParameters $PSBoundParameters
+        $blocks = Get-Cidneystatement -ScriptBlock $stageBlock -BoundParameters $PSBoundParameters
         $count = 0
         foreach($block in $blocks)
         {

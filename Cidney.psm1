@@ -1,8 +1,6 @@
 ﻿$ScriptPath = Split-Path $MyInvocation.MyCommand.Path
 
 $Global:CidneyJobCount = 0
-$CidneyPipelineCount = -1
-$CidneyPipelineFunctions = @{}
 $Global:CidneyEventSubscribers = @()
 $Global:CidneyEventOutput = @{}
 $Global:CidneyImportedModules = @()
@@ -60,10 +58,10 @@ catch
 #endregion
 
 $ExecutionContext.SessionState.Module.OnRemove = {
-    Remove-Variable CidneyPipelineCount -Force -ErrorAction SilentlyContinue
-    Remove-Variable CidneyPipelineFunctions -Force -ErrorAction SilentlyContinue
-    Remove-Variable CidneyImportedModules -Scope Global -Force -ErrorAction SilentlyContinue
-    Remove-Variable CidneyAddedSnapins -Scope Global -Force -ErrorAction SilentlyContinue
+    Remove-Variable -Name CidneyPipelineCount -Force -ErrorAction SilentlyContinue
+    Remove-Variable -Name CidneyPipelineFunctions -Force -ErrorAction SilentlyContinue
+    Remove-Variable -Name CidneyImportedModules -Scope Global -Force -ErrorAction SilentlyContinue
+    Remove-Variable -Name CidneyAddedSnapins -Scope Global -Force -ErrorAction SilentlyContinue
 
   #  $CidneyPipelineFunctions | Remove-CidneyPipeline
 
