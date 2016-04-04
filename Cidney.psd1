@@ -1,6 +1,6 @@
 ﻿@{
     RootModule = 'Cidney.psm1'
-    ModuleVersion = '0.9.5.0'
+    ModuleVersion = '1.0.0.0'
     GUID = '95f1121c-d1c5-4fc1-89c0-5da6e5cc2082'
     Author = 'Cidney Team'
     CompanyName = 'Cidney'
@@ -21,13 +21,13 @@
             Tags = @('powershell','continuous integration','ci','devops', 'continuous deployment', 'continuous delivery', 'release management')
 
             # The web address of an icon which can be used in galleries to represent this module
-            IconUri = ''
+            IconUri = 'https://avatars3.githubusercontent.com/u/17713732'
 
             # The web address of this module's project or support homepage.
             ProjectUri = 'https://github.com/Cidney/Cidney'
 
             # The web address of this module's license. Points to a page that's embeddable and linkable.
-            LicenseUri = 'http://www.apache.org/licenses/LICENSE-2.0.html'
+            LicenseUri = 'https://github.com/Cidney/Cidney/blob/master/LICENSE'
 
             # Release notes for this particular version of the module
             # ReleaseNotes = False
@@ -36,7 +36,7 @@
             # RequireLicenseAcceptance = ""
 
             # Indicates this is a pre-release/testing version of the module.
-            IsPrerelease = 'True'
+            IsPrerelease = 'False'
         }
     }
 }

@@ -8,6 +8,13 @@ Tags: CI, Continuous Integration, Continuous Deployment, DevOps, Powershell,  DS
 
 **Install**
 
+Powershell: Version 5 (WMF 5)
+
+Install-Package Cidney
+
+
+Prevous Version (Powershell 4):
+
 Add this module to C:\Program Files\WindowsPowershell\Modules\Cidney
 
 **Use**
@@ -17,6 +24,8 @@ Import-Module Cidney
 **Help**
 
 Keywords and cmdlets have powershell help. 
+
+Examples:
 
     Get-Help Invoke-Cidney
 
