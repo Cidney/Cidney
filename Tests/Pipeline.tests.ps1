@@ -167,11 +167,11 @@ Describe 'Pipeline Tests' {
         $result = Invoke-Cidney 'Invoking Pipeline in Pipeline 2'
         $result | should be 'Pipeline'
     }
-    It 'With 1 Pipeline CidneyPipelineCount should be 0' {
-        Invoke-Cidney 'Pipeline CidneyPipelineCount' | should be 0
+    It 'With 1 Pipeline CidneyPipelineCount should be 1' {
+        Invoke-Cidney 'Pipeline CidneyPipelineCount' | should be 1
     }
     It 'With 2 Pipelines CidneyPipelineCount should be 1' {
-            Invoke-Cidney 'Pipeline CidneyPipelineCount 2 Pipelines' | should be 1
+            Invoke-Cidney 'Pipeline CidneyPipelineCount 2 Pipelines' | should be 2
     }
 }
 
