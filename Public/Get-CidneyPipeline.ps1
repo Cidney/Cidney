@@ -16,8 +16,8 @@
 
         CommandType     Name                                               Version    Source                                                                        
         -----------     ----                                               -------    ------                                                                        
-        Function        Pipeline:HelloWorld                                0.9.5.0    cidney                                                                        
-        Function        Pipeline:HelloWorld2                               0.9.5.0    cidney      
+        Function        Pipeline:HelloWorld                                1.0.0.0    cidney                                                                        
+        Function        Pipeline:HelloWorld2                               1.0.0.0    cidney      
 
         .LINK
         Pipeline:

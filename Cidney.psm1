@@ -5,6 +5,8 @@ $Global:CidneyEventSubscribers = @()
 $Global:CidneyEventOutput = @{}
 $Global:CidneyImportedModules = @()
 $Global:CidneyAddedSnapins = @()
+$CidneyPipelineFunctions = @{}
+
 
 $Env:CidneyStore = Join-Path $env:LOCALAPPDATA 'Cidney'
 New-Item $Env:CidneyStore -ItemType Directory -Force

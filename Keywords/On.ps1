@@ -69,7 +69,7 @@
         $Context = $null
     )
 
-    $doBlocks = Get-DoBlocks -ScriptBlock $OnBlock 
+    $doBlocks = Get-DoBlock -ScriptBlock $OnBlock 
 
     foreach($doBlock in $doBlocks)
     {

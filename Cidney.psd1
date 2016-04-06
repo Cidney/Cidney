@@ -1,10 +1,10 @@
 ﻿@{
     RootModule = 'Cidney.psm1'
-    ModuleVersion = '1.0.0.0'
+    ModuleVersion = '1.0.0.1'
     GUID = '95f1121c-d1c5-4fc1-89c0-5da6e5cc2082'
     Author = 'Cidney Team'
     CompanyName = 'Cidney'
-    Copyright = 'Copyright (c) 2016 by Cidney Team, licensed under Apache 2.0 License.'
+    Copyright = 'Copyright (c) 2016 by Cidney Team, licensed under MIT License.'
     Description = 'This module defines a DSL for doing pipelines and stages for Continuous Integration and Deployment'
     FunctionsToExport = 'Pipeline:','Stage:','Do:','On:','When:','Write-CidneyLog','Invoke-Cidney','Remove-CidneyPipeline', 'Get-CidneyPipeline', 'Wait-CidneyJob', 'Send-Event'
     

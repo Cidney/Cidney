@@ -57,8 +57,7 @@
     )
     
     $CidneyPipelineCount = -1
-    $CidneyPipelineFunctions = @{}
-
+    
     $functionName = "Global:Pipeline: $PipelineName"
     if ($CidneyPipelineFunctions.ContainsKey($functionName))
     {
