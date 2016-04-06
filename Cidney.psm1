@@ -5,7 +5,7 @@ $Global:CidneyEventSubscribers = @()
 $Global:CidneyEventOutput = @{}
 $Global:CidneyImportedModules = @()
 $Global:CidneyAddedSnapins = @()
-$CidneyPipelineFunctions = @{}
+$CidneyPipelineFunctions = [hashtable]::Synchronized(@{})
 
 
 $Env:CidneyStore = Join-Path $env:LOCALAPPDATA 'Cidney'
@@ -64,8 +64,6 @@ $ExecutionContext.SessionState.Module.OnRemove = {
     Remove-Variable -Name CidneyPipelineFunctions -Force -ErrorAction SilentlyContinue
     Remove-Variable -Name CidneyImportedModules -Scope Global -Force -ErrorAction SilentlyContinue
     Remove-Variable -Name CidneyAddedSnapins -Scope Global -Force -ErrorAction SilentlyContinue
-
-  #  $CidneyPipelineFunctions | Remove-CidneyPipeline
 
     Remove-Item $Env:CidneyStore -Force
 }

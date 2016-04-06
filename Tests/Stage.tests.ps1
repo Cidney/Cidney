@@ -36,6 +36,48 @@ Pipeline: 'Statements after Stage' {
     Write-Output $a$b
 }
 
+Pipeline: 'Stage Context' {
+    Stage: One {
+        $context
+    }
+}
+
+Pipeline: 'Stage CidneyShowProgressPreference' {
+    Stage: One {
+        $CidneyShowProgressPreference
+    }
+}
+
+Pipeline: 'Stage CidneyPipelineCount' {
+    Stage: One {
+        $CidneyPipelineCount
+    }
+}
+
+Pipeline: 'Stage CidneyPipelineFunctions' {
+    Stage: One {
+        $CidneyPipelineFunctions
+    }
+}
+
+Pipeline: 'Stage CidneyPipelineCount 2 Pipelines' {
+    Stage: One {
+        Invoke-Cidney 'Stage CidneyPipelineCount'
+    }
+}
+
+Pipeline: '3 Stage CidneyPipelineCount 2 Pipelines' { # After Stage One there are 2 pipelines at this scope
+    Stage: One { #Another pipeline but at the stage scope its still 1
+        Invoke-Cidney 'Stage CidneyPipelineCount'
+    }
+    Stage: Two { #Only 1 pipeline in the stage scope
+        $CidneyPipelineCount
+    }
+    Stage: Three { #Still Only 1 pipeline in the stage scope
+        $CidneyPipelineCount
+    }
+}
+
 Pipeline: 'Embedded Pipeline in Stage' {
     Stage: 'A' {
         Pipeline: A { Write-Output "$PipelineName"}
@@ -86,6 +128,99 @@ Describe 'Stage Tests' {
     It 'Should output Stage One Stage Two' {
         Invoke-Cidney '2 Stages' | Should be 'Stage One', 'Stage Two'
     }
+    Context 'Context' {
+        $result = Invoke-Cidney 'Stage Context'
+        It 'Stage should have a Context that is not null' {
+            $result | Should not BeNullOrEmpty
+        }
+        It 'Stage should have a Context with 9 entries' {
+            $result.Count | Should be 9
+        }
+    }
+    Context 'CurrentStage' {
+       $result = (Invoke-Cidney 'Stage Context').CurrentStage
+        It 'Stage Context should have CurrentStage Entry' {
+            $result | Should be 'One'
+        }
+    }
+    Context 'Jobs' {
+       $result = (Invoke-Cidney 'Stage Context').Jobs
+        It 'Stage Context should have Jobs Entry' {
+            $result | Should BeNullorEmpty
+        }
+    }
+    Context 'CredentialStore' {
+       $result = (Invoke-Cidney 'Stage Context').CredentialStore
+        It 'Stage Context should have an empty CredentialStore Entry' {
+            $result | Should BeNullorEmpty
+        }
+    }
+    Context 'Pipeline' {
+        $result = (Invoke-Cidney 'Stage Context').Pipeline
+        It 'Stage Context should have a Pipeline entry' {
+            $result | Should not BeNullorEmpty
+        }
+    }
+    Context 'ShowProgress' {
+        It '$Context.ShowProgress $False' {
+            $result = (Invoke-Cidney 'Stage Context').ShowProgress
+            $result | should be $false
+        }
+
+        $result = Invoke-Cidney 'Stage CidneyShowProgressPreference' -ShowProgress        
+        Write-Progress -Activity "Pipeline $PipelineName" -Id 0 -Completed 
+        
+        It '$CidneyShowProgressPreference should be $True' {
+            $result | Should be $true
+        }
+
+        $result = Invoke-Cidney 'Stage CidneyShowProgressPreference' 
+        
+        It '$CidneyShowProgressPreference should be $false' {
+            $result | Should be $false
+        }
+    }
+    Context 'RemoteSessions' {
+        $result = (Invoke-Cidney 'Stage Context').RemoteSessions
+        It 'Stage Context should have a RemoteSessions Entry' {
+            $result | Should BeNullorEmpty
+        }
+    }
+    Context 'PipelineName' {
+        $result = (Invoke-Cidney 'Stage Context').PipelineName
+        It 'Stage Context should have a PipelineName entry' {
+            $result | Should not BeNullorEmpty
+        }
+        It 'Stage Context should PipelineName = Stage Context' {
+            $result | Should be 'Stage Context'
+        }
+    }
+    Context 'Modules' {
+        $result = (Invoke-Cidney 'Stage Context').Modules
+        It 'Stage Context should have a Modules entry' {
+            $result | Should Not beNullOrEmpty
+        }
+        It 'Stage Context should have Cidney in the Modules list' {
+            $cidneyModule = Get-Module Cidney
+            $result -contains $cidneyModule | Should be $true
+        }
+    }
+    Context 'CurrentPath' {
+        $result = (Invoke-Cidney 'Stage Context').CurrentPath
+        It 'Stage Context should have a CurrentPath Entry' {
+            $result | Should Not beNullOrEmpty
+        }
+    }
+    It 'With 1 Pipeline and 1 Stage CidneyPipelineCount should be 1' {
+        Invoke-Cidney 'Stage CidneyPipelineCount' | should be 1
+    }
+    It 'With 2 Pipelines and 1 Stage CidneyPipelineCount should be 2' {
+        Invoke-Cidney 'Stage CidneyPipelineCount 2 Pipelines' | should be 2
+    }
+    It 'With 2 Pipelines and 3 Stages CidneyPipelineCount should be 2, 1, 1' {
+        $result = Invoke-Cidney '3 Stage CidneyPipelineCount 2 Pipelines' 
+        $result | should be 2, 1, 1
+    }
     It 'Should throw if pipelines are embedded inside Stage' {
         Invoke-Cidney 'Embedded Pipeline in Stage' | should Throw
     }
@@ -112,7 +247,15 @@ Describe 'Stage Tests' {
         $result = Invoke-Cidney 'Stage with Variable Inside Stage' 
         $result | Should be 'B'
     }
-}
+    It 'Stage CidneyPipelineFunctions should be 19' {
+        $result = Invoke-Cidney 'Stage CidneyPipelineFunctions' 
+        $result.Count | should be 19
+    }
+    It 'Stage CidneyPipelineFunctions count should equal Get-CidneyPipeline' {
+        $result1 = Invoke-Cidney 'Stage CidneyPipelineFunctions' 
+        $result2 = Get-CidneyPipeline
+        $result1.Count -eq $result2.Count | should be $true
+    }}
 #endregion
 
 #region Cleanup

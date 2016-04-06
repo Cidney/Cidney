@@ -1,7 +1,7 @@
 ﻿#region Pipeline configurations
 Pipeline: 'Pipeline' {
     Write-Output "$PipelineName"
-}
+} 
 
 Pipeline: 'Pipeline with Variables' {
     $A = 'A'
@@ -34,6 +34,10 @@ Pipeline: 'Pipeline CidneyShowProgressPreference' {
 
 Pipeline: 'Pipeline CidneyPipelineCount' {
     $CidneyPipelineCount
+}
+
+Pipeline: 'Pipeline CidneyPipelineFunctions' {
+    $CidneyPipelineFunctions
 }
 
 Pipeline: 'Pipeline CidneyPipelineCount 2 Pipelines' {
@@ -99,22 +103,16 @@ Describe 'Pipeline Tests' {
             $result | Should BeNullorEmpty
         }
     }
+    Context 'Jobs' {
+       $result = (Invoke-Cidney 'Pipeline Context').Jobs
+        It 'Pipeline Context should have Jobs Entry' {
+            $result | Should BeNullorEmpty
+        }
+    }
     Context 'CredentialStore' {
        $result = (Invoke-Cidney 'Pipeline Context').CredentialStore
         It 'Pipeline Context should have an empty CredentialStore' {
             $result | Should BeNullorEmpty
-        }
-    }
-    Context 'ShowProgress' {
-        $result = Invoke-Cidney 'Pipeline Context' -ShowProgress        
-        Write-Progress -Activity "Pipeline $PipelineName" -Id 0 -Completed 
-        It 'Pipeline Context should have ShowProgressEntry $true' {
-            $result.ShowProgress | Should be $true
-        }
-        
-        $result = Invoke-Cidney 'Pipeline Context'        
-        It 'Pipeline Context should have ShowProgressEntry $false' {
-            (Invoke-Cidney 'Pipeline Context').ShowProgress | Should be $false
         }
     }
     Context 'Pipeline' {
@@ -123,27 +121,12 @@ Describe 'Pipeline Tests' {
             $result | Should not BeNullorEmpty
         }
     }
-    Context 'PipelineName' {
-        $result = (Invoke-Cidney 'Pipeline Context').PipelineName
-        It 'Pipeline Context should have a PipelineName entry' {
-            $result | Should not BeNullorEmpty
-        }
-        It 'Pipeline Context should PipelineName = Pipeline Context' {
-            $result | Should be 'Pipeline Context'
-        }
-    }
-
-    Context 'Modules' {
-        $result = (Invoke-Cidney 'Pipeline Context').Modules
-        It 'Pipeline Context should have a Modules entry' {
-            $result | Should Not beNullOrEmpty
-        }
-        It 'Pipeline Context should have Cidney in the Modules list' {
-            $cidneyModule = Get-Module Cidney
-            $result -contains $cidneyModule | Should be $true
-        }
-    }
     Context 'ShowProgress' {
+        It '$Context.ShowProgress $False' {
+            $result = (Invoke-Cidney 'Pipeline Context').ShowProgress
+            $result | should be $false
+        }
+
         $result = Invoke-Cidney 'Pipeline CidneyShowProgressPreference' -ShowProgress        
         Write-Progress -Activity "Pipeline $PipelineName" -Id 0 -Completed 
         
@@ -157,6 +140,37 @@ Describe 'Pipeline Tests' {
             $result | Should be $false
         }
     }
+    Context 'RemoteSessions' {
+        $result = (Invoke-Cidney 'Pipeline Context').RemoteSessions
+        It 'Pipeline Context should have a RemoteSessions Entry' {
+            $result | Should BeNullorEmpty
+        }
+    }
+    Context 'PipelineName' {
+        $result = (Invoke-Cidney 'Pipeline Context').PipelineName
+        It 'Pipeline Context should have a PipelineName entry' {
+            $result | Should not BeNullorEmpty
+        }
+        It 'Pipeline Context should PipelineName = Pipeline Context' {
+            $result | Should be 'Pipeline Context'
+        }
+    }
+    Context 'Modules' {
+        $result = (Invoke-Cidney 'Pipeline Context').Modules
+        It 'Pipeline Context should have a Modules entry' {
+            $result | Should Not beNullOrEmpty
+        }
+        It 'Pipeline Context should have Cidney in the Modules list' {
+            $cidneyModule = Get-Module Cidney
+            $result -contains $cidneyModule | Should be $true
+        }
+    }
+    Context 'CurrentPath' {
+        $result = (Invoke-Cidney 'Pipeline Context').CurrentPath
+        It 'Pipeline Context should have a CurrentPath Entry' {
+            $result | Should Not beNullOrEmpty
+        }
+    }
     It 'Should not have embedded pipelines' {
         Invoke-Cidney 'Embedded Pipeline' | should throw
     }
@@ -166,6 +180,15 @@ Describe 'Pipeline Tests' {
     It 'Should output from invoking pipline 2' {
         $result = Invoke-Cidney 'Invoking Pipeline in Pipeline 2'
         $result | should be 'Pipeline'
+    }
+    It 'Pipeline CidneyPipelineFunctions should be 17' {
+        $result = Invoke-Cidney 'Pipeline CidneyPipelineFunctions' 
+        $result.Count | should be 17
+    }
+    It 'Pipeline CidneyPipelineFunctions count should equal Get-CidneyPipeline' {
+        $result1 = Invoke-Cidney 'Pipeline CidneyPipelineFunctions' 
+        $result2 = Get-CidneyPipeline
+        $result1.Count -eq $result2.Count | should be $true
     }
     It 'With 1 Pipeline CidneyPipelineCount should be 1' {
         Invoke-Cidney 'Pipeline CidneyPipelineCount' | should be 1

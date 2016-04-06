@@ -98,27 +98,44 @@
         $Context = New-CidneyContext
     }
 
-    $params = @{
-        WarningAction = 'SilentlyContinue'   
-        ScriptBlock = $DoBlock 
-        ArgumentList = $Context
+    $header = {
+        param
+        (
+            [hashtable]
+            $Context
+        )
     }
 
-    if ($UserName)
+    $DoBlock = [scriptblock]::Create(("{0}`r`n{1}" -f $header.ToString(), $DoBlock.ToString()))
+
+    $params = @{
+        WarningAction = 'SilentlyContinue'   
+        Script = $DoBlock 
+        Timeout = $TimeOut
+        SleepTimer = $SleepTimer
+        Context = $Context
+    }
+
+    if ($PSBoundParameters.ContainsKey('UserName'))
     {
         $credential = Import-Clixml (Join-Path $Env:CidneyStore "$($UserName)Credentials.xml") 
     }
 
-    if ($Credential)
+    if ($PSBoundParameters.ContainsKey('Credential'))
     {
         $params.Add('Credential', $Credential)
+    }
+    
+    if ($PSBoundParameters.ContainsKey('UseSSL'))
+    {
+        $params.Add('UseSSL', $UseSSL)
     }
 
     if ($ComputerName)
     {
         foreach($computer in $ComputerName)
         {
-            $job = Start-CidneyJob -Script $DoBlock -ComputerName $computer -Context $Context -SleepTimer $SleepTimer -TimeOut $TimeOut -useSSL:$UseSSL
+            $job = Start-CidneyJob @Params -ComputerName $computer 
             $job.Name = "CI [Job$($Job.Id)]"
             if ($Name)
             {
@@ -131,7 +148,7 @@
     }
     else
     {
-        $job = Start-CidneyJob -Script $DoBlock -Context $Context -SleepTimer $sleepTimer -Timeout $TimeOut
+        $job = Start-CidneyJob @Params
         $job.Name = "CI [Job$($Job.Id)] $Name"
         $Context.Jobs += $job
         Write-CidneyLog "[Start] $($job.Name)"

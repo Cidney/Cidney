@@ -128,7 +128,15 @@
             $functionName = "Global:$($InputObject.Name)"
         }
 
-        $result = $CidneyPipelineFunctions.GetEnumerator() | Where-Object Name -eq $functionName
+        # When Invoking a cidney pipeline in a Do: block (new runspace) we need to Find the Function in the Global namespace. 
+        # But if not in a Do: block then the $Global namespace is empty so this is mutually exclusive 
+        $CidneyFunctions = $Global:CidneyPipelineFunctions
+        if (-not $CidneyFunctions)
+        {
+            $CidneyFunctions = $CidneyPipelineFunctions
+        }
+
+        $result = $CidneyFunctions.GetEnumerator() | Where-Object Name -eq $functionName
         if ($result)
         {
             $params = $result.Value
@@ -137,10 +145,6 @@
             {
                 $null = $params.Remove('Passthru')
                 $null = $params.Remove('Invoke')
-                if (-not $params.ContainsKey('ShowProgress'))
-                {
-                    $params.Add('ShowProgress', $CidneyShowProgressPreference)
-                }
                 $params.ShowProgress = $CidneyShowProgressPreference
 
                 & "$functionName" @params
@@ -148,7 +152,7 @@
         }
         else
         {
-            Write-Error "Pipeline $PipelineName was not found."
+            Write-Error "Pipeline `'$PipelineName`' was not found."
         }
     } 
     

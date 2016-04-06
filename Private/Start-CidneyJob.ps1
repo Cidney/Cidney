@@ -55,7 +55,12 @@
                 $Script:RsSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry($localVar.Name, $localVar.Value, $null)))
             }
         }
-        
+
+        foreach($pipeline in (Get-CidneyPipeline))
+        {
+            $Script:RsSessionState.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry($pipeline.Name, $pipeline.Definition)))
+        }
+               
         foreach($snapin in ($Global:CidneyAddedSnapins | Select-Object -First 1))
         {
             $null = $Script:RsSessionState.ImportPSSnapIn($snapin, [ref]$null)
@@ -67,6 +72,11 @@
         {
             $null = $Script:RsSessionState.ImportPSModule($module.Name)
         }   
+
+        # Add in Cidney Common Variables
+        $Script:RsSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry('CidneyPipelineFunctions', $CidneyPipelineFunctions, $null)))
+        $Script:RsSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry('CidneyPipelineCount', $CidneyPipelineCount, $null)))
+        $Script:RsSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry('CidneyShowProgressPreference', $CidneyShowProgressPreference, $null)))
     }
 
     if (-not $Script:RunspacePool -or $Script:RunspacePool.RunspacePoolStateInfo.State -ne 'Opened')
@@ -86,7 +96,7 @@
     }
     else
     {
-        $PSThread = [powershell]::Create().AddScript($Script).AddParameter('Context', $Context) 
+        $PSThread = [powershell]::Create().AddScript($Script).AddParameter('Context', $Context)
     }
     
     $null = $PSThread.RunspacePool = $Script:RunspacePool

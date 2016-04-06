@@ -1,5 +1,5 @@
-﻿Pipeline: 'Pipeline' {
+﻿Pipeline: 'PipelineEmbedded' {
     Write-Output "$PipelineName"
-} -Invoke
+} -invoke
 
 

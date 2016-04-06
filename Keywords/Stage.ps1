@@ -47,25 +47,25 @@
     
     try
     {        
-    $paramHeader = @'
-param([hashtable]$__context__)
+        $paramHeader = {
+            param([hashtable]$__context__)
 
-if ($__context__ -and $__context__.LocalVariables)
-{
-    foreach($__var__ in $__context__.LocalVariables)
-    {
-        if (-not (Get-Variable $__var__.Name -ErrorAction SilentlyContinue))
-        {
-            New-Variable -Name $__var__.Name -Value $__var__.Value
+            if ($__context__ -and $__context__.LocalVariables)
+            {
+                foreach($__var__ in $__context__.LocalVariables)
+                {
+                    if (-not (Get-Variable $__var__.Name -ErrorAction SilentlyContinue))
+                    {
+                        New-Variable -Name $__var__.Name -Value $__var__.Value
+                    }
+                    else
+                    {
+                        Set-Variable -Name $__var__.Name -Value $__var__.Value 
+                    }
+                }
+            }
         }
-        else
-        {
-            Set-Variable -Name -Name $__var__.Name -Value $__var__.Value 
-        }
-    }
-}
-
-'@
+        
         if (-not $Context)
         {
             $Context = New-CidneyContext
@@ -83,7 +83,7 @@ if ($__context__ -and $__context__.LocalVariables)
         foreach($block in $blocks)
         {
             $block = $block.ToString().Trim()
-            $block = [scriptblock]::Create("$paramHeader`r`n$block")
+            $block = [scriptblock]::Create(("{0}`r`n{1}" -f $paramHeader.ToString().Trim(),$block))
 
             if ($Context.ShowProgress) 
             { 
