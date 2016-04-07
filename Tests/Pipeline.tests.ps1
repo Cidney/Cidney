@@ -128,7 +128,6 @@ Describe 'Pipeline Tests' {
         }
 
         $result = Invoke-Cidney 'Pipeline CidneyShowProgressPreference' -ShowProgress        
-        Write-Progress -Activity "Pipeline $PipelineName" -Id 0 -Completed 
         
         It '$CidneyShowProgressPreference should be $True' {
             $result | Should be $true
@@ -179,11 +178,11 @@ Describe 'Pipeline Tests' {
     }
     It 'Should output from invoking pipline 2' {
         $result = Invoke-Cidney 'Invoking Pipeline in Pipeline 2'
-        $result | should be 'Pipeline'
+        $result | should be 'PipelineEmbedded'
     }
-    It 'Pipeline CidneyPipelineFunctions should be 17' {
+    It 'Pipeline CidneyPipelineFunctions should be 18' {
         $result = Invoke-Cidney 'Pipeline CidneyPipelineFunctions' 
-        $result.Count | should be 17
+        $result.Count | should be 18
     }
     It 'Pipeline CidneyPipelineFunctions count should equal Get-CidneyPipeline' {
         $result1 = Invoke-Cidney 'Pipeline CidneyPipelineFunctions' 

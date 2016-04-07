@@ -22,7 +22,7 @@ Pipeline: 'On Test get-service' {
 #endregion
 
 #region Tests
-Describe -Tag Credentials 'On Tests' {
+Describe -Tag Credentials,On 'On Tests' {
     It 'Should output local computer name' {
         Invoke-Cidney 'On Test with Stage' | Should be $env:COMPUTERNAME
     }

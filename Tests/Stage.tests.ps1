@@ -168,7 +168,6 @@ Describe 'Stage Tests' {
         }
 
         $result = Invoke-Cidney 'Stage CidneyShowProgressPreference' -ShowProgress        
-        Write-Progress -Activity "Pipeline $PipelineName" -Id 0 -Completed 
         
         It '$CidneyShowProgressPreference should be $True' {
             $result | Should be $true

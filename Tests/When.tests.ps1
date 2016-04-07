@@ -82,9 +82,9 @@ pipeline: TimerTest {
 
 <#Pipeline: 'Trigger event from Do:' {
     Do: { Send-Event EventA }
-}#>
+}
 
-#endregion
+#>#endregion
 
 #region Tests
 Describe 'When Tests' {

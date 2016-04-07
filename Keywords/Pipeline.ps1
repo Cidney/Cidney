@@ -119,6 +119,12 @@
         }
         finally
         {
+            if ($Context.ShowProgress) 
+            { 
+                Write-Progress -Activity "Pipeline $PipelineName" -Status 'Processing' -Id 0 -Completed
+                Write-Progress -Activity "Stage $StageName" -Status 'Completed' -Id ($CidneyPipelineCount + 1) -Completed 
+            }       
+
             foreach($cred in $context.CredentialStore.GetEnumerator())
             {
                 Remove-Item $cred.Value -Force -ErrorAction SilentlyContinue

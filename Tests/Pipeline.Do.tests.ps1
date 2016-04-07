@@ -149,13 +149,12 @@ Describe 'Pipeline-Do Tests' {
         }
     }
     Context 'ShowProgress' {
-        It '$Context.ShowProgress $False' {
+        It '$Pipeline Context ShowProgress $False' {
             $result = (Invoke-Cidney 'Pipeline Context').ShowProgress
             $result | should be $false
         }
 
         $result = Invoke-Cidney 'Pipeline CidneyShowProgressPreference' -ShowProgress        
-        Write-Progress -Activity "Pipeline $PipelineName" -Id 0 -Completed 
         
         It '$CidneyShowProgressPreference should be $True' {
             $result | Should be $true

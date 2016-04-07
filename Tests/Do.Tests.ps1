@@ -105,8 +105,10 @@ Pipeline: 'Do Invoke-Pipeline' {
 Pipeline: 'Do Invoke-Pipeline 2' {
     Stage: One: {
         Do: { 
-            $path = Split-Path (Get-Module Cidney).Path -Parent
-           & ("$Path\Tests\EmbeddedPipelineScript.ps1")
+            #$path = Split-Path (Get-Module Cidney).Path -Parent
+            #Write-host "Path: $Path"
+            & 'C:\Program Files\WindowsPowerShell\Modules\cidney\tests\EmbeddedPipelineScript.ps1'
+           #& "$Path\Tests\EmbeddedPipelineScript.ps1"
         }
     }
 }
@@ -163,10 +165,10 @@ Describe 'Do Tests' {
         $result = Invoke-Cidney 'Do Invoke-Pipeline' 
         $result.Name | should be 'BITS'
     }
-<#    It 'should return the pipleline name from Invoked Pipeline 2' {
+    It 'should return the pipleline name from Invoked Pipeline 2' {
         $result = Invoke-Cidney 'Do Invoke-Pipeline 2' 
-        $result | should be 'Pipeline'
-    }#>
+        $result | should be 'PipelineEmbedded'
+    }
     It 'should be able to invoke do: outside of stage and pipeline' {
         Do: { $env:COMPUTERNAME } -PassThru | Wait-CidneyJob | should be $env:COMPUTERNAME
     }

@@ -66,16 +66,16 @@
  
     DynamicParam 
     {
-        $script = @'
+        $scriptBlock = {
             $pipeline = $_
             $pipelines = (Get-CidneyPipeline) -replace 'Pipeline: '
             if($pipelines -notcontains $pipeline) 
             { 
                 throw "`'$pipeline`' is not a valid Cidney pipeline.`n`nValid Pipelines:`n$($pipelines -join ', ')"
             }
-            $true
-'@
-        $scriptBlock = [scriptblock]::Create($script)
+
+            return $true
+        }
         $attribute = [System.Management.Automation.ParameterAttribute]::new()
         $attribute.ParameterSetName = 'Name'
         $attribute.Position = 0
@@ -129,9 +129,19 @@
         }
 
         # When Invoking a cidney pipeline in a Do: block (new runspace) we need to Find the Function in the Global namespace. 
-        # But if not in a Do: block then the $Global namespace is empty so this is mutually exclusive 
+        # and then add in Functions from the regularly scoped variable
         $CidneyFunctions = $Global:CidneyPipelineFunctions
-        if (-not $CidneyFunctions)
+        if ($CidneyPipelineFunctions -and $CidneyFunctions)
+        {
+            foreach ($function in $CidneyPipelineFunctions.GetEnumerator())
+            {
+                if (-not $CidneyFunctions.ContainsKey($function.Key))
+                {
+                    $CidneyFunctions += $CidneyPipelineFunctions
+                }
+            }
+        }
+        else
         {
             $CidneyFunctions = $CidneyPipelineFunctions
         }
@@ -152,7 +162,7 @@
         }
         else
         {
-            Write-Error "Pipeline `'$PipelineName`' was not found."
+            Write-Error "Pipeline `'$FunctionName`' was not found."
         }
     } 
     
