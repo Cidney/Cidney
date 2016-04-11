@@ -18,7 +18,8 @@
             Category = 'Scripting Techniques'
 
             # Keyword tags to help users find this module via navigations and search.
-            Tags = @('powershell','continuous integration','ci','devops', 'continuous deployment', 'continuous delivery', 'release management')
+            # cannot have spaces
+            Tags = @('powershell','continuousintegration','ci','devops', 'continuousdeployment', 'continuousdelivery', 'releasemanagement')
 
             # The web address of an icon which can be used in galleries to represent this module
             IconUri = 'https://avatars3.githubusercontent.com/u/17713732'
