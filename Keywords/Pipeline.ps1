@@ -50,20 +50,23 @@
         [switch]
         $PassThru,
         # Added so that the adavanced parameters like Verbose wont be shown. -Verbose is passed 
-        # via cmdlet Invoke-Cidney 
-        [Parameter(DontShow)]
-        [switch]
-        $Dummy
+        # via cmdlet Invoke-Cidney
+        # This parameter will hold parameters to be be passed to the pipeline function
+      #  [Parameter(DontShow)]
+        [Parameter(ValueFromRemainingArguments)]
+        $DynamicParams
     )
     
     $CidneyPipelineCount = -1
-    
+    $params = $PSBoundParameters
+   # $null = $params.Remove('DynamicParams')
+
     $functionName = "Global:Pipeline: $PipelineName"
     if ($CidneyPipelineFunctions.ContainsKey($functionName))
     {
-        $CidneyPipelineFunctions.Remove($functionName)
+        $null = $CidneyPipelineFunctions.Remove($functionName)
     }
-    $CidneyPipelineFunctions.Add($functionName, $PSBoundParameters)
+    $CidneyPipelineFunctions.Add($functionName, $params)
 
     $functionScript = {
         [CmdletBinding()]
@@ -76,7 +79,9 @@
             [switch]
             $ShowProgress,
             [hashtable]
-            $Context
+            $Context,
+            [hashtable]
+            $Params
         )
 
         $CidneyPipelineCount++
@@ -101,6 +106,10 @@
         
         try
         {
+            foreach($p in $Params.GetEnumerator())
+            {
+                $null = Set-Variable -Name $p.Key -Value $p.Value
+            }
             $stages = Get-CidneyStatement -ScriptBlock $PipelineBlock -BoundParameters $PSBoundParameters 
 
             $count = 0
@@ -112,7 +121,7 @@
                 }
                 $count++           
     
-                Invoke-CidneyBlock -ScriptBlock $stage -Context $Context
+                Invoke-CidneyBlock -ScriptBlock $stage -Context $Context 
             }  
                 
             Wait-CidneyJob -Context $Context    
@@ -181,7 +190,7 @@
     }
 
     $result = New-item Function:\$functionName -Value $functionScript -Force
-
+  
     if ($PassThru)
     {
         $result
@@ -189,6 +198,6 @@
     
     if ($Invoke)
     {
-        $result | Invoke-Cidney -ShowProgress:$ShowProgress
+        $result | Invoke-Cidney -ShowProgress:$ShowProgress -DynamicParams $DynamicParams
     }
 }

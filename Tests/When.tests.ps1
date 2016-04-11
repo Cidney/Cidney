@@ -80,6 +80,7 @@ pipeline: TimerTest {
     }
 } 
 
+# Cannot trigger events from Do since it is a separate runspace and the message pump is not the same
 <#Pipeline: 'Trigger event from Do:' {
     Do: { Send-Event EventA }
 }

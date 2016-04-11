@@ -161,7 +161,7 @@ Describe 'Do Tests' {
         $result = Invoke-Cidney 'Do Get-Service with Timeout' 
         $result | should throw
     }
-     It 'should return the BITS Service from Invoked Pipeline' {
+    It 'should return the BITS Service from Invoked Pipeline' {
         $result = Invoke-Cidney 'Do Invoke-Pipeline' 
         $result.Name | should be 'BITS'
     }

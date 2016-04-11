@@ -3,6 +3,28 @@ Pipeline: 'Pipeline' {
     Write-Output "$PipelineName"
 } 
 
+Pipeline: 'Pipeline With Params provided' {
+    param([string]$TestParam, [int32]$TestParam2)
+    
+    Write-Output "$TestParam"
+    Write-Output "$TestParam2"
+} 
+
+Pipeline: 'Pipeline With Params Embedded' {
+    param([string]$TestParam, [int32]$TestParam2)
+    
+    Write-Output "$TestParam"
+    Write-Output "$TestParam2"
+} -TestParam DEF -TestParam2 456
+
+Pipeline: 'Pipeline With Params Provided and Embedded' {
+    param([string]$TestParam, [int32]$TestParam2)
+    
+    Write-Output "$TestParam"
+    Write-Output "$TestParam2"
+} -TestParam2 456
+
+
 Pipeline: 'Pipeline with Variables' {
     $A = 'A'
     Write-Output "$A"
@@ -78,6 +100,26 @@ Describe 'Pipeline Tests' {
     }
     It "Pipeline should have a variable A with value of 'A'" {
         Invoke-Cidney 'Pipeline with Variables' | Should be 'A'
+    }
+    It 'Pipeline should have a params TestParam and TestParam2 provided' {
+        $result = Invoke-Cidney 'Pipeline with Params provided' -TestParam ABC -TestParam2 123
+        $result | Should be 'ABC', 123
+    }
+    It 'Pipeline should have a params TestParam and TestParam2 embedded' {
+        $result = Invoke-Cidney 'Pipeline with Params embedded'
+        $result | Should be 'DEF', 456
+    }
+    It 'Pipeline should have a params TestParam and TestParam2 provided and embedded' {
+        $result = Invoke-Cidney 'Pipeline with Params provided and embedded' -TestParam ABC
+        $result | Should be 'ABC', 456
+    }
+    It 'Pipeline should have a params TestParam invoked directly' {
+        $result = Pipeline: ParamTestInvoked {
+            param([string]$TestParam)
+    
+            Write-Output "$TestParam"
+        } -Invoke -TestParam Success 
+        $result | Should be 'Success'
     }
     It 'Pipeline if test should be $True' {
         Invoke-Cidney 'Pipeline with If (true)' | Should be $true
@@ -180,9 +222,9 @@ Describe 'Pipeline Tests' {
         $result = Invoke-Cidney 'Invoking Pipeline in Pipeline 2'
         $result | should be 'PipelineEmbedded'
     }
-    It 'Pipeline CidneyPipelineFunctions should be 18' {
+    It 'Pipeline CidneyPipelineFunctions should be 22' {
         $result = Invoke-Cidney 'Pipeline CidneyPipelineFunctions' 
-        $result.Count | should be 18
+        $result.Count | should be 22
     }
     It 'Pipeline CidneyPipelineFunctions count should equal Get-CidneyPipeline' {
         $result1 = Invoke-Cidney 'Pipeline CidneyPipelineFunctions' 

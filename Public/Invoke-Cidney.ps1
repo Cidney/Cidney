@@ -61,9 +61,11 @@
         $ShowProgress,
         [parameter(ParameterSetName = 'Reset')]
         [switch]
-        $Force
+        $Force,
+        [Parameter(ValueFromRemainingArguments)]
+        $DynamicParams
     )
- 
+
     DynamicParam 
     {
         $scriptBlock = {
@@ -90,9 +92,9 @@
         $attributeCollection.Add($validateScript)
         $attributeCollection.Add($validateSet)
        
-        $dynamicParam = [System.Management.Automation.RuntimeDefinedParameter]::new('PipelineName', [string], $attributeCollection)
+        $pipelineNameParam = [System.Management.Automation.RuntimeDefinedParameter]::new('PipelineName', [string], $attributeCollection)
         $newParam = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
-        $newParam.Add($dynamicParam.Name, $dynamicParam)
+        $newParam.Add($pipelineNameParam.Name, $pipelineNameParam)
 
         return $newParam
     }
@@ -117,7 +119,10 @@
     process 
     {
         $pipelineName = $PSBoundParameters.PipelineName
-
+        if (-not $pipelineName)
+        {
+            $pipelineName = $MyInvocation.BoundParameters.PipelineName
+        }
         if (-not $InputObject)
         {
             $functionName = "Global:Pipeline: $PipelineName"
@@ -128,37 +133,13 @@
             $functionName = "Global:$($InputObject.Name)"
         }
 
-        # When Invoking a cidney pipeline in a Do: block (new runspace) we need to Find the Function in the Global namespace. 
-        # and then add in Functions from the regularly scoped variable
-        $CidneyFunctions = $Global:CidneyPipelineFunctions
-        if ($CidneyPipelineFunctions -and $CidneyFunctions)
-        {
-            foreach ($function in $CidneyPipelineFunctions.GetEnumerator())
-            {
-                if (-not $CidneyFunctions.ContainsKey($function.Key))
-                {
-                    $CidneyFunctions += $CidneyPipelineFunctions
-                }
-            }
-        }
-        else
-        {
-            $CidneyFunctions = $CidneyPipelineFunctions
-        }
+        $params = Get-CidneyPipelineParams $functionName     
 
-        $result = $CidneyFunctions.GetEnumerator() | Where-Object Name -eq $functionName
-        if ($result)
+        if ($params)
         {
-            $params = $result.Value
-            
-            if ($params)
-            {
-                $null = $params.Remove('Passthru')
-                $null = $params.Remove('Invoke')
-                $params.ShowProgress = $CidneyShowProgressPreference
+            $params.ShowProgress = $CidneyShowProgressPreference
 
-                & "$functionName" @params
-            }
+            & "$functionName" @params
         }
         else
         {
@@ -170,4 +151,49 @@
     {
         $CidneyShowProgressPreference = $oldProgressPreference
     }
+}
+function Get-CidneyPipelineParams
+{
+    param($functionName)
+
+    # When Invoking a cidney pipeline in a Do: block (new runspace) we need to Find the Function in the Global namespace. 
+    # and then add in Functions from the regularly scoped variable
+    $CidneyFunctions = $Global:CidneyPipelineFunctions
+    if ($CidneyPipelineFunctions -and $CidneyFunctions)
+    {
+        foreach ($function in $CidneyPipelineFunctions.GetEnumerator())
+        {
+            if (-not $CidneyFunctions.ContainsKey($function.Key))
+            {
+                $CidneyFunctions += $CidneyPipelineFunctions
+            }
+        }
+    }
+    else
+    {
+        $CidneyFunctions = $CidneyPipelineFunctions
+    }
+
+    $result = $CidneyFunctions.GetEnumerator() | Where-Object Name -eq $functionName
+    $params = $null
+    if ($result)
+    {
+        $params = $result.Value
+
+        $parameters = @{}
+        for ($i = 0; $i -lt $DynamicParams.count; $i+=2)
+        {
+            $parameters[($DynamicParams[$i]-replace '^-+')] = $DynamicParams[$i+1]
+        }
+        for ($i = 0; $i -lt $params.DynamicParams.count; $i+=2)
+        {
+            $parameters[($params.DynamicParams[$i]-replace '^-+')] = $params.DynamicParams[$i+1]
+        }
+        $params.Params = $parameters
+        $null = $params.Remove('Passthru')
+        $null = $params.Remove('Invoke')
+        $null = $params.Remove('DynamicParams')
+    }
+    
+    return $params
 }
