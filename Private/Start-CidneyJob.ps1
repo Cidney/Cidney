@@ -37,7 +37,7 @@
     {
         $Script:RsSessionState = [system.management.automation.runspaces.initialsessionstate]::CreateDefault()
         $Script:RsSessionState.ExecutionPolicy = 'RemoteSigned'
-        $Script:RsSessionState.ApartmentState = 'STA'
+       # $Script:RsSessionState.ApartmentState = 'STA'
         foreach($globalVar in (Get-Variable -Scope Global))
         {
             $sessionVar = $Script:RsSessionState.Variables.Item($globalVar.Name)
