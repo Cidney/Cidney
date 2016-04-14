@@ -59,6 +59,51 @@ catch
 }
 #endregion
 
+#region ArgumentCompleter
+$completionScriptBlock = {
+    $Pipelines = (Get-CidneyPipeline) -replace 'Pipeline: '
+    foreach($pipeline in $Pipelines)
+    {
+        $completionText = $pipeline
+        if ($completionText -match '\s')
+        {
+            $completionText = "'$completionText'"
+        }
+        $functionName = "Global:Pipeline: $pipeline"
+        $pipelineParams = Get-CidneyPipelineParams $functionName
+
+        $toolTip = $completionText
+        $showProgress = ''
+        $additionalParams = ''
+        if ($pipelineParams)
+        {
+            $params = $pipelineParams.Params
+            if ($pipelineParams.ShowProgress)
+            {
+                $showProgress = '-ShowProgress '
+            }
+
+            foreach($item in $params.GetEnumerator())
+            {
+                $key = $item.Key
+                $value = $item.Value
+                if ($value -match '\s')
+                {
+                    $value = "'$value'"
+                }
+                $additionalParams += "-$key $value "
+            }
+            $toolTip = "Pipeline: $completionText {`t$($pipelineParams.PipelineBlock)} $showProgress $additionalParams"
+        }
+
+        New-Object System.Management.Automation.CompletionResult($completionText, $pipeline, 'ParameterValue', $toolTip)
+    }
+}
+
+Register-ArgumentCompleter -CommandName Invoke-Cidney -ParameterName Name -ScriptBlock $completionScriptBlock
+Register-ArgumentCompleter -CommandName Remove-CidneyPipeline -ParameterName Name -ScriptBlock $completionScriptBlock
+#endregion
+
 $ExecutionContext.SessionState.Module.OnRemove = {
     Remove-Variable -Name CidneyPipelineCount -Force -ErrorAction SilentlyContinue
     Remove-Variable -Name CidneyPipelineFunctions -Force -ErrorAction SilentlyContinue

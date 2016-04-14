@@ -36,30 +36,12 @@
     (
         [parameter(ValueFromPipeline, ParameterSetName = 'pipeline')]
         [object[]]
-        $InputObject = $null
+        $InputObject = $null,
+        [Parameter(ParameterSetName = 'Name')]
+        [Parameter(Position = 0)]
+        [string]
+        $Name
     )
-
-    DynamicParam 
-    {
-        $attribute = [System.Management.Automation.ParameterAttribute]::new()
-        $attribute.ParameterSetName = 'Name'
-        $attribute.Position = 0
-        $attribute.Mandatory = $true
-
-        $pipelines = (Get-CidneyPipeline) -join ';'
-        $ValidateSet = [System.Management.Automation.ValidateSetAttribute]::new(($pipelines -replace 'Pipeline: ' -split ';'))
-
-        $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
-        $attributeCollection.Add($attribute)
-        $attributeCollection.Add($ValidateSet)
-
-        $dynamicParam = [System.Management.Automation.RuntimeDefinedParameter]::new('Name', [string], $attributeCollection)
-
-        $params = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
-        $params.Add($dynamicParam.Name, $dynamicParam)
-
-        return $params
-    }
 
     begin
     {

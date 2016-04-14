@@ -59,7 +59,6 @@
     
     $CidneyPipelineCount = -1
     $params = $PSBoundParameters
-   # $null = $params.Remove('DynamicParams')
 
     $functionName = "Global:Pipeline: $PipelineName"
     if ($CidneyPipelineFunctions.ContainsKey($functionName))

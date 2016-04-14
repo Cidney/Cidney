@@ -86,7 +86,7 @@ Describe -Tag Performance 'Performance Tests' {
         $result2 = Measure-Command { foreach($num in 1..16) { Invoke-Command { Sleep 5 } -asJob -ComputerName localhost }; Get-job | Receive-Job -Wait -AutoRemoveJob}
         Write-Host "Cidney : $($result1.TotalSeconds)"
         Write-Host "PS Jobs: $($result2.TotalSeconds)"
-        Write-Host ('Cidney {0:p} faster' -f  (1-($($result1.TotalSeconds) / $($result2.TotalSeconds))))
+        Write-Host ('Cidney {0:2}X faster' -f  ($($result1.TotalSeconds) / $($result2.TotalSeconds)))
         $result1.TotalSeconds -le $result2.TotalSeconds | should be $true
     }
 }

@@ -1,6 +1,6 @@
 ﻿@{
     RootModule = 'Cidney.psm1'
-    ModuleVersion = '1.0.0.5'
+    ModuleVersion = '1.0.0.6'
     GUID = '95f1121c-d1c5-4fc1-89c0-5da6e5cc2082'
     Author = 'Cidney Team'
     CompanyName = 'Cidney'
