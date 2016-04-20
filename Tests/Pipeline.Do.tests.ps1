@@ -40,13 +40,6 @@ Pipeline: 'Pipeline Context' {
     }
 }
 
-Pipeline: 'Pipeline Context and Variable' {
-    Do: {
-        $a = 'Test'
-        $context
-    }
-}
-
 Pipeline: 'Pipeline ShowProgress variable' {
     Do: {
         $Context.ShowProgress
@@ -94,6 +87,7 @@ Pipeline: 'Invoking Pipeline in Pipeline' {
 #endregion
 
 #region Tests
+$runspacesStart = Get-Runspace
 Describe 'Pipeline-Do Tests' {
     It "Pipeline should have the name 'Pipeline'" {
         $result = Invoke-Cidney 'Pipeline' 
@@ -116,8 +110,8 @@ Describe 'Pipeline-Do Tests' {
         It 'Pipeline should have a Context that is not null' {
             $result | Should not BeNullOrEmpty
         }
-        It 'Pipeline should have a Context with 9 entries' {
-            $result.Count | Should be 9
+        It 'Pipeline should have a Context with 8 entries' {
+            $result.Count | Should be 8
         }
     }
     Context 'CurrentStage' {
@@ -140,12 +134,6 @@ Describe 'Pipeline-Do Tests' {
        $result = (Invoke-Cidney 'Pipeline Context').CredentialStore
         It 'Pipeline Context should have an empty CredentialStore' {
             $result | Should BeNullorEmpty
-        }
-    }
-    Context 'Pipeline' {
-        $result = (Invoke-Cidney 'Pipeline Context').Pipeline
-        It 'Pipeline Context should have a Pipeline entry' {
-            $result | Should not BeNullorEmpty
         }
     }
     Context 'ShowProgress' {
@@ -205,9 +193,9 @@ Describe 'Pipeline-Do Tests' {
         $result | should be 1
     }
 
-    It 'Pipeline CidneyPipelineFunctions should be 14' {
+    It 'Pipeline CidneyPipelineFunctions should be 13' {
         $result = Invoke-Cidney 'Pipeline CidneyPipelineFunctions' 
-        $result.Count | should be 14
+        $result.Count | should be 13
     }
     It 'Pipeline CidneyPipelineFunctions count should equal Get-CidneyPipeline' {
         $result1 = Invoke-Cidney 'Pipeline CidneyPipelineFunctions' 
@@ -228,3 +216,10 @@ Describe 'Pipeline-Do Tests' {
 #region Cleanup
 Get-CidneyPipeline | Remove-CidneyPipeline
 #endregion
+
+Describe Runspace {
+    It 'should not have any left over runspaces' {
+        $RunspacesEnd = Get-Runspace
+        $RunspacesStart.Count -eq $RunspacesEnd.Count | should be $true
+    }
+}

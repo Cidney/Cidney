@@ -88,7 +88,7 @@ pipeline: TimerTest {
 #>#endregion
 
 #region Tests
-Describe 'When Tests' {
+Describe 'When Tests' -Tag When {
     It 'Should output stage name' {
         Invoke-Cidney 'When with Stage' | Should be 'Stage One'
     }

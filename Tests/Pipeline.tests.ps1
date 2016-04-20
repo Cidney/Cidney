@@ -84,6 +84,11 @@ Pipeline: 'Invoking Pipeline in Pipeline 2' {
     $path = (Get-Module Cidney).ModuleBase
     & "$path\Tests\EmbeddedPipelineScript.ps1"
 }
+
+Pipeline: 'Invoking Pipeline in Pipeline 3' {
+    Invoke-Cidney 'Pipeline Context'
+    $context
+}
 #endregion
 
 #region Tests
@@ -135,8 +140,8 @@ Describe 'Pipeline Tests' {
         It 'Pipeline should have a Context that is not null' {
             $result | Should not BeNullOrEmpty
         }
-        It 'Pipeline should have a Context with 9 entries' {
-            $result.Count | Should be 9
+        It 'Pipeline should have a Context with 8 entries' {
+            $result.Count | Should be 8
         }
     }
     Context 'CurrentStage' {
@@ -155,12 +160,6 @@ Describe 'Pipeline Tests' {
        $result = (Invoke-Cidney 'Pipeline Context').CredentialStore
         It 'Pipeline Context should have an empty CredentialStore' {
             $result | Should BeNullorEmpty
-        }
-    }
-    Context 'Pipeline' {
-        $result = (Invoke-Cidney 'Pipeline Context').Pipeline
-        It 'Pipeline Context should have a Pipeline entry' {
-            $result | Should not BeNullorEmpty
         }
     }
     Context 'ShowProgress' {
@@ -222,9 +221,16 @@ Describe 'Pipeline Tests' {
         $result = Invoke-Cidney 'Invoking Pipeline in Pipeline 2'
         $result | should be 'PipelineEmbedded'
     }
-    It 'Pipeline CidneyPipelineFunctions should be 22' {
+    It 'Should have proper Context.PipelineName from Invoking Pipeline in Pipeline 3
+    ' {
+        $result = Invoke-Cidney 'Invoking Pipeline in Pipeline 3'
+        $result | should not BeNullOrEmpty
+        $result[0].PipelineName | should be 'Pipeline Context'
+        $result[1].PipelineName | should be 'Invoking Pipeline in Pipeline 3'
+    }
+    It 'Pipeline CidneyPipelineFunctions should be 23' {
         $result = Invoke-Cidney 'Pipeline CidneyPipelineFunctions' 
-        $result.Count | should be 22
+        $result.Count | should be 23
     }
     It 'Pipeline CidneyPipelineFunctions count should equal Get-CidneyPipeline' {
         $result1 = Invoke-Cidney 'Pipeline CidneyPipelineFunctions' 

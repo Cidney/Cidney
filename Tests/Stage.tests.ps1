@@ -133,8 +133,8 @@ Describe 'Stage Tests' {
         It 'Stage should have a Context that is not null' {
             $result | Should not BeNullOrEmpty
         }
-        It 'Stage should have a Context with 9 entries' {
-            $result.Count | Should be 9
+        It 'Stage should have a Context with 8 entries' {
+            $result.Count | Should be 8
         }
     }
     Context 'CurrentStage' {
@@ -153,12 +153,6 @@ Describe 'Stage Tests' {
        $result = (Invoke-Cidney 'Stage Context').CredentialStore
         It 'Stage Context should have an empty CredentialStore Entry' {
             $result | Should BeNullorEmpty
-        }
-    }
-    Context 'Pipeline' {
-        $result = (Invoke-Cidney 'Stage Context').Pipeline
-        It 'Stage Context should have a Pipeline entry' {
-            $result | Should not BeNullorEmpty
         }
     }
     Context 'ShowProgress' {
@@ -197,7 +191,7 @@ Describe 'Stage Tests' {
     Context 'Modules' {
         $result = (Invoke-Cidney 'Stage Context').Modules
         It 'Stage Context should have a Modules entry' {
-            $result | Should Not beNullOrEmpty
+            $result | Should Not BeNullOrEmpty
         }
         It 'Stage Context should have Cidney in the Modules list' {
             $cidneyModule = Get-Module Cidney
@@ -207,7 +201,7 @@ Describe 'Stage Tests' {
     Context 'CurrentPath' {
         $result = (Invoke-Cidney 'Stage Context').CurrentPath
         It 'Stage Context should have a CurrentPath Entry' {
-            $result | Should Not beNullOrEmpty
+            $result | Should Not BeNullOrEmpty
         }
     }
     It 'With 1 Pipeline and 1 Stage CidneyPipelineCount should be 1' {

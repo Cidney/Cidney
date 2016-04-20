@@ -10,7 +10,7 @@ Tags: CI, Continuous Integration, Continuous Deployment, DevOps, Powershell,  DS
 
 Powershell: Version 5 (WMF 5)
 
-Install-Package Cidney
+Install-Module Cidney
 
 
 Prevous Version (Powershell 4):
