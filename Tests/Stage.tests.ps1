@@ -1,4 +1,11 @@
-﻿#region Pipeline configurations
+﻿Import-Module Cidney -Force
+
+function ThrowError()
+{
+    Throw 'Error'
+}
+
+#region Pipeline configurations
 Pipeline: '1 Stage' {
     Stage: 'Stage One' {
        Write-Output "$Stagename"
@@ -13,6 +20,16 @@ Pipeline: '2 Stages' {
         Write-Output "$Stagename"
     }    
 }
+
+Pipeline: '2 Stages with error' {
+    Stage: 'Stage One' {
+        Write-Output " $Stagename"
+        ThrowError
+    }    
+    Stage: 'Stage Two' {
+        Write-Output "$Stagename"
+    }    
+} 
 
 Pipeline: 'Statements before Stage' {
     $a = 'abc'
@@ -80,9 +97,9 @@ Pipeline: '3 Stage CidneyPipelineCount 2 Pipelines' { # After Stage One there ar
 
 Pipeline: 'Embedded Pipeline in Stage' {
     Stage: 'A' {
-        Pipeline: A { Write-Output "$PipelineName"}
-        Pipeline: B { Write-Output "$PipelineName"}
-        Pipeline: C { Write-Output "$PipelineName"}
+        Pipeline: A { Write-Output "$PipelineName"} -invoke
+        Pipeline: B { Write-Output "$PipelineName"} -invoke
+        Pipeline: C { Write-Output "$PipelineName"} -invoke
     }
 }
 
@@ -122,6 +139,14 @@ Pipeline: 'Stage with Variable inside stage' {
 
 #region Tests
 Describe 'Stage Tests' {
+    It 'Should output Error and stop on stage One without going on to Stage Two' {
+       { $result = Invoke-Cidney '2 Stages with error' } 
+       $result | Should Throw
+    }
+    It 'Should not output Stage Two and stop on stage One without going on to Stage Two' {
+       { $result = Invoke-Cidney '2 Stages with error' } 
+       $result | Should not be 'Stage Two'
+    }
     It 'Should output Stage One' {
         Invoke-Cidney '1 Stage' | Should be 'Stage One'
     }
@@ -214,8 +239,8 @@ Describe 'Stage Tests' {
         $result = Invoke-Cidney '3 Stage CidneyPipelineCount 2 Pipelines' 
         $result | should be 2, 1, 1
     }
-    It 'Should throw if pipelines are embedded inside Stage' {
-        Invoke-Cidney 'Embedded Pipeline in Stage' | should Throw
+    It 'Should Invoke pipelines when pipelines are embedded in Stage' {
+        Invoke-Cidney 'Embedded Pipeline in Stage' | should be 'a','b','c'
     }
     It 'Pipeline should have statements before stage' {
         Invoke-Cidney 'Statements before Stage' | should be 'abc123', 'Stage One'
@@ -242,7 +267,7 @@ Describe 'Stage Tests' {
     }
     It 'Stage CidneyPipelineFunctions should be 19' {
         $result = Invoke-Cidney 'Stage CidneyPipelineFunctions' 
-        $result.Count | should be 19
+        $result.Count | should be 20
     }
     It 'Stage CidneyPipelineFunctions count should equal Get-CidneyPipeline' {
         $result1 = Invoke-Cidney 'Stage CidneyPipelineFunctions' 

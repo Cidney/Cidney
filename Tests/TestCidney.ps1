@@ -1,5 +1,5 @@
-﻿#$path = 'c:\Program Files\WindowsPowershell\Modules\Cidney\'
-$path = 'c:\Projects\Cidney\'
+﻿$path = 'c:\Program Files\WindowsPowershell\Modules\Cidney\'
+#$path = 'c:\Projects\Cidney\'
 Import-module (Join-path $path 'Cidney.psd1')
 pipeline: CidneyBuild {
     $base = (Get-Module Cidney).ModuleBase

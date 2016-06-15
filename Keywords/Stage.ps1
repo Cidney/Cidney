@@ -77,7 +77,7 @@
         }
         $Context.CurrentStage = $StageName
 
-        Write-CidneyLog "[Start] Stage $StageName"
+        Write-CidneyLog "[Start    ] Stage $StageName"
         $blocks = Get-Cidneystatement -ScriptBlock $stageBlock -BoundParameters $PSBoundParameters
         $count = 0
         foreach($block in $blocks)
@@ -129,6 +129,6 @@
     { 
         Write-Progress -Activity "Stage $StageName" -Status 'Completed' -Id ($CidneyPipelineCount + 1) -Completed 
     }       
-    Write-CidneyLog "[Done] Stage $StageName"
+    Write-CidneyLog "[Done     ] Stage $StageName"
 }
 

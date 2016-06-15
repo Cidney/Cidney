@@ -14,7 +14,6 @@
     $block = $ScriptBlock.ToString().Trim()
     if ($block)
     {
-        #$ast = [System.Management.Automation.Language.Parser]::ParseInput($block, [ref] $null, [ref] $null)
         $statements = $ScriptBlock.AST.EndBlock.Statements
         foreach($statement in $statements)
         { 

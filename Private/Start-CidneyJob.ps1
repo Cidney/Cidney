@@ -21,23 +21,17 @@
     )
 
     $remoteScript = {
-        param([string]$computer, [scriptblock]$script, [switch]$useSSL, [hashtable]$context) 
+        param([PSObject]$Session, [scriptblock]$Script, [hashtable]$Context) 
 
-        if (-not $context.RemoteSessions.ContainsKey($computer))
-        {
-            $session = New-PSSession -ComputerName $computer -Credential $context.Credential -UseSSL:$useSSL
-            $context.RemoteSessions.Add($computer, $session) 
-        }
-
-        $session = $context.RemoteSessions.$computer
-        Invoke-Command -ScriptBlock $script -Session $session -ArgumentList $context
+        Invoke-Command -ScriptBlock $Script -Session $Session -ArgumentList $Context
     }
 
     if (-not $Script:RsSessionState)
     {
         $Script:RsSessionState = [system.management.automation.runspaces.initialsessionstate]::CreateDefault()
         $Script:RsSessionState.ExecutionPolicy = 'RemoteSigned'
-       # $Script:RsSessionState.ApartmentState = 'STA'
+       #$Script:RsSessionState.ApartmentState = 'STA'
+        $Script:RsSessionState.ThreadOptions = 'ReuseThread'
         foreach($globalVar in (Get-Variable -Scope Global))
         {
             $sessionVar = $Script:RsSessionState.Variables.Item($globalVar.Name)
@@ -92,7 +86,16 @@
 
     if ($ComputerName)
     {
-        $PSThread = [powershell]::Create().AddScript($remoteScript).AddParameter('Computer', $ComputerName).AddParameter('UseSSL', $UseSSL).AddParameter('Script', $Script).AddParameter('Context', $Context)  
+        if (-not $context.RemoteSessions.ContainsKey($computer))
+        {
+            $session = New-PSSession -ComputerName $computer -Credential $context.Credential -UseSSL:$useSSL
+            $context.RemoteSessions.Add($computer, $session) 
+        }
+        else
+        {
+            $session = $context.RemoteSessions.$computer
+        }
+        $PSThread = [powershell]::Create().AddScript($remoteScript).AddParameter('Session', $session).AddParameter('Script', $Script).AddParameter('Context', $Context)  
     }
     else
     {
@@ -111,6 +114,6 @@
         SleepTimer = $SleepTimer
         ErrorAction = $ErrorActionPreference
     }
-    
+   
     return $Job
 }

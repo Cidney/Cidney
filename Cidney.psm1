@@ -5,7 +5,7 @@ $Global:CidneyEventSubscribers = @()
 $Global:CidneyEventOutput = @{}
 $Global:CidneyImportedModules = @()
 $Global:CidneyAddedSnapins = @()
-$CidneyPipelineFunctions = [hashtable]::Synchronized(@{})
+$CidneyPipelineFunctions = @{}
 
 
 $Env:CidneyStore = Join-Path $env:LOCALAPPDATA 'Cidney'

@@ -3,3 +3,7 @@
 ################################################################################
 
 /.vscode/launch.json
+/Samples/DCKissTest.ps1
+/Samples/DeployFeedbackTest.ps1
+/Samples/SourceControlTest.ps1
+/Tests/ComputerList.txt

@@ -125,8 +125,8 @@ Describe 'Pipeline-Do Tests' {
         It 'Pipeline Context should have Jobs Entry' {
             $result | Should not BeNullorEmpty
         }
-        It 'Pipeline Context job entry should be CI [Job1]' {
-            $result.Name.Trim() | should be 'CI [Job1]'
+        It 'Pipeline Context job entry should be Job1' {
+            $result.Name | should be "Job1"
         }
         
     }

@@ -13,7 +13,7 @@
     $block = $ScriptBlock.ToString().Trim()
     if ($block)
     {
-        $commands = $ScriptBlock.AST.FindAll({$args[0] -is [System.Management.Automation.Language.pipelineast] }, $false) 
+        $commands = $ScriptBlock.AST.EndBlock.Statements
         foreach($command in $commands)
         { 
             $commonParams = ''

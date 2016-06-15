@@ -38,9 +38,10 @@ Pipeline: 'Do Timing 128 threads' {
 }
 Pipeline: 'Do Timing 1024 threads' {
     Stage: One: {
-        foreach ($num in 1..1024)
+        $count = 0
+        foreach ($count in 1..1024)
         {
-            Do: { if (($num  % 10) -eq 0){ Write-Output "Test:$num"} } -Context $Context 
+            Do: { if (($count  % 10) -eq 0){ Write-Output "Test:$count"} } -Context $Context 
         }   
     }
 }
@@ -86,7 +87,7 @@ Describe -Tag Performance 'Performance Tests' {
         $result2 = Measure-Command { foreach($num in 1..16) { Invoke-Command { Sleep 5 } -asJob -ComputerName localhost }; Get-job | Receive-Job -Wait -AutoRemoveJob}
         Write-Host "Cidney : $($result1.TotalSeconds)"
         Write-Host "PS Jobs: $($result2.TotalSeconds)"
-        Write-Host ('Cidney {0:2}X faster' -f  ($($result1.TotalSeconds) / $($result2.TotalSeconds)))
+        Write-Host ('Cidney {0:N2}X faster' -f  ($($result2.TotalSeconds) / $($result1.TotalSeconds)))
         $result1.TotalSeconds -le $result2.TotalSeconds | should be $true
     }
 }

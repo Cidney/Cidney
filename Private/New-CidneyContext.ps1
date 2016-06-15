@@ -1,6 +1,6 @@
 ﻿function New-CidneyContext
 {
-    $CidneyContext = [hashtable]::Synchronized(@{})
+    $CidneyContext = @{}
     $CidneyContext.Add('Modules', (Get-Module))
     $CidneyContext.Add('CredentialStore', @{})
     $CidneyContext.Add('CurrentPath', (Get-Location))

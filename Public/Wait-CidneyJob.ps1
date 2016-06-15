@@ -25,21 +25,28 @@
                 if ($job.Handle.IsCompleted) 
                 {
                     $count++
-                    Write-CidneyLog "[Results] $($job.Name)"
+                    Write-CidneyLog "[Results  ] $($job.Name)"
                     if ($job.Thread)
                     {
                         if ($job.Thread -and $job.Thread.HadErrors)
                         {
-                            $job.Thread.Streams.Error.ReadAll() | ForEach-Object { Write-Error $PSItem }
+                            $jobError = $job.Thread.Streams.Error.ReadAll() 
                         }
                     
+                        $RunningJobs.Remove($job)
+                        
+                        if ($job.Thread.HadErrors)
+                        {
+                          # $jobError | ForEach-Object { Write-Error $PSItem }
+                            Throw $jobError
+                        }
                         $job.Thread.EndInvoke($Job.Handle)
                         $job.Thread.Dispose()
                         $job.Thread = $Null
                     }
-                    $job.Handle = $Null
-                    $RunningJobs.Remove($job)
 
+                    $job.Handle = $Null
+                    
                     Write-CidneyLog "[Completed] $($job.Name)"
                 } 
                 else 

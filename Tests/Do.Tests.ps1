@@ -85,6 +85,21 @@ Pipeline: 'Do Get-Service 64 times in Foreach' {
     } 
 }
 
+Pipeline: 'Do Foreach test' {
+    Stage: One: {
+        $MyContext = $Context
+        foreach ($num in @('a','b','c'))
+        {
+            $MyContext.x = $num
+            Write-Output $MyContext
+            Do: { 
+
+                Write-Output "Num: $($Context.x)" 
+            } -Context $MyContext
+        }   
+    }
+} -Verbose
+
 Pipeline: 'Do Get-Service with Timeout' {
     Stage: One {
             Do: { Sleep 5 } -TimeOut 4
@@ -158,7 +173,7 @@ Describe 'Do Tests' {
         $result.Count | should be 64
     }
     It 'should time out when ExecutionTime is greater than Timeout (4 seconds)' {
-        $result = Invoke-Cidney 'Do Get-Service with Timeout' 
+        $result = { Invoke-Cidney 'Do Get-Service with Timeout' }
         $result | should throw
     }
     It 'should return the BITS Service from Invoked Pipeline' {
@@ -168,9 +183,6 @@ Describe 'Do Tests' {
     It 'should return the pipleline name from Invoked Pipeline 2' {
         $result = Invoke-Cidney 'Do Invoke-Pipeline 2' 
         $result | should be 'PipelineEmbedded'
-    }
-    It 'should be able to invoke do: outside of stage and pipeline' {
-        Do: { $env:COMPUTERNAME } -PassThru | Wait-CidneyJob | should be $env:COMPUTERNAME
     }
 } -tag Do
 #endregion

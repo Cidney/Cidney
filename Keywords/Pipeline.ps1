@@ -96,7 +96,7 @@
             Write-Progress -Activity "Pipeline $PipelineName" -Status 'Starting' -Id 0 
         }
 
-        Write-CidneyLog "[Start] Pipeline $PipelineName" 
+        Write-CidneyLog "[Start    ] Pipeline $PipelineName" 
 
         if ($ShowProgress) 
         { 
@@ -185,7 +185,7 @@
         
         $Global:CidneyJobCount = 0
         $Context = $null
-        Write-CidneyLog "[Done] Pipeline $PipelineName" 
+        Write-CidneyLog "[Done     ] Pipeline $PipelineName" 
     }
 
     $result = New-item Function:\$functionName -Value $functionScript -Force

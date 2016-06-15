@@ -136,22 +136,26 @@
         foreach($computer in $ComputerName)
         {
             $job = Start-CidneyJob @Params -ComputerName $computer 
-            $job.Name = "CI [Job$($Job.Id)]"
-            if ($Name)
+            $job.Name = "Job$($Job.Id)"
+            if ($name)
             {
                 $job.Name += " $Name"
             }
-            $job.Name += " [$computer]"
-            Write-CidneyLog "[Start] $($job.Name)"
+            $job.Name += " ($computer)"
+            Write-CidneyLog "[Start    ] $($job.Name)"
             $Context.Jobs += $job
         }
     }
     else
     {
         $job = Start-CidneyJob @Params
-        $job.Name = "CI [Job$($Job.Id)] $Name"
+        $job.Name = "Job$($Job.Id)"
+        if ($name)
+        {
+            $job.Name += " $Name"
+        }
         $Context.Jobs += $job
-        Write-CidneyLog "[Start] $($job.Name)"
+        Write-CidneyLog "[Start    ] $($job.Name)"
     }
 
     if ($PassThru)
